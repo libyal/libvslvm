@@ -1,0 +1,83 @@
+.Dd February 1, 2014
+.Dt libvslvm 3
+.Os libvslvm
+.Sh NAME
+.Nm libvslvm.h
+.Nd Library to access the Linux Logical Volume Manager (LVM) volume system
+.Sh LIBRARY
+.Lb libvslvm
+.Sh SYNOPSIS
+.In libvslvm.h
+.Pp
+Support functions
+.Ft const char *
+.Fn libvslvm_get_version "void"
+.Pp
+Error functions
+.Ft void
+.Fn libvslvm_error_free "libvslvm_error_t **error"
+.Ft int
+.Fn libvslvm_error_fprint "libvslvm_error_t *error, FILE *stream"
+.Ft int
+.Fn libvslvm_error_sprint "libvslvm_error_t *error, char *string, size_t size"
+.Ft int
+.Fn libvslvm_error_backtrace_fprint "libvslvm_error_t *error, FILE *stream"
+.Ft int
+.Fn libvslvm_error_backtrace_sprint "libvslvm_error_t *error, char *string, size_t size"
+.Pp
+Identifier functions
+.Ft int
+.Fn libvslvm_identifier_initialize "libvslvm_identifier_t **identifier, libvslvm_error_t **error"
+.Ft int
+.Fn libvslvm_identifier_free "libvslvm_identifier_t **identifier, libvslvm_error_t **error"
+.Ft int
+.Fn libvslvm_identifier_copy_from_byte_stream "libvslvm_identifier_t *identifier, const uint8_t *byte_stream, size_t byte_stream_size, int byte_order, libvslvm_error_t **error"
+.Ft int
+.Fn libvslvm_identifier_copy_to_byte_stream "libvslvm_identifier_t *identifier, uint8_t *byte_stream, size_t byte_stream_size, int byte_order, libvslvm_error_t **error"
+.Ft int
+.Fn libvslvm_identifier_get_string_size "libvslvm_identifier_t *identifier, size_t *string_size, uint32_t string_format_flags, libvslvm_error_t **error"
+.Ft int
+.Fn libvslvm_identifier_copy_from_utf8_string "libvslvm_identifier_t *identifier, const uint8_t *utf8_string, size_t utf8_string_length, uint32_t string_format_flags, libvslvm_error_t **error"
+.Ft int
+.Fn libvslvm_identifier_copy_from_utf8_string_with_index "libvslvm_identifier_t *identifier, const uint8_t *utf8_string, size_t utf8_string_length, size_t* utf8_string_index, uint32_t string_format_flags, libvslvm_error_t **error"
+.Ft int
+.Fn libvslvm_identifier_copy_to_utf8_string "libvslvm_identifier_t *identifier, uint8_t *utf8_string, size_t utf8_string_size, uint32_t string_format_flags, libvslvm_error_t **error"
+.Ft int
+.Fn libvslvm_identifier_copy_to_utf8_string_with_index "libvslvm_identifier_t *identifier, uint8_t *utf8_string, size_t utf8_string_size, size_t* utf8_string_index, uint32_t string_format_flags, libvslvm_error_t **error"
+.Ft int
+.Fn libvslvm_identifier_copy_from_utf16_string "libvslvm_identifier_t *identifier, const uint16_t *utf16_string, size_t utf16_string_length, uint32_t string_format_flags, libvslvm_error_t **error"
+.Ft int
+.Fn libvslvm_identifier_copy_from_utf16_string_with_index "libvslvm_identifier_t *identifier, const uint16_t *utf16_string, size_t utf16_string_length, size_t* utf16_string_index, uint32_t string_format_flags, libvslvm_error_t **error"
+.Ft int
+.Fn libvslvm_identifier_copy_to_utf16_string "libvslvm_identifier_t *identifier, uint16_t *utf16_string, size_t utf16_string_size, uint32_t string_format_flags, libvslvm_error_t **error"
+.Ft int
+.Fn libvslvm_identifier_copy_to_utf16_string_with_index "libvslvm_identifier_t *identifier, uint16_t *utf16_string, size_t utf16_string_size, size_t* utf16_string_index, uint32_t string_format_flags, libvslvm_error_t **error"
+.Ft int
+.Fn libvslvm_identifier_copy_from_utf32_string "libvslvm_identifier_t *identifier, const uint32_t *utf32_string, size_t utf32_string_length, uint32_t string_format_flags, libvslvm_error_t **error"
+.Ft int
+.Fn libvslvm_identifier_copy_from_utf32_string_with_index "libvslvm_identifier_t *identifier, const uint32_t *utf32_string, size_t utf32_string_length, size_t* utf32_string_index, uint32_t string_format_flags, libvslvm_error_t **error"
+.Ft int
+.Fn libvslvm_identifier_copy_to_utf32_string "libvslvm_identifier_t *identifier, uint32_t *utf32_string, size_t utf32_string_size, uint32_t string_format_flags, libvslvm_error_t **error"
+.Ft int
+.Fn libvslvm_identifier_copy_to_utf32_string_with_index "libvslvm_identifier_t *identifier, uint32_t *utf32_string, size_t utf32_string_size, size_t* utf32_string_index, uint32_t string_format_flags, libvslvm_error_t **error"
+.Sh DESCRIPTION
+The
+.Fn libvslvm_get_version
+function is used to retrieve the library version.
+.Sh RETURN VALUES
+Most of the functions return NULL or -1 on error, dependent on the return type. For the actual return values refer to libvslvm.h
+.Sh ENVIRONMENT
+None
+.Sh FILES
+None
+.Sh NOTES
+.Sh BUGS
+Please report bugs of any kind to <joachim.metz@gmail.com> or on the project website:
+http://code.google.com/p/libvslvm/
+.Sh AUTHOR
+These man pages were written by Joachim Metz.
+.Sh COPYRIGHT
+Copyright (c) 2014, Joachim Metz <joachim.metz@gmail.com>.
+This is free software; see the source for copying conditions. There is NO warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+.Sh SEE ALSO
+the libvslvm.h include file

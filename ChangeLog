@@ -1,0 +1,46 @@
+TODO
+* make sure metadata is cleaned on close - also if no data files were set!
+* metadata
+  - parse and expose global values
+* slices fill fdata stream
+* map pv names to file IO pool?
+* API
+  - allow for multiple input images (physical volumes)
+    use libvmdk data files approach
+  - add read buffer function
+  - add read buffer at offset function
+  - add seek offset function
+  - allow open to read a text file with the metadata
+  - expose segments and slices
+* metadata: handle trailing comment in more places?
+* add support to specify metadata in external configuration file?
+* add Python bindings
+* add tests
+* update manuals
+* update msvscpp files
+
+20141001
+* removed README.macosx
+
+20140725
+* worked on API
+
+20140724
+* worked on API
+
+20140723
+* worked on API
+
+20140722
+* worked on API
+* moved metadata to separate code file
+
+20140721
+* worked on API
+
+20140720
+* worked on format support
+
+20140201
+* initial version based on libvsmbr
+
