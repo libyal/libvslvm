@@ -1,4 +1,8 @@
-See:
-* http://code.google.com/p/libvslvm/wiki/Building
-* README.macosx
+libvslvm is a library to access the Linux Logical Volume Manager (LVM) volume system format.
+
+This is work in progress.
+
+For more information see:
+* Project documentation: https://github.com/libyal/libvslvm/wiki/Home
+* How to build from source: https://github.com/libyal/libvslvm/wiki/Building
 

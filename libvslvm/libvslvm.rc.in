@@ -28,7 +28,7 @@ BEGIN
       VALUE "OriginalFilename",		"libvslvm.dll\0"
       VALUE "ProductName",		"libvslvm\0"
       VALUE "ProductVersion",		"@VERSION@" "\0"
-      VALUE "Comments",			"For more information visit http://code.google.com/p/libvslvm/\0"
+      VALUE "Comments",			"For more information visit https://github.com/libyal/libvslvm/\0"
     END
   END
   BLOCK "VarFileInfo"
