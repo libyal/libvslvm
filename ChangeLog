@@ -17,7 +17,10 @@ TODO
 * add Python bindings
 * add tests
 * update manuals
-* update msvscpp files
+
+20141023
+* changes for deployment
+* updated msvscpp files
 
 20141001
 * removed README.macosx
