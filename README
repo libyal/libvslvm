@@ -1,6 +1,13 @@
 libvslvm is a library to access the Linux Logical Volume Manager (LVM) volume system format.
 
-This is work in progress.
+Note that this project currently only focuses on the analysis of the format.
+
+Project information:
+* Status: experimental
+* Licence: LGPLv3+
+
+Planned:
+* Finish library
 
 For more information see:
 * Project documentation: https://github.com/libyal/libvslvm/wiki/Home
