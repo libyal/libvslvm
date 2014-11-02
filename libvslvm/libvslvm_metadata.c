@@ -338,6 +338,7 @@ int libvslvm_metadata_read(
 	}
 	if( libvslvm_metadata_read_volume_group(
 	     metadata,
+	     file_io_handle,
 	     lines,
 	     number_of_lines,
 	     &line_index,
@@ -390,6 +391,7 @@ on_error:
  */
 int libvslvm_metadata_read_volume_group(
      libvslvm_metadata_t *metadata,
+     libbfio_handle_t *file_io_handle,
      libcsplit_narrow_split_string_t *lines,
      int number_of_lines,
      int *line_index,
@@ -541,6 +543,7 @@ int libvslvm_metadata_read_volume_group(
 	}
 	if( libvslvm_volume_group_initialize(
 	     &( metadata->volume_group ),
+	     file_io_handle,
 	     error ) != 1 )
 	{
 		libcerror_error_set(

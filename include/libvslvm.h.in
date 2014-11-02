@@ -432,6 +432,55 @@ int libvslvm_logical_volume_free(
      libvslvm_logical_volume_t **logical_volume,
      libvslvm_error_t **error );
 
+/* Reads (logical volume) data at the current offset into a buffer
+ * Returns the number of bytes read or -1 on error
+ */
+LIBVSLVM_EXTERN \
+ssize_t libvslvm_logical_volume_read_buffer(
+         libvslvm_logical_volume_t *logical_volume,
+         void *buffer,
+         size_t buffer_size,
+         libvslvm_error_t **error );
+
+/* Reads (logical volume) data at a specific offset
+ * Returns the number of bytes read or -1 on error
+ */
+LIBVSLVM_EXTERN \
+ssize_t libvslvm_logical_volume_read_buffer_at_offset(
+         libvslvm_logical_volume_t *logical_volume,
+         void *buffer,
+         size_t buffer_size,
+         off64_t offset,
+         libvslvm_error_t **error );
+
+/* Seeks a certain offset of the (logical volume) data
+ * Returns the offset if seek is successful or -1 on error
+ */
+LIBVSLVM_EXTERN \
+off64_t libvslvm_logical_volume_seek_offset(
+         libvslvm_logical_volume_t *logical_volume,
+         off64_t offset,
+         int whence,
+         libvslvm_error_t **error );
+
+/* Retrieves the the current offset of the (logical volume) data
+ * Returns 1 if successful or -1 on error
+ */
+LIBVSLVM_EXTERN \
+int libvslvm_logical_volume_get_offset(
+     libvslvm_logical_volume_t *logical_volume,
+     off64_t *offset,
+     libvslvm_error_t **error );
+
+/* Retrieves the size
+ * Returns 1 if successful or -1 on error
+ */
+LIBVSLVM_EXTERN \
+int libvslvm_logical_volume_get_size(
+     libvslvm_logical_volume_t *logical_volume,
+     size64_t *size,
+     libvslvm_error_t **error );
+
 /* Retrieves the size of the ASCII formatted name
  * Returns 1 if successful or -1 on error
  */

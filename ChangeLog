@@ -1,4 +1,7 @@
 TODO
+* finish:
+  - libvslvm_internal_logical_volume_read_buffer_from_file_io_handle
+
 * make sure metadata is cleaned on close - also if no data files were set!
 * metadata
   - parse and expose global values
@@ -7,16 +10,16 @@ TODO
 * API
   - allow for multiple input images (physical volumes)
     use libvmdk data files approach
-  - add read buffer function
-  - add read buffer at offset function
-  - add seek offset function
   - allow open to read a text file with the metadata
   - expose segments and slices
 * metadata: handle trailing comment in more places?
 * add support to specify metadata in external configuration file?
 * add Python bindings
-* add tests
 * update manuals
+
+20141102
+* worked on tests
+* worked on API
 
 20141027
 * changes for deployment

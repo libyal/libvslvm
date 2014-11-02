@@ -62,6 +62,7 @@ int libvslvm_metadata_read(
 
 int libvslvm_metadata_read_volume_group(
      libvslvm_metadata_t *metadata,
+     libbfio_handle_t *file_io_handle,
      libcsplit_narrow_split_string_t *lines,
      int number_of_lines,
      int *line_index,

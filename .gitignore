@@ -109,6 +109,9 @@ stamp-h1
 /pyvslvm/setup.py
 /tests/input
 /tests/tmp
+/tests/vslvm_test_open_close
+/tests/vslvm_test_read
+/tests/vslvm_test_seek
 
 # Local library dependencies specific files
 /libbfio

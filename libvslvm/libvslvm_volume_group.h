@@ -26,6 +26,7 @@
 #include <types.h>
 
 #include "libvslvm_extern.h"
+#include "libvslvm_libbfio.h"
 #include "libvslvm_libcdata.h"
 #include "libvslvm_libcerror.h"
 #include "libvslvm_logical_volume_values.h"
@@ -40,6 +41,10 @@ typedef struct libvslvm_internal_volume_group libvslvm_internal_volume_group_t;
 
 struct libvslvm_internal_volume_group
 {
+	/* The file IO handle
+	 */
+	libbfio_handle_t *file_io_handle;
+
 	/* The name
 	 */
 	char *name;
@@ -83,6 +88,7 @@ struct libvslvm_internal_volume_group
 
 int libvslvm_volume_group_initialize(
      libvslvm_volume_group_t **volume_group,
+     libbfio_handle_t *file_io_handle,
      libcerror_error_t **error );
 
 LIBVSLVM_EXTERN \

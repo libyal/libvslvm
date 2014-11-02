@@ -24,6 +24,7 @@
 #include <types.h>
 
 #include "libvslvm_definitions.h"
+#include "libvslvm_libbfio.h"
 #include "libvslvm_libcerror.h"
 #include "libvslvm_libfcache.h"
 #include "libvslvm_libfdata.h"
@@ -40,6 +41,7 @@
 int libvslvm_logical_volume_initialize(
      libvslvm_logical_volume_t **logical_volume,
      libvslvm_logical_volume_values_t *logical_volume_values,
+     libbfio_handle_t *file_io_handle,
      libcerror_error_t **error )
 {
 	libvslvm_internal_logical_volume_t *internal_logical_volume = NULL;
@@ -258,6 +260,20 @@ int libvslvm_logical_volume_initialize(
 			goto on_error;
 		}
 	}
+	if( libfdata_vector_get_size(
+	     internal_logical_volume->chunks_vector,
+	     &( internal_logical_volume->size ),
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve size from chunks vector.",
+		 function );
+
+		goto on_error;
+	}
 	if( libfcache_cache_initialize(
 	     &( internal_logical_volume->chunks_cache ),
 	     LIBVSLVM_MAXIMUM_CACHE_ENTRIES_CHUNKS,
@@ -272,7 +288,23 @@ int libvslvm_logical_volume_initialize(
 
 		goto on_error;
 	}
+#if defined( HAVE_MULTI_THREAD_SUPPORT )
+	if( libcthreads_read_write_lock_initialize(
+	     &( internal_logical_volume->read_write_lock ),
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+		 "%s: unable to intialize read/write lock.",
+		 function );
+
+		goto on_error;
+	}
+#endif
 	internal_logical_volume->logical_volume_values = logical_volume_values;
+	internal_logical_volume->file_io_handle        = file_io_handle;
 
 	*logical_volume= (libvslvm_logical_volume_t *) internal_logical_volume;
 
@@ -293,6 +325,18 @@ on_error:
 	}
 	if( internal_logical_volume != NULL )
 	{
+		if( internal_logical_volume->chunks_cache != NULL )
+		{
+			libfcache_cache_free(
+			 &( internal_logical_volume->chunks_cache ),
+			 NULL );
+		}
+		if( internal_logical_volume->chunks_vector != NULL )
+		{
+			libfdata_vector_free(
+			 &( internal_logical_volume->chunks_vector ),
+			 NULL );
+		}
 		memory_free(
 		 internal_logical_volume );
 	}
@@ -326,8 +370,8 @@ int libvslvm_logical_volume_free(
 		internal_logical_volume = (libvslvm_internal_logical_volume_t *) *logical_volume;
 		*logical_volume         = NULL;
 
-/* TODO add note about logical_volume_values being referenced */
-
+		/* The logical_volume_values and file_io_handle references are freed elsewhere
+		 */
 		if( internal_logical_volume->chunks_vector != NULL )
 		{
 			if( libfdata_vector_free(
@@ -360,10 +404,533 @@ int libvslvm_logical_volume_free(
 				result = -1;
 			}
 		}
+#if defined( HAVE_MULTI_THREAD_SUPPORT )
+		if( libcthreads_read_write_lock_free(
+		     &( internal_logical_volume->read_write_lock ),
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+			 "%s: unable to free read/write lock.",
+			 function );
+
+			result = -1;
+		}
+#endif
 		memory_free(
 		 internal_logical_volume );
 	}
 	return( result );
+}
+
+/* Reads (logical volume) data at the current offset into a buffer
+ * Returns the number of bytes read or -1 on error
+ */
+ssize_t libvslvm_logical_volume_read_buffer(
+         libvslvm_logical_volume_t *logical_volume,
+         void *buffer,
+         size_t buffer_size,
+         libcerror_error_t **error )
+{
+	libvslvm_internal_logical_volume_t *internal_logical_volume = NULL;
+	static char *function                                       = "libvslvm_logical_volume_read_buffer";
+	ssize_t read_count                                          = 0;
+
+	if( logical_volume == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid logical volume.",
+		 function );
+
+		return( -1 );
+	}
+	internal_logical_volume = (libvslvm_internal_logical_volume_t *) logical_volume;
+
+#if defined( HAVE_MULTI_THREAD_SUPPORT )
+	if( libcthreads_read_write_lock_grab_for_write(
+	     internal_logical_volume->read_write_lock,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
+		 "%s: unable to grab read/write lock for writing.",
+		 function );
+
+		return( -1 );
+	}
+#endif
+	read_count = libvslvm_internal_logical_volume_read_buffer_from_file_io_handle(
+		      internal_logical_volume,
+		      internal_logical_volume->file_io_handle,
+		      buffer,
+		      buffer_size,
+		      error );
+
+	if( read_count == -1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_IO,
+		 LIBCERROR_IO_ERROR_READ_FAILED,
+		 "%s: unable to read buffer from logical volume.",
+		 function );
+
+		read_count = -1;
+	}
+#if defined( HAVE_MULTI_THREAD_SUPPORT )
+	if( libcthreads_read_write_lock_release_for_write(
+	     internal_logical_volume->read_write_lock,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
+		 "%s: unable to release read/write lock for writing.",
+		 function );
+
+		return( -1 );
+	}
+#endif
+	return( read_count );
+}
+
+/* Reads (logical volume) data at the current offset into a buffer using a Basic File IO (bfio) handle
+ * This function is not multi-thread safe acquire write lock before call
+ * Returns the number of bytes read or -1 on error
+ */
+ssize_t libvslvm_internal_logical_volume_read_buffer_from_file_io_handle(
+         libvslvm_internal_logical_volume_t *internal_logical_volume,
+         libbfio_handle_t *file_io_handle,
+         void *buffer,
+         size_t buffer_size,
+         libcerror_error_t **error )
+{
+	static char *function = "libvslvm_internal_logical_volume_read_buffer_from_file_io_handle";
+	ssize_t read_count    = 0;
+
+	if( internal_logical_volume == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid logical volume.",
+		 function );
+
+		return( -1 );
+	}
+	if( internal_logical_volume->current_offset < 0 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
+		 "%s: invalid logical volume - current offset value out of bounds.",
+		 function );
+
+		return( -1 );
+	}
+	if( buffer_size == 0 )
+	{
+		return( 0 );
+	}
+	if( (size64_t) internal_logical_volume->current_offset >= internal_logical_volume->size )
+	{
+		return( 0 );
+	}
+	if( (size64_t) ( internal_logical_volume->current_offset + buffer_size ) > internal_logical_volume->size )
+	{
+		buffer_size = (size_t) ( internal_logical_volume->size - internal_logical_volume->current_offset );
+	}
+/* TODO */
+	internal_logical_volume->current_offset += read_count;
+
+	return( read_count );
+}
+
+/* Reads (logical volume) data at a specific offset
+ * Returns the number of bytes read or -1 on error
+ */
+ssize_t libvslvm_logical_volume_read_buffer_at_offset(
+         libvslvm_logical_volume_t *logical_volume,
+         void *buffer,
+         size_t buffer_size,
+         off64_t offset,
+         libcerror_error_t **error )
+{
+	libvslvm_internal_logical_volume_t *internal_logical_volume = NULL;
+	static char *function                                       = "libvslvm_logical_volume_read_buffer_at_offset";
+	ssize_t read_count                                          = 0;
+
+	if( logical_volume == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid logical volume.",
+		 function );
+
+		return( -1 );
+	}
+	internal_logical_volume = (libvslvm_internal_logical_volume_t *) logical_volume;
+
+#if defined( HAVE_MULTI_THREAD_SUPPORT )
+	if( libcthreads_read_write_lock_grab_for_write(
+	     internal_logical_volume->read_write_lock,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
+		 "%s: unable to grab read/write lock for writing.",
+		 function );
+
+		return( -1 );
+	}
+#endif
+	if( libvslvm_internal_logical_volume_seek_offset(
+	     internal_logical_volume,
+	     offset,
+	     SEEK_SET,
+	     error ) == -1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_IO,
+		 LIBCERROR_IO_ERROR_SEEK_FAILED,
+		 "%s: unable to seek offset.",
+		 function );
+
+		goto on_error;
+	}
+	read_count = libvslvm_internal_logical_volume_read_buffer_from_file_io_handle(
+		      internal_logical_volume,
+		      internal_logical_volume->file_io_handle,
+		      buffer,
+		      buffer_size,
+		      error );
+
+	if( read_count == -1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_IO,
+		 LIBCERROR_IO_ERROR_READ_FAILED,
+		 "%s: unable to read buffer.",
+		 function );
+
+		goto on_error;
+	}
+#if defined( HAVE_MULTI_THREAD_SUPPORT )
+	if( libcthreads_read_write_lock_release_for_write(
+	     internal_logical_volume->read_write_lock,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
+		 "%s: unable to release read/write lock for writing.",
+		 function );
+
+		return( -1 );
+	}
+#endif
+	return( read_count );
+
+on_error:
+#if defined( HAVE_MULTI_THREAD_SUPPORT )
+	libcthreads_read_write_lock_release_for_write(
+	 internal_logical_volume->read_write_lock,
+	 NULL );
+#endif
+	return( -1 );
+}
+
+/* Seeks a certain offset of the (logical volume) data
+ * This function is not multi-thread safe acquire write lock before call
+ * Returns the offset if seek is successful or -1 on error
+ */
+off64_t libvslvm_internal_logical_volume_seek_offset(
+         libvslvm_internal_logical_volume_t *internal_logical_volume,
+         off64_t offset,
+         int whence,
+         libcerror_error_t **error )
+{
+	static char *function = "libvslvm_internal_logical_volume_seek_offset";
+
+	if( internal_logical_volume == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid logical volume.",
+		 function );
+
+		return( -1 );
+	}
+	if( ( whence != SEEK_CUR )
+	 && ( whence != SEEK_END )
+	 && ( whence != SEEK_SET ) )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_UNSUPPORTED_VALUE,
+		 "%s: unsupported whence.",
+		 function );
+
+		return( -1 );
+	}
+	if( whence == SEEK_CUR )
+	{
+		offset += internal_logical_volume->current_offset;
+	}
+	else if( whence == SEEK_END )
+	{
+		offset += (off64_t) internal_logical_volume->size;
+	}
+	if( offset < 0 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_VALUE_OUT_OF_BOUNDS,
+		 "%s: invalid offset value out of bounds.",
+		 function );
+
+		return( -1 );
+	}
+	internal_logical_volume->current_offset = offset;
+
+	return( offset );
+}
+
+/* Seeks a certain offset of the (logical volume) data
+ * Returns the offset if seek is successful or -1 on error
+ */
+off64_t libvslvm_logical_volume_seek_offset(
+         libvslvm_logical_volume_t *logical_volume,
+         off64_t offset,
+         int whence,
+         libcerror_error_t **error )
+{
+	libvslvm_internal_logical_volume_t *internal_logical_volume = NULL;
+	static char *function                                       = "libvslvm_logical_volume_seek_offset";
+
+	if( logical_volume == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid logical volume.",
+		 function );
+
+		return( -1 );
+	}
+	internal_logical_volume = (libvslvm_internal_logical_volume_t *) logical_volume;
+
+#if defined( HAVE_MULTI_THREAD_SUPPORT )
+	if( libcthreads_read_write_lock_grab_for_write(
+	     internal_logical_volume->read_write_lock,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
+		 "%s: unable to grab read/write lock for writing.",
+		 function );
+
+		return( -1 );
+	}
+#endif
+	offset = libvslvm_internal_logical_volume_seek_offset(
+	          internal_logical_volume,
+	          offset,
+	          whence,
+	          error );
+
+	if( offset == -1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_IO,
+		 LIBCERROR_IO_ERROR_SEEK_FAILED,
+		 "%s: unable to seek offset.",
+		 function );
+
+		offset = -1;
+	}
+#if defined( HAVE_MULTI_THREAD_SUPPORT )
+	if( libcthreads_read_write_lock_release_for_write(
+	     internal_logical_volume->read_write_lock,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
+		 "%s: unable to release read/write lock for writing.",
+		 function );
+
+		return( -1 );
+	}
+#endif
+	return( offset );
+}
+
+
+/* Retrieves the current offset of the (logical volume) data
+ * Returns 1 if successful or -1 on error
+ */
+int libvslvm_logical_volume_get_offset(
+     libvslvm_logical_volume_t *logical_volume,
+     off64_t *offset,
+     libcerror_error_t **error )
+{
+	libvslvm_internal_logical_volume_t *internal_logical_volume = NULL;
+	static char *function                                       = "libvslvm_logical_volume_get_offset";
+
+	if( logical_volume == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid logical volume.",
+		 function );
+
+		return( -1 );
+	}
+	internal_logical_volume = (libvslvm_internal_logical_volume_t *) logical_volume;
+
+	if( offset == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid offset.",
+		 function );
+
+		return( -1 );
+	}
+#if defined( HAVE_MULTI_THREAD_SUPPORT )
+	if( libcthreads_read_write_lock_grab_for_read(
+	     internal_logical_volume->read_write_lock,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
+		 "%s: unable to grab read/write lock for reading.",
+		 function );
+
+		return( -1 );
+	}
+#endif
+	*offset = internal_logical_volume->current_offset;
+
+#if defined( HAVE_MULTI_THREAD_SUPPORT )
+	if( libcthreads_read_write_lock_release_for_read(
+	     internal_logical_volume->read_write_lock,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
+		 "%s: unable to release read/write lock for reading.",
+		 function );
+
+		return( -1 );
+	}
+#endif
+	return( 1 );
+}
+
+/* Retrieves the size
+ * Returns 1 if successful or -1 on error
+ */
+int libvslvm_logical_volume_get_size(
+     libvslvm_logical_volume_t *logical_volume,
+     size64_t *size,
+     libcerror_error_t **error )
+{
+	libvslvm_internal_logical_volume_t *internal_logical_volume = NULL;
+	static char *function                                       = "libvslvm_logical_volume_get_size";
+
+	if( logical_volume == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid logical volume.",
+		 function );
+
+		return( -1 );
+	}
+	internal_logical_volume = (libvslvm_internal_logical_volume_t *) logical_volume;
+
+	if( size == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid size.",
+		 function );
+
+		return( -1 );
+	}
+#if defined( HAVE_MULTI_THREAD_SUPPORT )
+	if( libcthreads_read_write_lock_grab_for_read(
+	     internal_logical_volume->read_write_lock,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
+		 "%s: unable to grab read/write lock for reading.",
+		 function );
+
+		return( -1 );
+	}
+#endif
+	*size = internal_logical_volume->size;
+
+#if defined( HAVE_MULTI_THREAD_SUPPORT )
+	if( libcthreads_read_write_lock_release_for_read(
+	     internal_logical_volume->read_write_lock,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
+		 "%s: unable to release read/write lock for reading.",
+		 function );
+
+		return( -1 );
+	}
+#endif
+	return( 1 );
 }
 
 /* Retrieves the size of the ASCII formatted name
@@ -618,447 +1185,4 @@ int libvslvm_logical_volume_get_segment(
 	}
 	return( 1 );
 }
-
-#ifdef TODO
-
-/* Reads data at the current offset into a buffer
- * Returns the number of bytes read or -1 on error
- */
-ssize_t libvslvm_volume_read_buffer(
-         libvslvm_volume_t *volume,
-         void *buffer,
-         size_t buffer_size,
-         libcerror_error_t **error )
-{
-	libvslvm_sector_data_t *sector_data         = NULL;
-	libvslvm_internal_volume_t *internal_volume = NULL;
-	static char *function                       = "libvslvm_volume_read_buffer";
-	off64_t element_data_offset                 = 0;
-	size_t buffer_offset                        = 0;
-	size_t read_size                            = 0;
-	size_t sector_data_offset                   = 0;
-	ssize_t total_read_count                    = 0;
-
-	if( volume == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid volume.",
-		 function );
-
-		return( -1 );
-	}
-	internal_volume = (libvslvm_internal_volume_t *) volume;
-
-	if( internal_volume->is_locked != 0 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid volume - volume is locked.",
-		 function );
-
-		return( -1 );
-	}
-	if( internal_volume->io_handle == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid volume - missing IO handle.",
-		 function );
-
-		return( -1 );
-	}
-	if( internal_volume->sectors_vector == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid file - missing sectors vector.",
-		 function );
-
-		return( -1 );
-	}
-	if( internal_volume->sectors_cache == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid file - missing sectors cache.",
-		 function );
-
-		return( -1 );
-	}
-	if( internal_volume->current_offset < 0 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
-		 "%s: invalid volume - current offset value out of bounds.",
-		 function );
-
-		return( -1 );
-	}
-	if( buffer == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid buffer.",
-		 function );
-
-		return( -1 );
-	}
-	if( buffer_size > (size_t) SSIZE_MAX )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBCERROR_ARGUMENT_ERROR_VALUE_EXCEEDS_MAXIMUM,
-		 "%s: invalid buffer size value exceeds maximum.",
-		 function );
-
-		return( -1 );
-	}
-	if( (size64_t) internal_volume->current_offset >= internal_volume->io_handle->volume_size )
-	{
-		return( 0 );
-	}
-	if( (size64_t) ( internal_volume->current_offset + buffer_size ) >= internal_volume->io_handle->volume_size )
-	{
-		buffer_size = (size_t) ( internal_volume->io_handle->volume_size - internal_volume->current_offset );
-	}
-	sector_data_offset = (size_t) ( internal_volume->current_offset % internal_volume->io_handle->bytes_per_sector );
-
-	while( buffer_size > 0 )
-	{
-		if( libfdata_vector_get_element_value_at_offset(
-		     internal_volume->sectors_vector,
-		     (intptr_t *) internal_volume->file_io_handle,
-		     internal_volume->sectors_cache,
-		     internal_volume->current_offset,
-		     &element_data_offset,
-		     (intptr_t **) &sector_data,
-		     0,
-		     error ) != 1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-			 "%s: unable to retrieve sector data at offset: %" PRIi64 ".",
-			 function,
-			 internal_volume->current_offset );
-
-			return( -1 );
-		}
-		if( sector_data == NULL )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-			 "%s: missing sector data at offset: %" PRIi64 ".",
-			 function,
-			 internal_volume->current_offset );
-
-			return( -1 );
-		}
-		read_size = sector_data->data_size - sector_data_offset;
-
-		if( read_size > buffer_size )
-		{
-			read_size = buffer_size;
-		}
-		if( read_size == 0 )
-		{
-			break;
-		}
-		if( memory_copy(
-		     &( ( (uint8_t *) buffer )[ buffer_offset ] ),
-		     &( ( sector_data->data )[ sector_data_offset ] ),
-		     read_size ) == NULL )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_MEMORY,
-			 LIBCERROR_MEMORY_ERROR_COPY_FAILED,
-			 "%s: unable to copy sector data to buffer.",
-			 function );
-
-			return( -1 );
-		}
-		buffer_offset     += read_size;
-		buffer_size       -= read_size;
-		total_read_count  += (ssize_t) read_size;
-		sector_data_offset = 0;
-
-		internal_volume->current_offset += (off64_t) read_size;
-
-		if( (size64_t) internal_volume->current_offset >= internal_volume->io_handle->volume_size )
-		{
-			break;
-		}
-		if( internal_volume->io_handle->abort != 0 )
-		{
-			break;
-		}
-	}
-	return( total_read_count );
-}
-
-/* Reads (media) data at a specific offset
- * Returns the number of bytes read or -1 on error
- */
-ssize_t libvslvm_volume_read_buffer_at_offset(
-         libvslvm_volume_t *volume,
-         void *buffer,
-         size_t buffer_size,
-         off64_t offset,
-         libcerror_error_t **error )
-{
-	static char *function = "libvslvm_volume_read_buffer_at_offset";
-	ssize_t read_count    = 0;
-
-	if( libvslvm_volume_seek_offset(
-	     volume,
-	     offset,
-	     SEEK_SET,
-	     error ) == -1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_IO,
-		 LIBCERROR_IO_ERROR_SEEK_FAILED,
-		 "%s: unable to seek offset.",
-		 function );
-
-		return( -1 );
-	}
-	read_count = libvslvm_volume_read_buffer(
-	              volume,
-	              buffer,
-	              buffer_size,
-	              error );
-
-	if( read_count < 0 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_IO,
-		 LIBCERROR_IO_ERROR_READ_FAILED,
-		 "%s: unable to read buffer.",
-		 function );
-
-		return( -1 );
-	}
-	return( read_count );
-}
-
-/* Seeks a certain offset of the data
- * Returns the offset if seek is successful or -1 on error
- */
-off64_t libvslvm_volume_seek_offset(
-         libvslvm_volume_t *volume,
-         off64_t offset,
-         int whence,
-         libcerror_error_t **error )
-{
-	libvslvm_internal_volume_t *internal_volume = NULL;
-	static char *function                     = "libvslvm_volume_seek_offset";
-
-	if( volume == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid volume.",
-		 function );
-
-		return( -1 );
-	}
-	internal_volume = (libvslvm_internal_volume_t *) volume;
-
-	if( internal_volume->is_locked != 0 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid volume - volume is locked.",
-		 function );
-
-		return( -1 );
-	}
-	if( internal_volume->io_handle == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid volume - missing IO handle.",
-		 function );
-
-		return( -1 );
-	}
-	if( ( whence != SEEK_CUR )
-	 && ( whence != SEEK_END )
-	 && ( whence != SEEK_SET ) )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBCERROR_ARGUMENT_ERROR_UNSUPPORTED_VALUE,
-		 "%s: unsupported whence.",
-		 function );
-
-		return( -1 );
-	}
-	if( whence == SEEK_CUR )
-	{	
-		offset += internal_volume->current_offset;
-	}
-	else if( whence == SEEK_END )
-	{	
-		offset += (off64_t) internal_volume->io_handle->volume_size;
-	}
-#if defined( HAVE_DEBUG_OUTPUT )
-	if( libcnotify_verbose != 0 )
-	{
-		libcnotify_printf(
-		 "%s: seeking media data offset: %" PRIi64 ".\n",
-		 function,
-		 offset );
-	}
-#endif
-	if( offset < 0 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
-		 "%s: invalid offset value out of bounds.",
-		 function );
-
-		return( -1 );
-	}
-	internal_volume->current_offset = offset;
-
-	return( offset );
-}
-
-/* Retrieves the current offset of the (volume) data
- * Returns 1 if successful or -1 on error
- */
-int libvslvm_volume_get_offset(
-     libvslvm_volume_t *volume,
-     off64_t *offset,
-     libcerror_error_t **error )
-{
-	libvslvm_internal_volume_t *internal_volume = NULL;
-	static char *function                     = "libvslvm_volume_get_offset";
-
-	if( volume == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid volume.",
-		 function );
-
-		return( -1 );
-	}
-	internal_volume = (libvslvm_internal_volume_t *) volume;
-
-	if( internal_volume->io_handle == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid volume - missing IO handle.",
-		 function );
-
-		return( -1 );
-	}
-	if( offset == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid offset.",
-		 function );
-
-		return( -1 );
-	}
-	*offset = internal_volume->current_offset;
-
-	return( 1 );
-}
-
-/* Retrieves the size
- * Returns 1 if successful or -1 on error
- */
-int libvslvm_volume_get_size(
-     libvslvm_volume_t *volume,
-     size64_t *size,
-     libcerror_error_t **error )
-{
-	libvslvm_internal_volume_t *internal_volume = NULL;
-	static char *function                     = "libvslvm_volume_get_size";
-
-	if( volume == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid volume.",
-		 function );
-
-		return( -1 );
-	}
-	internal_volume = (libvslvm_internal_volume_t *) volume;
-
-	if( internal_volume->io_handle == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid volume - missing IO handle.",
-		 function );
-
-		return( -1 );
-	}
-	if( size == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid size.",
-		 function );
-
-		return( -1 );
-	}
-	*size = internal_volume->io_handle->volume_size;
-
-	return( 1 );
-}
-
-#endif /* TODO */
-
 

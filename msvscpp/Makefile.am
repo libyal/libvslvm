@@ -16,6 +16,9 @@ MSVSCPP_FILES = \
 	libuna/libuna.vcproj \
 	libvslvm/libvslvm.vcproj \
 	pyvslvm/pyvslvm.vcproj \
+	vslvm_test_open_close/vslvm_test_open_close.vcproj \
+	vslvm_test_read/vslvm_test_read.vcproj \
+	vslvm_test_seek/vslvm_test_seek.vcproj \
 	vslvminfo/vslvminfo.vcproj \
 	libvslvm.sln
 

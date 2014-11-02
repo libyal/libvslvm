@@ -614,6 +614,21 @@ myvg {
 }
 ....
 
+=== Building a test file
+....
+dd if=/dev/zero of=image.raw bs=512 count=$(( 256 * 1024 * 2 ))
+
+sudo losetup /dev/loop1 image.raw
+
+sudo pvcreate /dev/loop1
+
+sudo vgcreate vg_test /dev/loop1
+
+sudo lvcreate -L 75M --name lv_test1 vg_test
+
+sudo losetup -d /dev/loop1
+....
+
 :numbered!:
 [appendix]
 == References

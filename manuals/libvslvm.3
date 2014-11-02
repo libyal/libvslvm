@@ -1,4 +1,4 @@
-.Dd February 1, 2014
+.Dd November 2, 2014
 .Dt libvslvm 3
 .Os libvslvm
 .Sh NAME
@@ -24,42 +24,6 @@ Error functions
 .Fn libvslvm_error_backtrace_fprint "libvslvm_error_t *error, FILE *stream"
 .Ft int
 .Fn libvslvm_error_backtrace_sprint "libvslvm_error_t *error, char *string, size_t size"
-.Pp
-Identifier functions
-.Ft int
-.Fn libvslvm_identifier_initialize "libvslvm_identifier_t **identifier, libvslvm_error_t **error"
-.Ft int
-.Fn libvslvm_identifier_free "libvslvm_identifier_t **identifier, libvslvm_error_t **error"
-.Ft int
-.Fn libvslvm_identifier_copy_from_byte_stream "libvslvm_identifier_t *identifier, const uint8_t *byte_stream, size_t byte_stream_size, int byte_order, libvslvm_error_t **error"
-.Ft int
-.Fn libvslvm_identifier_copy_to_byte_stream "libvslvm_identifier_t *identifier, uint8_t *byte_stream, size_t byte_stream_size, int byte_order, libvslvm_error_t **error"
-.Ft int
-.Fn libvslvm_identifier_get_string_size "libvslvm_identifier_t *identifier, size_t *string_size, uint32_t string_format_flags, libvslvm_error_t **error"
-.Ft int
-.Fn libvslvm_identifier_copy_from_utf8_string "libvslvm_identifier_t *identifier, const uint8_t *utf8_string, size_t utf8_string_length, uint32_t string_format_flags, libvslvm_error_t **error"
-.Ft int
-.Fn libvslvm_identifier_copy_from_utf8_string_with_index "libvslvm_identifier_t *identifier, const uint8_t *utf8_string, size_t utf8_string_length, size_t* utf8_string_index, uint32_t string_format_flags, libvslvm_error_t **error"
-.Ft int
-.Fn libvslvm_identifier_copy_to_utf8_string "libvslvm_identifier_t *identifier, uint8_t *utf8_string, size_t utf8_string_size, uint32_t string_format_flags, libvslvm_error_t **error"
-.Ft int
-.Fn libvslvm_identifier_copy_to_utf8_string_with_index "libvslvm_identifier_t *identifier, uint8_t *utf8_string, size_t utf8_string_size, size_t* utf8_string_index, uint32_t string_format_flags, libvslvm_error_t **error"
-.Ft int
-.Fn libvslvm_identifier_copy_from_utf16_string "libvslvm_identifier_t *identifier, const uint16_t *utf16_string, size_t utf16_string_length, uint32_t string_format_flags, libvslvm_error_t **error"
-.Ft int
-.Fn libvslvm_identifier_copy_from_utf16_string_with_index "libvslvm_identifier_t *identifier, const uint16_t *utf16_string, size_t utf16_string_length, size_t* utf16_string_index, uint32_t string_format_flags, libvslvm_error_t **error"
-.Ft int
-.Fn libvslvm_identifier_copy_to_utf16_string "libvslvm_identifier_t *identifier, uint16_t *utf16_string, size_t utf16_string_size, uint32_t string_format_flags, libvslvm_error_t **error"
-.Ft int
-.Fn libvslvm_identifier_copy_to_utf16_string_with_index "libvslvm_identifier_t *identifier, uint16_t *utf16_string, size_t utf16_string_size, size_t* utf16_string_index, uint32_t string_format_flags, libvslvm_error_t **error"
-.Ft int
-.Fn libvslvm_identifier_copy_from_utf32_string "libvslvm_identifier_t *identifier, const uint32_t *utf32_string, size_t utf32_string_length, uint32_t string_format_flags, libvslvm_error_t **error"
-.Ft int
-.Fn libvslvm_identifier_copy_from_utf32_string_with_index "libvslvm_identifier_t *identifier, const uint32_t *utf32_string, size_t utf32_string_length, size_t* utf32_string_index, uint32_t string_format_flags, libvslvm_error_t **error"
-.Ft int
-.Fn libvslvm_identifier_copy_to_utf32_string "libvslvm_identifier_t *identifier, uint32_t *utf32_string, size_t utf32_string_size, uint32_t string_format_flags, libvslvm_error_t **error"
-.Ft int
-.Fn libvslvm_identifier_copy_to_utf32_string_with_index "libvslvm_identifier_t *identifier, uint32_t *utf32_string, size_t utf32_string_size, size_t* utf32_string_index, uint32_t string_format_flags, libvslvm_error_t **error"
 .Sh DESCRIPTION
 The
 .Fn libvslvm_get_version

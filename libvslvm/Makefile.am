@@ -3,6 +3,7 @@ AM_CPPFLAGS = \
 	-I$(top_srcdir)/common \
 	@LIBCSTRING_CPPFLAGS@ \
 	@LIBCERROR_CPPFLAGS@ \
+	@LIBCTHREADS_CPPFLAGS@ \
 	@LIBCDATA_CPPFLAGS@ \
 	@LIBCLOCALE_CPPFLAGS@ \
 	@LIBCNOTIFY_CPPFLAGS@ \
@@ -13,7 +14,8 @@ AM_CPPFLAGS = \
 	@LIBBFIO_CPPFLAGS@ \
 	@LIBFCACHE_CPPFLAGS@ \
 	@LIBFDATA_CPPFLAGS@ \
-	@LIBFVALUE_CPPFLAGS@
+	@LIBFVALUE_CPPFLAGS@ \
+	@PTHREAD_CPPFLAGS@
 
 lib_LTLIBRARIES = libvslvm.la
 
@@ -34,6 +36,7 @@ libvslvm_la_SOURCES = \
 	libvslvm_libcnotify.h \
 	libvslvm_libcsplit.h \
 	libvslvm_libcstring.h \
+	libvslvm_libcthreads.h \
 	libvslvm_libfcache.h \
 	libvslvm_libfdata.h \
 	libvslvm_libfvalue.h \
@@ -56,6 +59,7 @@ libvslvm_la_SOURCES = \
 libvslvm_la_LIBADD = \
 	@LIBCSTRING_LIBADD@ \
 	@LIBCERROR_LIBADD@ \
+	@LIBCTHREADS_LIBADD@ \
 	@LIBCDATA_LIBADD@ \
 	@LIBCLOCALE_LIBADD@ \
 	@LIBCNOTIFY_LIBADD@ \
@@ -66,7 +70,8 @@ libvslvm_la_LIBADD = \
 	@LIBBFIO_LIBADD@ \
 	@LIBFCACHE_LIBADD@ \
 	@LIBFDATA_LIBADD@ \
-	@LIBFVALUE_LIBADD@
+	@LIBFVALUE_LIBADD@ \
+	@PTHREAD_LIBADD@
 
 libvslvm_la_LDFLAGS = -no-undefined -version-info 1:0:0
 
