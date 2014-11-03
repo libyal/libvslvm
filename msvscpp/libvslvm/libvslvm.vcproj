@@ -178,6 +178,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\libvslvm\libvslvm_chunk_data.c"
+				>
+			</File>
+			<File
 				RelativePath="..\..\libvslvm\libvslvm_data_area_descriptor.c"
 				>
 			</File>
@@ -249,6 +253,10 @@
 			>
 			<File
 				RelativePath="..\..\libvslvm\libvslvm_checksum.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\libvslvm\libvslvm_chunk_data.h"
 				>
 			</File>
 			<File

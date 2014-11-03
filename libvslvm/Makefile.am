@@ -22,6 +22,7 @@ lib_LTLIBRARIES = libvslvm.la
 libvslvm_la_SOURCES = \
 	libvslvm.c \
 	libvslvm_checksum.c libvslvm_checksum.h \
+	libvslvm_chunk_data.c libvslvm_chunk_data.h \
 	libvslvm_data_area_descriptor.c libvslvm_data_area_descriptor.h \
 	libvslvm_debug.c libvslvm_debug.h \
 	libvslvm_definitions.h \

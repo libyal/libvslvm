@@ -23,6 +23,7 @@
 #include <memory.h>
 #include <types.h>
 
+#include "libvslvm_io_handle.h"
 #include "libvslvm_libbfio.h"
 #include "libvslvm_libcdata.h"
 #include "libvslvm_libcerror.h"
@@ -38,6 +39,7 @@
  */
 int libvslvm_volume_group_initialize(
      libvslvm_volume_group_t **volume_group,
+     libvslvm_io_handle_t *io_handle,
      libbfio_handle_t *file_io_handle,
      libcerror_error_t **error )
 {
@@ -125,6 +127,7 @@ int libvslvm_volume_group_initialize(
 
 		goto on_error;
 	}
+	internal_volume_group->io_handle      = io_handle;
 	internal_volume_group->file_io_handle = file_io_handle;
 
 	*volume_group = (libvslvm_volume_group_t *) internal_volume_group;
@@ -996,8 +999,9 @@ int libvslvm_volume_group_get_logical_volume(
 	}
 	if( libvslvm_logical_volume_initialize(
 	     logical_volume,
-	     logical_volume_values,
+	     internal_volume_group->io_handle,
 	     internal_volume_group->file_io_handle,
+	     logical_volume_values,
 	     error ) != 1 )
 	{
 		libcerror_error_set(

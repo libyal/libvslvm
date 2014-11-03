@@ -47,6 +47,10 @@ struct libvslvm_internal_logical_volume
 	 */
 	libvslvm_logical_volume_values_t *logical_volume_values;
 
+	/* The IO handle
+	 */
+	libvslvm_io_handle_t *io_handle;
+
 	/* The file IO handle
 	 */
 	libbfio_handle_t *file_io_handle;
@@ -76,8 +80,9 @@ struct libvslvm_internal_logical_volume
 
 int libvslvm_logical_volume_initialize(
      libvslvm_logical_volume_t **logical_volume,
-     libvslvm_logical_volume_values_t *logical_volume_values,
+     libvslvm_io_handle_t *io_handle,
      libbfio_handle_t *file_io_handle,
+     libvslvm_logical_volume_values_t *logical_volume_values,
      libcerror_error_t **error );
 
 LIBVSLVM_EXTERN \

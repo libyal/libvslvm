@@ -1810,6 +1810,7 @@ int libvslvm_handle_open_read(
 	}
 	if( libvslvm_metadata_read(
 	     internal_handle->metadata,
+	     internal_handle->io_handle,
 	     internal_handle->file_io_handle,
 	     metadata_offset,
 	     metadata_size,

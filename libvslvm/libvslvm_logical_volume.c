@@ -23,7 +23,9 @@
 #include <memory.h>
 #include <types.h>
 
+#include "libvslvm_chunk_data.h"
 #include "libvslvm_definitions.h"
+#include "libvslvm_io_handle.h"
 #include "libvslvm_libbfio.h"
 #include "libvslvm_libcerror.h"
 #include "libvslvm_libfcache.h"
@@ -40,8 +42,9 @@
  */
 int libvslvm_logical_volume_initialize(
      libvslvm_logical_volume_t **logical_volume,
-     libvslvm_logical_volume_values_t *logical_volume_values,
+     libvslvm_io_handle_t *io_handle,
      libbfio_handle_t *file_io_handle,
+     libvslvm_logical_volume_values_t *logical_volume_values,
      libcerror_error_t **error )
 {
 	libvslvm_internal_logical_volume_t *internal_logical_volume = NULL;
@@ -125,16 +128,10 @@ int libvslvm_logical_volume_initialize(
 	if( libfdata_vector_initialize(
 	     &( internal_logical_volume->chunks_vector ),
 	     (size64_t) ( 64 * 1024 ),
-	     NULL,
-/* TODO make sure to set the IO handle
-	     (intptr_t *) internal_logical_volume->io_handle,
-*/
+	     (intptr_t *) io_handle,
 	     NULL,
 	     NULL,
-	     NULL,
-/* TODO
-	     (int (*)(intptr_t *, intptr_t *, libfdata_vector_t *, libfcache_cache_t *, int, int, off64_t, size64_t, uint32_t, uint8_t, libcerror_error_t **)) &libvslvm_io_handle_read_chunk,
-*/
+	     (int (*)(intptr_t *, intptr_t *, libfdata_vector_t *, libfcache_cache_t *, int, int, off64_t, size64_t, uint32_t, uint8_t, libcerror_error_t **)) &libvslvm_io_handle_read_chunk_data,
 	     NULL,
 	     LIBFDATA_DATA_HANDLE_FLAG_NON_MANAGED,
 	     error ) != 1 )
@@ -303,8 +300,9 @@ int libvslvm_logical_volume_initialize(
 		goto on_error;
 	}
 #endif
-	internal_logical_volume->logical_volume_values = logical_volume_values;
+	internal_logical_volume->io_handle             = io_handle;
 	internal_logical_volume->file_io_handle        = file_io_handle;
+	internal_logical_volume->logical_volume_values = logical_volume_values;
 
 	*logical_volume= (libvslvm_logical_volume_t *) internal_logical_volume;
 
@@ -513,8 +511,11 @@ ssize_t libvslvm_internal_logical_volume_read_buffer_from_file_io_handle(
          size_t buffer_size,
          libcerror_error_t **error )
 {
-	static char *function = "libvslvm_internal_logical_volume_read_buffer_from_file_io_handle";
-	ssize_t read_count    = 0;
+	libvslvm_chunk_data_t *chunk_data = NULL;
+	static char *function             = "libvslvm_internal_logical_volume_read_buffer_from_file_io_handle";
+	off64_t element_data_offset       = 0;
+	size_t buffer_offset              = 0;
+	ssize_t read_count                = 0;
 
 	if( internal_logical_volume == NULL )
 	{
@@ -550,9 +551,31 @@ ssize_t libvslvm_internal_logical_volume_read_buffer_from_file_io_handle(
 	{
 		buffer_size = (size_t) ( internal_logical_volume->size - internal_logical_volume->current_offset );
 	}
-/* TODO */
-	internal_logical_volume->current_offset += read_count;
+	while( buffer_offset < buffer_size )
+	{
+		if( libfdata_vector_get_element_value_at_offset(
+		     internal_logical_volume->chunks_vector,
+		     (intptr_t *) internal_logical_volume->file_io_handle,
+		     internal_logical_volume->chunks_cache,
+		     internal_logical_volume->current_offset,
+		     &element_data_offset,
+		     (intptr_t **) &chunk_data,
+		     0,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+			 "%s: unable to retrieve chunk data at offset: 0x%08" PRIx64 ".",
+			 function,
+			 internal_logical_volume->current_offset );
 
+			return( -1 );
+		}
+/* TODO implement */
+		internal_logical_volume->current_offset += read_count;
+	}
 	return( read_count );
 }
 
