@@ -423,83 +423,6 @@ int libvslvm_logical_volume_free(
 	return( result );
 }
 
-/* Reads (logical volume) data at the current offset into a buffer
- * Returns the number of bytes read or -1 on error
- */
-ssize_t libvslvm_logical_volume_read_buffer(
-         libvslvm_logical_volume_t *logical_volume,
-         void *buffer,
-         size_t buffer_size,
-         libcerror_error_t **error )
-{
-	libvslvm_internal_logical_volume_t *internal_logical_volume = NULL;
-	static char *function                                       = "libvslvm_logical_volume_read_buffer";
-	ssize_t read_count                                          = 0;
-
-	if( logical_volume == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid logical volume.",
-		 function );
-
-		return( -1 );
-	}
-	internal_logical_volume = (libvslvm_internal_logical_volume_t *) logical_volume;
-
-#if defined( HAVE_MULTI_THREAD_SUPPORT )
-	if( libcthreads_read_write_lock_grab_for_write(
-	     internal_logical_volume->read_write_lock,
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
-		 "%s: unable to grab read/write lock for writing.",
-		 function );
-
-		return( -1 );
-	}
-#endif
-	read_count = libvslvm_internal_logical_volume_read_buffer_from_file_io_handle(
-		      internal_logical_volume,
-		      internal_logical_volume->file_io_handle,
-		      buffer,
-		      buffer_size,
-		      error );
-
-	if( read_count == -1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_IO,
-		 LIBCERROR_IO_ERROR_READ_FAILED,
-		 "%s: unable to read buffer from logical volume.",
-		 function );
-
-		read_count = -1;
-	}
-#if defined( HAVE_MULTI_THREAD_SUPPORT )
-	if( libcthreads_read_write_lock_release_for_write(
-	     internal_logical_volume->read_write_lock,
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
-		 "%s: unable to release read/write lock for writing.",
-		 function );
-
-		return( -1 );
-	}
-#endif
-	return( read_count );
-}
-
 /* Reads (logical volume) data at the current offset into a buffer using a Basic File IO (bfio) handle
  * This function is not multi-thread safe acquire write lock before call
  * Returns the number of bytes read or -1 on error
@@ -576,6 +499,83 @@ ssize_t libvslvm_internal_logical_volume_read_buffer_from_file_io_handle(
 /* TODO implement */
 		internal_logical_volume->current_offset += read_count;
 	}
+	return( read_count );
+}
+
+/* Reads (logical volume) data at the current offset into a buffer
+ * Returns the number of bytes read or -1 on error
+ */
+ssize_t libvslvm_logical_volume_read_buffer(
+         libvslvm_logical_volume_t *logical_volume,
+         void *buffer,
+         size_t buffer_size,
+         libcerror_error_t **error )
+{
+	libvslvm_internal_logical_volume_t *internal_logical_volume = NULL;
+	static char *function                                       = "libvslvm_logical_volume_read_buffer";
+	ssize_t read_count                                          = 0;
+
+	if( logical_volume == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid logical volume.",
+		 function );
+
+		return( -1 );
+	}
+	internal_logical_volume = (libvslvm_internal_logical_volume_t *) logical_volume;
+
+#if defined( HAVE_MULTI_THREAD_SUPPORT )
+	if( libcthreads_read_write_lock_grab_for_write(
+	     internal_logical_volume->read_write_lock,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
+		 "%s: unable to grab read/write lock for writing.",
+		 function );
+
+		return( -1 );
+	}
+#endif
+	read_count = libvslvm_internal_logical_volume_read_buffer_from_file_io_handle(
+		      internal_logical_volume,
+		      internal_logical_volume->file_io_handle,
+		      buffer,
+		      buffer_size,
+		      error );
+
+	if( read_count == -1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_IO,
+		 LIBCERROR_IO_ERROR_READ_FAILED,
+		 "%s: unable to read buffer from logical volume.",
+		 function );
+
+		read_count = -1;
+	}
+#if defined( HAVE_MULTI_THREAD_SUPPORT )
+	if( libcthreads_read_write_lock_release_for_write(
+	     internal_logical_volume->read_write_lock,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
+		 "%s: unable to release read/write lock for writing.",
+		 function );
+
+		return( -1 );
+	}
+#endif
 	return( read_count );
 }
 

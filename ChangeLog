@@ -17,9 +17,13 @@ TODO
 * add Python bindings
 * update manuals
 
+20141103
+* worked on read logical volume functionality
+
 20141102
 * worked on tests
 * worked on API
+* worked on seek/read logical volume functionality
 
 20141027
 * changes for deployment

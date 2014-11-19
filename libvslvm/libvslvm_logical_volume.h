@@ -90,16 +90,16 @@ int libvslvm_logical_volume_free(
      libvslvm_logical_volume_t **logical_volume,
      libcerror_error_t **error );
 
-LIBVSLVM_EXTERN \
-ssize_t libvslvm_logical_volume_read_buffer(
-         libvslvm_logical_volume_t *logical_volume,
+ssize_t libvslvm_internal_logical_volume_read_buffer_from_file_io_handle(
+         libvslvm_internal_logical_volume_t *internal_logical_volume,
+         libbfio_handle_t *file_io_handle,
          void *buffer,
          size_t buffer_size,
          libcerror_error_t **error );
 
-ssize_t libvslvm_internal_logical_volume_read_buffer_from_file_io_handle(
-         libvslvm_internal_logical_volume_t *internal_logical_volume,
-         libbfio_handle_t *file_io_handle,
+LIBVSLVM_EXTERN \
+ssize_t libvslvm_logical_volume_read_buffer(
+         libvslvm_logical_volume_t *logical_volume,
          void *buffer,
          size_t buffer_size,
          libcerror_error_t **error );
