@@ -19,8 +19,8 @@
  * along with this software.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#if !defined( _LIBVSLVM_LIBBFIO_H )
-#define _LIBVSLVM_LIBBFIO_H
+#if !defined( _VSLVMTOOLS_LIBBFIO_H )
+#define _VSLVMTOOLS_LIBBFIO_H
 
 #include <common.h>
 

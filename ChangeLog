@@ -1,4 +1,5 @@
 TODO
+* update msvscpp files
 * finish:
   - libvslvm_internal_logical_volume_read_buffer_from_file_io_handle
 
@@ -16,6 +17,10 @@ TODO
 * add support to specify metadata in external configuration file?
 * add Python bindings
 * update manuals
+
+20141121
+* worked on read logical volume functionality
+* worked on vslvmmount
 
 20141103
 * worked on read logical volume functionality

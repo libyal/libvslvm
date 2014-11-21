@@ -438,7 +438,7 @@ ssize_t libvslvm_internal_logical_volume_read_buffer_from_file_io_handle(
 	static char *function             = "libvslvm_internal_logical_volume_read_buffer_from_file_io_handle";
 	off64_t element_data_offset       = 0;
 	size_t buffer_offset              = 0;
-	ssize_t read_count                = 0;
+	size_t read_size                  = 0;
 
 	if( internal_logical_volume == NULL )
 	{
@@ -474,7 +474,7 @@ ssize_t libvslvm_internal_logical_volume_read_buffer_from_file_io_handle(
 	{
 		buffer_size = (size_t) ( internal_logical_volume->size - internal_logical_volume->current_offset );
 	}
-	while( buffer_offset < buffer_size )
+	while( buffer_size > 0 )
 	{
 		if( libfdata_vector_get_element_value_at_offset(
 		     internal_logical_volume->chunks_vector,
@@ -496,10 +496,44 @@ ssize_t libvslvm_internal_logical_volume_read_buffer_from_file_io_handle(
 
 			return( -1 );
 		}
-/* TODO implement */
-		internal_logical_volume->current_offset += read_count;
+		if( chunk_data == NULL )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
+			 "%s: missing chunk data.",
+			 function );
+
+			return( -1 );
+		}
+		if( buffer_size < chunk_data->data_size )
+		{
+			read_size = buffer_size;
+		}
+		else
+		{
+			read_size = chunk_data->data_size;
+		}
+		if( memory_copy(
+		     &( ( (uint8_t *) buffer )[ buffer_offset ] ),
+		     chunk_data->data,
+		     read_size ) == NULL )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_MEMORY,
+			 LIBCERROR_MEMORY_ERROR_COPY_FAILED,
+			 "%s: unable to copy chunk data.",
+			 function );
+
+			return( -1 );
+		}
+		internal_logical_volume->current_offset += read_size;
+		buffer_offset                           += read_size;
+		buffer_size                             -= read_size;
 	}
-	return( read_count );
+	return( (ssize_t) buffer_offset );
 }
 
 /* Reads (logical volume) data at the current offset into a buffer
