@@ -311,8 +311,10 @@ int vslvmmount_fuse_read(
 
 		goto on_error;
 	}
+/* TODO implement */
 	if( mount_handle_seek_offset(
 	     vslvmmount_mount_handle,
+	     0,
 	     (off64_t) offset,
 	     SEEK_SET,
 	     &error ) == -1 )
@@ -328,8 +330,10 @@ int vslvmmount_fuse_read(
 
 		goto on_error;
 	}
+/* TODO implement */
 	read_count = mount_handle_read_buffer(
 	              vslvmmount_mount_handle,
+	              0,
 	              (uint8_t *) buffer,
 	              size,
 	              &error );
@@ -523,8 +527,10 @@ int vslvmmount_fuse_filldir(
 	}
 	else
 	{
+/* TODO implement */
 		if( mount_handle_get_size(
 		     mount_handle,
+		     0,
 		     &volume_size,
 		     error ) != 1 )
 		{
@@ -814,8 +820,10 @@ int vslvmmount_fuse_getattr(
 		     vslvmmount_fuse_path,
 		     vslvmmount_fuse_path_length ) == 0 )
 		{
+/* TODO implement */
 			if( mount_handle_get_size(
 			     vslvmmount_mount_handle,
+			     0,
 			     &volume_size,
 			     &error ) != 1 )
 			{
@@ -1224,8 +1232,10 @@ int __stdcall vslvmmount_dokan_ReadFile(
 
 		goto on_error;
 	}
+/* TODO implement */
 	if( mount_handle_seek_offset(
 	     vslvmmount_mount_handle,
+	     0,
 	     (off64_t) offset,
 	     SEEK_SET,
 	     &error ) == -1 )
@@ -1241,8 +1251,10 @@ int __stdcall vslvmmount_dokan_ReadFile(
 
 		goto on_error;
 	}
+/* TODO implement */
 	read_count = mount_handle_read_buffer(
 		      vslvmmount_mount_handle,
+		      0,
 		      (uint8_t *) buffer,
 		      (size_t) number_of_bytes_to_read,
 		      &error );
@@ -1409,8 +1421,10 @@ int vslvmmount_dokan_filldir(
 	}
 	else
 	{
+/* TODO implement */
 		if( mount_handle_get_size(
 		     mount_handle,
+		     0,
 		     &volume_size,
 		     error ) != 1 )
 		{
@@ -1773,8 +1787,10 @@ int __stdcall vslvmmount_dokan_GetFileInformation(
 
 			goto on_error;
 		}
+/* TODO implement */
 		if( mount_handle_get_size(
 		     vslvmmount_mount_handle,
+		     0,
 		     &volume_size,
 		     &error ) != 1 )
 		{

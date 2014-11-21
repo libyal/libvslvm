@@ -26,10 +26,11 @@
 #include <file_stream.h>
 #include <types.h>
 
-#include "vslvmtools_libvslvm.h"
 #include "vslvmtools_libbfio.h"
+#include "vslvmtools_libcdata.h"
 #include "vslvmtools_libcerror.h"
 #include "vslvmtools_libcstring.h"
+#include "vslvmtools_libvslvm.h"
 
 #if defined( __cplusplus )
 extern "C" {
@@ -50,6 +51,14 @@ struct mount_handle
 	/* The libvslvm input handle
 	 */
 	libvslvm_handle_t *input_handle;
+
+	/* The volume group
+	 */
+	libvslvm_volume_group_t *volume_group;
+
+	/* The logical volumes array
+	 */
+	libcdata_array_t *logical_volumes_array;
 
 	/* The nofication output stream
 	 */
@@ -88,18 +97,21 @@ int mount_handle_close_input(
 
 ssize_t mount_handle_read_buffer(
          mount_handle_t *mount_handle,
+         int logical_volume_index,
          uint8_t *buffer,
          size_t size,
          libcerror_error_t **error );
 
 off64_t mount_handle_seek_offset(
          mount_handle_t *mount_handle,
+         int logical_volume_index,
          off64_t offset,
          int whence,
          libcerror_error_t **error );
 
 int mount_handle_get_size(
      mount_handle_t *mount_handle,
+     int logical_volume_index,
      size64_t *size,
      libcerror_error_t **error );
 

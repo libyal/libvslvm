@@ -48,6 +48,7 @@ vslvmmount_SOURCES = \
 	vslvmmount.c \
 	vslvmoutput.c vslvmoutput.h \
 	vslvmtools_libbfio.h \
+	vslvmtools_libcdata.h \
 	vslvmtools_libcerror.h \
 	vslvmtools_libclocale.h \
 	vslvmtools_libcnotify.h \

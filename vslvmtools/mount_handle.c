@@ -23,12 +23,13 @@
 #include <memory.h>
 #include <types.h>
 
-#include "vslvmtools_libvslvm.h"
 #include "vslvmtools_libbfio.h"
+#include "vslvmtools_libcdata.h"
 #include "vslvmtools_libcerror.h"
 #include "vslvmtools_libcstring.h"
 #include "vslvmtools_libcsystem.h"
 #include "vslvmtools_libuna.h"
+#include "vslvmtools_libvslvm.h"
 #include "mount_handle.h"
 
 #if !defined( LIBVSLVM_HAVE_BFIO )
@@ -131,11 +132,31 @@ int mount_handle_initialize(
 
 		goto on_error;
 	}
+	if( libcdata_array_initialize(
+	     &( ( *mount_handle )->logical_volumes_array ),
+	     0,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+		 "%s: unable to initialize logical volumes array.",
+		 function );
+
+		goto on_error;
+	}
 	return( 1 );
 
 on_error:
 	if( *mount_handle != NULL )
 	{
+		if( ( *mount_handle )->input_handle != NULL )
+		{
+			libvslvm_handle_free(
+			 &( ( *mount_handle )->input_handle ),
+			 NULL );
+		}
 		if( ( *mount_handle )->input_file_io_handle != NULL )
 		{
 			libbfio_handle_free(
@@ -173,6 +194,36 @@ int mount_handle_free(
 	}
 	if( *mount_handle != NULL )
 	{
+		if( libcdata_array_free(
+		     &( ( *mount_handle )->logical_volumes_array ),
+		     (int (*)(intptr_t **, libcerror_error_t **)) &libvslvm_logical_volume_free,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+			 "%s: unable to free logical volumes array.",
+			 function );
+
+			result = -1;
+		}
+		if( ( *mount_handle )->volume_group != NULL )
+		{
+			if( libvslvm_volume_group_free(
+			     &( ( *mount_handle )->volume_group ),
+			     error ) != 1 )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+				 "%s: unable to free volume group.",
+				 function );
+
+				result = -1;
+			}
+		}
 		if( libvslvm_handle_free(
 		     &( ( *mount_handle )->input_handle ),
 		     error ) != 1 )
@@ -300,9 +351,12 @@ int mount_handle_open_input(
      const libcstring_system_character_t *filename,
      libcerror_error_t **error )
 {
-	static char *function  = "mount_handle_open_input";
-	size_t filename_length = 0;
-	int result             = 0;
+	libvslvm_logical_volume_t *logical_volume = NULL;
+	static char *function                     = "mount_handle_open_input";
+	size_t filename_length                    = 0;
+	int logical_volume_index                  = 0;
+	int number_of_logical_volumes             = 0;
+	int result                                = 0;
 
 	if( mount_handle == NULL )
 	{
@@ -339,7 +393,7 @@ int mount_handle_open_input(
 		 "%s: unable to set file name.",
 		 function );
 
-		return( -1 );
+		goto on_error;
 	}
 	if( libbfio_file_range_set(
 	     mount_handle->input_file_io_handle,
@@ -354,7 +408,7 @@ int mount_handle_open_input(
 		 "%s: unable to set volume offset.",
 		 function );
 
-		return( -1 );
+		goto on_error;
 	}
 	result = libvslvm_handle_open_file_io_handle(
 	          mount_handle->input_handle,
@@ -371,9 +425,56 @@ int mount_handle_open_input(
 		 "%s: unable to open input handle.",
 		 function );
 
-		return( -1 );
+		goto on_error;
 	}
+	if( libvslvm_handle_get_volume_group(
+	     mount_handle->input_handle,
+	     &( mount_handle->volume_group ),
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve volume group.",
+		 function );
+
+		goto on_error;
+	}
+/* TODO implement
+	if( libcdata_array_append_entry(
+	     mount_handle->logical_volumes_array,
+	     &entry_index,
+	     (intptr_t *) logical_volume,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_APPEND_FAILED,
+		 "%s: unable to append logical volume to array.",
+		 function );
+
+		goto on_error;
+	}
+*/
 	return( 1 );
+
+on_error:
+/* TODO empty array */
+	if( mount_handle->volume_group != NULL )
+	{
+		libvslvm_volume_group_free(
+		 &( mount_handle->volume_group ),
+		 NULL );
+	}
+	if( mount_handle->input_handle != NULL )
+	{
+		libvslvm_handle_free(
+		 &( mount_handle->input_handle ),
+		 NULL );
+	}
+	return( -1 );
 }
 
 /* Closes the mount handle
@@ -384,6 +485,7 @@ int mount_handle_close_input(
      libcerror_error_t **error )
 {
 	static char *function = "mount_handle_close_input";
+	int result            = 0;
 
 	if( mount_handle == NULL )
 	{
@@ -395,6 +497,33 @@ int mount_handle_close_input(
 		 function );
 
 		return( -1 );
+	}
+	if( libcdata_array_empty(
+	     mount_handle->logical_volumes_array,
+	     (int (*)(intptr_t **, libcerror_error_t **)) &libvslvm_logical_volume_free,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+		 "%s: unable to empty logical volumes array.",
+		 function );
+
+		result = -1;
+	}
+	if( libvslvm_volume_group_free(
+	     &( mount_handle->volume_group ),
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+		 "%s: unable to free volume group.",
+		 function );
+
+		result = -1;
 	}
 	if( libvslvm_handle_close(
 	     mount_handle->input_handle,
@@ -407,9 +536,9 @@ int mount_handle_close_input(
 		 "%s: unable to close input handle.",
 		 function );
 
-		return( -1 );
+		result = -1;
 	}
-	return( 0 );
+	return( result );
 }
 
 /* Read a buffer from the input handle
@@ -417,12 +546,14 @@ int mount_handle_close_input(
  */
 ssize_t mount_handle_read_buffer(
          mount_handle_t *mount_handle,
+         int logical_volume_index,
          uint8_t *buffer,
          size_t size,
          libcerror_error_t **error )
 {
-	static char *function = "mount_handle_read_buffer";
-	ssize_t read_count    = 0;
+	libvslvm_logical_volume_t *logical_volume = NULL;
+	static char *function                     = "mount_handle_read_buffer";
+	ssize_t read_count                        = 0;
 
 	if( mount_handle == NULL )
 	{
@@ -435,9 +566,24 @@ ssize_t mount_handle_read_buffer(
 
 		return( -1 );
 	}
-/* TODO implement
-	read_count = libvslvm_handle_read_buffer(
-	              mount_handle->input_handle,
+	if( libcdata_array_get_entry_by_index(
+	     mount_handle->logical_volumes_array,
+	     logical_volume_index,
+	     (intptr_t **) &logical_volume,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve logical volume: %d.",
+		 function,
+		 logical_volume_index );
+
+		return( -1 );
+	}
+	read_count = libvslvm_logical_volume_read_buffer(
+	              logical_volume,
 	              buffer,
 	              size,
 	              error );
@@ -448,12 +594,12 @@ ssize_t mount_handle_read_buffer(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_IO,
 		 LIBCERROR_IO_ERROR_READ_FAILED,
-		 "%s: unable to read buffer from input handle.",
-		 function );
+		 "%s: unable to read buffer from logical volume: %d.",
+		 function,
+		 logical_volume_index );
 
 		return( -1 );
 	}
-*/
 	return( read_count );
 }
 
@@ -462,11 +608,13 @@ ssize_t mount_handle_read_buffer(
  */
 off64_t mount_handle_seek_offset(
          mount_handle_t *mount_handle,
+         int logical_volume_index,
          off64_t offset,
          int whence,
          libcerror_error_t **error )
 {
-	static char *function = "mount_handle_seek_offset";
+	libvslvm_logical_volume_t *logical_volume = NULL;
+	static char *function                     = "mount_handle_seek_offset";
 
 	if( mount_handle == NULL )
 	{
@@ -479,8 +627,23 @@ off64_t mount_handle_seek_offset(
 
 		return( -1 );
 	}
-/* TODO implement
-	offset = libvslvm_handle_seek_offset(
+	if( libcdata_array_get_entry_by_index(
+	     mount_handle->logical_volumes_array,
+	     logical_volume_index,
+	     (intptr_t **) &logical_volume,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve logical volume: %d.",
+		 function,
+		 logical_volume_index );
+
+		return( -1 );
+	}
+	offset = libvslvm_logical_volume_seek_offset(
 	          mount_handle->input_handle,
 	          offset,
 	          whence,
@@ -492,12 +655,12 @@ off64_t mount_handle_seek_offset(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_IO,
 		 LIBCERROR_IO_ERROR_SEEK_FAILED,
-		 "%s: unable to seek offset in input handle.",
-		 function );
+		 "%s: unable to seek offset in logical volume: %d.",
+		 function,
+		 logical_volume_index );
 
 		return( -1 );
 	}
-*/
 	return( offset );
 }
 
@@ -506,10 +669,12 @@ off64_t mount_handle_seek_offset(
  */
 int mount_handle_get_size(
      mount_handle_t *mount_handle,
+     int logical_volume_index,
      size64_t *size,
      libcerror_error_t **error )
 {
-	static char *function = "mount_handle_get_size";
+	libvslvm_logical_volume_t *logical_volume = NULL;
+	static char *function                     = "mount_handle_get_size";
 
 	if( mount_handle == NULL )
 	{
@@ -522,9 +687,24 @@ int mount_handle_get_size(
 
 		return( -1 );
 	}
-/* TODO implement
-	if( libvslvm_handle_get_size(
-	     mount_handle->input_handle,
+	if( libcdata_array_get_entry_by_index(
+	     mount_handle->logical_volumes_array,
+	     logical_volume_index,
+	     (intptr_t **) &logical_volume,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve logical volume: %d.",
+		 function,
+		 logical_volume_index );
+
+		return( -1 );
+	}
+	if( libvslvm_logical_volume_get_size(
+	     logical_volume,
 	     size,
 	     error ) != 1 )
 	{
@@ -532,12 +712,12 @@ int mount_handle_get_size(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve size from input handle.",
-		 function );
+		 "%s: unable to retrieve size from logical volume: %d.",
+		 function,
+		 logical_volume_index );
 
 		return( -1 );
 	}
-*/
 	return( 1 );
 }
 
