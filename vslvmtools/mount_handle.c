@@ -664,17 +664,17 @@ off64_t mount_handle_seek_offset(
 	return( offset );
 }
 
-/* Retrieves the size of the input handle
+/* Retrieves the volume size of the input handle
  * Returns 1 if successful or -1 on error
  */
-int mount_handle_get_size(
+int mount_handle_get_volume_size(
      mount_handle_t *mount_handle,
      int logical_volume_index,
-     size64_t *size,
+     size64_t *volume_size,
      libcerror_error_t **error )
 {
 	libvslvm_logical_volume_t *logical_volume = NULL;
-	static char *function                     = "mount_handle_get_size";
+	static char *function                     = "mount_handle_get_volume_size";
 
 	if( mount_handle == NULL )
 	{
@@ -705,7 +705,7 @@ int mount_handle_get_size(
 	}
 	if( libvslvm_logical_volume_get_size(
 	     logical_volume,
-	     size,
+	     volume_size,
 	     error ) != 1 )
 	{
 		libcerror_error_set(
@@ -715,6 +715,44 @@ int mount_handle_get_size(
 		 "%s: unable to retrieve size from logical volume: %d.",
 		 function,
 		 logical_volume_index );
+
+		return( -1 );
+	}
+	return( 1 );
+}
+
+/* Retrieves the number of logical volumes
+ * Returns 1 if successful or -1 on error
+ */
+int mount_handle_get_number_of_logical_volumes(
+     mount_handle_t *mount_handle,
+     int *number_of_logical_volumes,
+     libcerror_error_t **error )
+{
+	static char *function = "mount_handle_get_number_of_logical_volumes";
+
+	if( mount_handle == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid mount handle.",
+		 function );
+
+		return( -1 );
+	}
+	if( libcdata_array_get_number_of_entries(
+	     mount_handle->logical_volumes_array,
+	     number_of_logical_volumes,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve number of logical volumes.",
+		 function );
 
 		return( -1 );
 	}

@@ -1,5 +1,5 @@
 TODO
-* update msvscpp files
+* vslvmmount complete dokan support
 * finish:
   - libvslvm_internal_logical_volume_read_buffer_from_file_io_handle
 

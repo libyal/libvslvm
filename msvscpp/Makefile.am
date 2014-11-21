@@ -1,4 +1,5 @@
 MSVSCPP_FILES = \
+	dokan/dokan.vcproj \
 	libbfio/libbfio.vcproj \
 	libcdata/libcdata.vcproj \
 	libcerror/libcerror.vcproj \
@@ -20,6 +21,7 @@ MSVSCPP_FILES = \
 	vslvm_test_read/vslvm_test_read.vcproj \
 	vslvm_test_seek/vslvm_test_seek.vcproj \
 	vslvminfo/vslvminfo.vcproj \
+	vslvmmount/vslvmmount.vcproj \
 	libvslvm.sln
 
 SCRIPT_FILES = \

@@ -145,11 +145,11 @@ void vslvmmount_signal_handler(
 #error Size of off_t not supported
 #endif
 
-static char *vslvmmount_fuse_path         = "/lvm1";
-static size_t vslvmmount_fuse_path_length = 5;
+static char *vslvmmount_fuse_path_prefix         = "/lvm";
+static size_t vslvmmount_fuse_path_prefix_length = 4;
 
 #if defined( HAVE_TIME )
-time_t vslvmmount_timestamp               = 0;
+time_t vslvmmount_timestamp                      = 0;
 #endif
 
 /* Opens a file
@@ -193,11 +193,11 @@ int vslvmmount_fuse_open(
 	path_length = libcstring_narrow_string_length(
 	               path );
 
-	if( ( path_length != vslvmmount_fuse_path_length )
+	if( ( path_length <= vslvmmount_fuse_path_prefix_length )
 	 || ( libcstring_narrow_string_compare(
 	       path,
-	       vslvmmount_fuse_path,
-	       vslvmmount_fuse_path_length ) != 0 ) )
+	       vslvmmount_fuse_path_prefix,
+	       vslvmmount_fuse_path_prefix_length ) != 0 ) )
 	{
 		libcerror_error_set(
 		 &error,
@@ -250,7 +250,9 @@ int vslvmmount_fuse_read(
 	static char *function    = "vslvmmount_fuse_read";
 	size_t path_length       = 0;
 	ssize_t read_count       = 0;
+	int logical_volume_index = 0;
 	int result               = 0;
+	int string_index         = 0;
 
 	if( path == NULL )
 	{
@@ -294,11 +296,12 @@ int vslvmmount_fuse_read(
 	path_length = libcstring_narrow_string_length(
 	               path );
 
-	if( ( path_length != vslvmmount_fuse_path_length )
+	if( ( path_length <= vslvmmount_fuse_path_prefix_length )
+	 || ( path_length > ( vslvmmount_fuse_path_prefix_length + 3 ) )
 	 || ( libcstring_narrow_string_compare(
 	       path,
-	       vslvmmount_fuse_path,
-	       vslvmmount_fuse_path_length ) != 0 ) )
+	       vslvmmount_fuse_path_prefix,
+	       vslvmmount_fuse_path_prefix_length ) != 0 ) )
 	{
 		libcerror_error_set(
 		 &error,
@@ -311,10 +314,25 @@ int vslvmmount_fuse_read(
 
 		goto on_error;
 	}
-/* TODO implement */
+	string_index = (int) vslvmmount_fuse_path_prefix_length;
+
+	logical_volume_index = path[ string_index++ ] - '0';
+
+	if( string_index < (int) path_length )
+	{
+		logical_volume_index *= 10;
+		logical_volume_index += path[ string_index++ ] - '0';
+	}
+	if( string_index < (int) path_length )
+	{
+		logical_volume_index *= 10;
+		logical_volume_index += path[ string_index++ ] - '0';
+	}
+	logical_volume_index -= 1;
+
 	if( mount_handle_seek_offset(
 	     vslvmmount_mount_handle,
-	     0,
+	     logical_volume_index,
 	     (off64_t) offset,
 	     SEEK_SET,
 	     &error ) == -1 )
@@ -330,10 +348,9 @@ int vslvmmount_fuse_read(
 
 		goto on_error;
 	}
-/* TODO implement */
 	read_count = mount_handle_read_buffer(
 	              vslvmmount_mount_handle,
-	              0,
+	              logical_volume_index,
 	              (uint8_t *) buffer,
 	              size,
 	              &error );
@@ -369,9 +386,6 @@ on_error:
  */
 int vslvmmount_fuse_set_stat_info(
      struct stat *stat_info,
-     uint64_t creation_time,
-     uint64_t modification_time,
-     uint64_t access_time,
      size64_t size,
      int number_of_sub_items,
      uint8_t use_mount_time,
@@ -390,57 +404,8 @@ int vslvmmount_fuse_set_stat_info(
 
 		return( -1 );
 	}
-	if( use_mount_time == 0 )
-	{
-/* TODO check size fo time_t if 64-bit allow for more precision */
-		if( creation_time != 0 )
-		{
-			creation_time /= 10000000;
-
-			if( creation_time < 11644473600UL )
-			{
-				creation_time = 0;
-			}
-			else
-			{
-				creation_time -= 11644473600UL;
-			}
-/* TODO check upper bound */
-			stat_info->st_ctime = (time_t) creation_time;
-		}
-		if( modification_time != 0 )
-		{
-			modification_time /= 10000000;
-
-			if( modification_time < 11644473600UL )
-			{
-				modification_time = 0;
-			}
-			else
-			{
-				modification_time -= 11644473600UL;
-			}
-/* TODO check upper bound */
-			stat_info->st_mtime = (time_t) modification_time;
-		}
-		if( access_time != 0 )
-		{
-			access_time /= 10000000;
-
-			if( access_time < 11644473600UL )
-			{
-				access_time = 0;
-			}
-			else
-			{
-				access_time -= 11644473600UL;
-			}
-/* TODO check upper bound */
-			stat_info->st_atime = (time_t) access_time;
-		}
-	}
 #if defined( HAVE_TIME )
-	else
+	if( use_mount_time != 0 )
 	{
 		if( vslvmmount_timestamp == 0 )
 		{
@@ -503,6 +468,7 @@ int vslvmmount_fuse_filldir(
      size_t name_size,
      struct stat *stat_info,
      mount_handle_t *mount_handle,
+     int logical_volume_index,
      uint8_t use_mount_time,
      libcerror_error_t **error )
 {
@@ -527,10 +493,9 @@ int vslvmmount_fuse_filldir(
 	}
 	else
 	{
-/* TODO implement */
-		if( mount_handle_get_size(
+		if( mount_handle_get_volume_size(
 		     mount_handle,
-		     0,
+		     logical_volume_index,
 		     &volume_size,
 		     error ) != 1 )
 		{
@@ -560,9 +525,6 @@ int vslvmmount_fuse_filldir(
 	}
 	if( vslvmmount_fuse_set_stat_info(
 	     stat_info,
-	     0,
-	     0,
-	     0,
 	     volume_size,
 	     number_of_sub_items,
 	     use_mount_time,
@@ -605,11 +567,16 @@ int vslvmmount_fuse_readdir(
      off_t offset LIBCSYSTEM_ATTRIBUTE_UNUSED,
      struct fuse_file_info *file_info LIBCSYSTEM_ATTRIBUTE_UNUSED )
 {
-	libcerror_error_t *error = NULL;
-	struct stat *stat_info   = NULL;
-	static char *function    = "vslvmmount_fuse_readdir";
-	size_t path_length       = 0;
-	int result               = 0;
+	char vslvmmount_fuse_path[ 10 ];
+
+	libcerror_error_t *error      = NULL;
+	struct stat *stat_info        = NULL;
+	static char *function         = "vslvmmount_fuse_readdir";
+	size_t path_length            = 0;
+	int logical_volume_index      = 0;
+	int number_of_logical_volumes = 0;
+	int result                    = 0;
+	int string_index              = 0;
 
 	LIBCSYSTEM_UNREFERENCED_PARAMETER( offset )
 	LIBCSYSTEM_UNREFERENCED_PARAMETER( file_info )
@@ -644,6 +611,52 @@ int vslvmmount_fuse_readdir(
 
 		goto on_error;
 	}
+	if( libcstring_narrow_string_copy(
+	     vslvmmount_fuse_path,
+	     vslvmmount_fuse_path_prefix,
+	     vslvmmount_fuse_path_prefix_length ) == NULL )
+	{
+		libcerror_error_set(
+		 &error,
+		 LIBCERROR_ERROR_DOMAIN_MEMORY,
+		 LIBCERROR_MEMORY_ERROR_COPY_FAILED,
+		 "%s: unable to copy path prefix.",
+		 function );
+
+		result = -errno;
+
+		goto on_error;
+	}
+	if( mount_handle_get_number_of_logical_volumes(
+	     vslvmmount_mount_handle,
+	     &number_of_logical_volumes,
+	     &error ) != 1 )
+	{
+		libcerror_error_set(
+		 &error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve number of logical volumes.",
+		 function );
+
+		result = -EIO;
+
+		goto on_error;
+	}
+	if( ( number_of_logical_volumes < 0 )
+	 || ( number_of_logical_volumes > 99 ) )
+	{
+		libcerror_error_set(
+		 &error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_UNSUPPORTED_VALUE,
+		 "%s: unsupported number of logical volumes.",
+		 function );
+
+		result = -ENOENT;
+
+		goto on_error;
+	}
 	stat_info = memory_allocate_structure(
 	             struct stat );
 
@@ -667,6 +680,7 @@ int vslvmmount_fuse_readdir(
 	     2,
 	     stat_info,
 	     NULL,
+	     0,
 	     1,
 	     &error ) != 1 )
 	{
@@ -689,26 +703,6 @@ int vslvmmount_fuse_readdir(
 	     stat_info,
 	     NULL,
 	     0,
-	     &error ) != 1 )
-	{
-		libcerror_error_set(
-		 &error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
-		 "%s: unable to set directory entry.",
-		 function );
-
-		result = -EIO;
-
-		goto on_error;
-	}
-	if( vslvmmount_fuse_filldir(
-	     buffer,
-	     filler,
-	     &( vslvmmount_fuse_path[ 1 ] ),
-	     vslvmmount_fuse_path_length + 1,
-	     stat_info,
-	     vslvmmount_mount_handle,
 	     0,
 	     &error ) != 1 )
 	{
@@ -722,6 +716,46 @@ int vslvmmount_fuse_readdir(
 		result = -EIO;
 
 		goto on_error;
+	}
+	for( logical_volume_index = 1;
+	     logical_volume_index <= number_of_logical_volumes;
+	     logical_volume_index++ )
+	{
+		string_index = vslvmmount_fuse_path_prefix_length;
+
+		if( logical_volume_index >= 100 )
+		{
+			vslvmmount_fuse_path[ string_index++ ] = '0' + (char) ( logical_volume_index / 100 );
+		}
+		if( logical_volume_index >= 10 )
+		{
+			vslvmmount_fuse_path[ string_index++ ] = '0' + (char) ( logical_volume_index / 10 );
+		}
+		vslvmmount_fuse_path[ string_index++ ] = '0' + (char) ( logical_volume_index % 10 );
+		vslvmmount_fuse_path[ string_index++ ] = 0;
+
+		if( vslvmmount_fuse_filldir(
+		     buffer,
+		     filler,
+		     &( vslvmmount_fuse_path[ 1 ] ),
+		     string_index - 1,
+		     stat_info,
+		     vslvmmount_mount_handle,
+		     logical_volume_index - 1,
+		     1,
+		     &error ) != 1 )
+		{
+			libcerror_error_set(
+			 &error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
+			 "%s: unable to set directory entry.",
+			 function );
+
+			result = -EIO;
+
+			goto on_error;
+		}
 	}
 	memory_free(
 	 stat_info );
@@ -755,8 +789,10 @@ int vslvmmount_fuse_getattr(
 	static char *function    = "vslvmmount_fuse_getattr";
 	size64_t volume_size     = 0;
 	size_t path_length       = 0;
+	int logical_volume_index = 0;
 	int number_of_sub_items  = 0;
 	int result               = -ENOENT;
+	int string_index         = 0;
 	uint8_t use_mount_time   = 0;
 
 	if( path == NULL )
@@ -813,17 +849,33 @@ int vslvmmount_fuse_getattr(
 			result              = 0;
 		}
 	}
-	else if( path_length == vslvmmount_fuse_path_length )
+	else if( ( path_length > vslvmmount_fuse_path_prefix_length )
+	      && ( path_length <= ( vslvmmount_fuse_path_prefix_length + 3 ) ) )
 	{
 		if( libcstring_narrow_string_compare(
 		     path,
-		     vslvmmount_fuse_path,
-		     vslvmmount_fuse_path_length ) == 0 )
+		     vslvmmount_fuse_path_prefix,
+		     vslvmmount_fuse_path_prefix_length ) == 0 )
 		{
-/* TODO implement */
-			if( mount_handle_get_size(
+			string_index = vslvmmount_fuse_path_prefix_length;
+
+			logical_volume_index = path[ string_index++ ] - '0';
+
+			if( string_index < (int) path_length )
+			{
+				logical_volume_index *= 10;
+				logical_volume_index += path[ string_index++ ] - '0';
+			}
+			if( string_index < (int) path_length )
+			{
+				logical_volume_index *= 10;
+				logical_volume_index += path[ string_index++ ] - '0';
+			}
+			logical_volume_index -= 1;
+
+			if( mount_handle_get_volume_size(
 			     vslvmmount_mount_handle,
-			     0,
+			     logical_volume_index,
 			     &volume_size,
 			     &error ) != 1 )
 			{
@@ -838,16 +890,14 @@ int vslvmmount_fuse_getattr(
 
 				goto on_error;
 			}
-			result = 0;
+			use_mount_time = 1;
+			result         = 0;
 		}
 	}
 	if( result == 0 )
 	{
 		if( vslvmmount_fuse_set_stat_info(
 		     stat_info,
-		     0,
-		     0,
-		     0,
 		     volume_size,
 		     number_of_sub_items,
 		     use_mount_time,
@@ -919,8 +969,8 @@ on_error:
 
 #elif defined( HAVE_LIBDOKAN )
 
-static wchar_t *vslvmmount_dokan_path      = L"\\LVM1";
-static size_t vslvmmount_dokan_path_length = 5;
+static wchar_t *vslvmmount_dokan_prefix_path      = L"\\LVM";
+static size_t vslvmmount_dokan_path_prefix_length = 4;
 
 /* Opens a file or directory
  * Returns 0 if successful or a negative error code otherwise
@@ -1422,7 +1472,7 @@ int vslvmmount_dokan_filldir(
 	else
 	{
 /* TODO implement */
-		if( mount_handle_get_size(
+		if( mount_handle_get_volume_size(
 		     mount_handle,
 		     0,
 		     &volume_size,
@@ -1788,7 +1838,7 @@ int __stdcall vslvmmount_dokan_GetFileInformation(
 			goto on_error;
 		}
 /* TODO implement */
-		if( mount_handle_get_size(
+		if( mount_handle_get_volume_size(
 		     vslvmmount_mount_handle,
 		     0,
 		     &volume_size,

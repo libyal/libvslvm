@@ -109,10 +109,15 @@ off64_t mount_handle_seek_offset(
          int whence,
          libcerror_error_t **error );
 
-int mount_handle_get_size(
+int mount_handle_get_volume_size(
      mount_handle_t *mount_handle,
      int logical_volume_index,
-     size64_t *size,
+     size64_t *volume_size,
+     libcerror_error_t **error );
+
+int mount_handle_get_number_of_logical_volumes(
+     mount_handle_t *mount_handle,
+     int *number_of_logical_volumes,
      libcerror_error_t **error );
 
 #if defined( __cplusplus )
