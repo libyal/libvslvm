@@ -28,7 +28,6 @@
 #include "libvslvm_extern.h"
 #include "libvslvm_io_handle.h"
 #include "libvslvm_libbfio.h"
-#include "libvslvm_libcdata.h"
 #include "libvslvm_libcerror.h"
 #include "libvslvm_metadata.h"
 #include "libvslvm_types.h"
@@ -53,13 +52,13 @@ struct libvslvm_internal_handle
 	 */
 	uint8_t file_io_handle_created_in_library;
 
-	/* The extent data file IO pool
+	/* The physical volume file IO pool
 	 */
-	libbfio_pool_t *extent_data_file_io_pool;
+	libbfio_pool_t *physical_volume_file_io_pool;
 
 	/* Value to indicate if the file IO pool was created inside the library
 	 */
-	uint8_t extent_data_file_io_pool_created_in_library;
+	uint8_t physical_volume_file_io_pool_created_in_library;
 
 	/* The access flags
 	 */
@@ -68,14 +67,6 @@ struct libvslvm_internal_handle
 	/* The maximum number of open handles in the pool
 	 */
 	int maximum_number_of_open_handles;
-
-	/* The data area descriptors array
-	 */
-	libcdata_array_t *data_area_descriptors_array;
-
-	/* The metadata area descriptors array
-	 */
-	libcdata_array_t *metadata_area_descriptors_array;
 
 	/* The metadata
 	 */
@@ -105,13 +96,15 @@ int libvslvm_handle_open(
      libcerror_error_t **error );
 
 #if defined( HAVE_WIDE_CHARACTER_TYPE )
+
 LIBVSLVM_EXTERN \
 int libvslvm_handle_open_wide(
      libvslvm_handle_t *handle,
      wchar_t const *filename,
      int access_flags,
      libcerror_error_t **error );
-#endif
+
+#endif /* defined( HAVE_WIDE_CHARACTER_TYPE ) */
 
 LIBVSLVM_EXTERN \
 int libvslvm_handle_open_file_io_handle(
@@ -121,37 +114,57 @@ int libvslvm_handle_open_file_io_handle(
      libcerror_error_t **error );
 
 LIBVSLVM_EXTERN \
-int libvslvm_handle_open_extent_data_files(
+int libvslvm_handle_open_physical_volume_files(
      libvslvm_handle_t *handle,
+     char * const filenames[],
+     int number_of_filenames,
      libcerror_error_t **error );
+
+#if defined( HAVE_WIDE_CHARACTER_TYPE )
 
 LIBVSLVM_EXTERN \
-int libvslvm_handle_open_extent_data_files_file_io_pool(
+int libvslvm_handle_open_physical_volume_files_wide(
+     libvslvm_handle_t *handle,
+     wchar_t * const filenames[],
+     int number_of_filenames,
+     libcerror_error_t **error );
+
+#endif /* defined( HAVE_WIDE_CHARACTER_TYPE ) */
+
+LIBVSLVM_EXTERN \
+int libvslvm_handle_open_physical_volume_files_file_io_pool(
      libvslvm_handle_t *handle,
      libbfio_pool_t *file_io_pool,
      libcerror_error_t **error );
 
-int libvslvm_handle_open_extent_data_file(
+int libvslvm_handle_open_physical_volume_file(
      libvslvm_internal_handle_t *internal_handle,
      libbfio_pool_t *file_io_pool,
-     int extent_index,
+     int physical_volume_index,
      const char *filename,
      libcerror_error_t **error );
 
 #if defined( HAVE_WIDE_CHARACTER_TYPE )
-int libvslvm_handle_open_extent_data_file_wide(
+
+int libvslvm_handle_open_physical_volume_file_wide(
      libvslvm_internal_handle_t *internal_handle,
      libbfio_pool_t *file_io_pool,
-     int extent_index,
+     int physical_volume_index,
      const wchar_t *filename,
      libcerror_error_t **error );
-#endif
 
-int libvslvm_handle_open_extent_data_file_io_handle(
+#endif /* defined( HAVE_WIDE_CHARACTER_TYPE ) */
+
+int libvslvm_handle_open_physical_volume_file_io_handle(
      libvslvm_internal_handle_t *internal_handle,
      libbfio_pool_t *file_io_pool,
-     int extent_index,
+     int physical_volume_index,
      libbfio_handle_t *file_io_handle,
+     libcerror_error_t **error );
+
+int libvslvm_handle_open_read_data_area_table(
+     libvslvm_internal_handle_t *internal_handle,
+     libbfio_pool_t *file_io_pool,
      libcerror_error_t **error );
 
 LIBVSLVM_EXTERN \
@@ -173,5 +186,5 @@ int libvslvm_handle_get_volume_group(
 }
 #endif
 
-#endif
+#endif /* !defined( _LIBVSLVM_INTERNAL_HANDLE_H ) */
 

@@ -90,6 +90,19 @@ int libvslvm_segment_get_size(
      size64_t *size,
      libcerror_error_t **error );
 
+LIBVSLVM_EXTERN \
+int libvslvm_segment_get_number_of_stripes(
+     libvslvm_segment_t *segment,
+     int *number_of_stripes,
+     libcerror_error_t **error );
+
+LIBVSLVM_EXTERN \
+int libvslvm_segment_get_stripe(
+     libvslvm_segment_t *segment,
+     int stripe_index,
+     libvslvm_stripe_t **stripe,
+     libcerror_error_t **error );
+
 int libvslvm_segment_append_stripe(
      libvslvm_segment_t *segment,
      libvslvm_stripe_t *stripe,

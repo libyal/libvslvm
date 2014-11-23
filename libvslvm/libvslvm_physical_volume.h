@@ -25,13 +25,18 @@
 #include <common.h>
 #include <types.h>
 
+#include "libvslvm_data_area_descriptor.h"
 #include "libvslvm_extern.h"
+#include "libvslvm_libbfio.h"
+#include "libvslvm_libcdata.h"
 #include "libvslvm_libcerror.h"
 #include "libvslvm_types.h"
 
 #if defined( __cplusplus )
 extern "C" {
 #endif
+
+extern const char *vslvm_physical_volume_label_signature;
 
 typedef struct libvslvm_internal_physical_volume libvslvm_internal_physical_volume_t;
 
@@ -60,6 +65,14 @@ struct libvslvm_internal_physical_volume
 	/* The size
 	 */
 	size64_t size;
+
+	/* The data area descriptors array
+	 */
+	libcdata_array_t *data_area_descriptors_array;
+
+	/* The metadata area descriptors array
+	 */
+	libcdata_array_t *metadata_area_descriptors_array;
 };
 
 int libvslvm_physical_volume_initialize(
@@ -138,9 +151,37 @@ int libvslvm_physical_volume_get_size(
      size64_t *size,
      libcerror_error_t **error );
 
+int libvslvm_physical_volume_get_number_of_data_area_descriptors(
+     libvslvm_physical_volume_t *physical_volume,
+     int *number_of_data_area_descriptors,
+     libcerror_error_t **error );
+
+int libvslvm_physical_volume_get_data_area_descriptor(
+     libvslvm_physical_volume_t *physical_volume,
+     int data_area_descriptor_index,
+     libvslvm_data_area_descriptor_t **data_area_descriptor,
+     libcerror_error_t **error );
+
+int libvslvm_physical_volume_get_number_of_metadata_area_descriptors(
+     libvslvm_physical_volume_t *physical_volume,
+     int *number_of_data_area_descriptors,
+     libcerror_error_t **error );
+
+int libvslvm_physical_volume_get_metadata_area_descriptor(
+     libvslvm_physical_volume_t *physical_volume,
+     int data_area_descriptor_index,
+     libvslvm_data_area_descriptor_t **data_area_descriptor,
+     libcerror_error_t **error );
+
+int libvslvm_physical_volume_read_label(
+     libvslvm_physical_volume_t *physical_volume,
+     libbfio_handle_t *file_io_handle,
+     off64_t file_offset,
+     libcerror_error_t **error );
+
 #if defined( __cplusplus )
 }
 #endif
 
-#endif
+#endif /* !defined( _LIBVSLVM_INTERNAL_PHYSICAL_VOLUME_H ) */
 

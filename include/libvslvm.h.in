@@ -199,6 +199,7 @@ int libvslvm_handle_open(
      libvslvm_error_t **error );
 
 #if defined( LIBVSLVM_HAVE_WIDE_CHARACTER_TYPE )
+
 /* Opens a handle
  * Returns 1 if successful or -1 on error
  */
@@ -208,19 +209,62 @@ int libvslvm_handle_open_wide(
      const wchar_t *filename,
      int access_flags,
      libvslvm_error_t **error );
-#endif
+
+#endif /* defined( LIBVSLVM_HAVE_WIDE_CHARACTER_TYPE ) */
 
 #if defined( LIBVSLVM_HAVE_BFIO )
+
 /* Opens a handle using a Basic File IO (bfio) handle
  * Returns 1 if successful or -1 on error
  */
 LIBVSLVM_EXTERN \
-int libvslvm_handle_open_handle_io_handle(
+int libvslvm_handle_open_file_io_handle(
      libvslvm_handle_t *handle,
      libbfio_handle_t *file_io_handle,
      int access_flags,
      libvslvm_error_t **error );
-#endif
+
+#endif /* defined( LIBVSLVM_HAVE_BFIO ) */
+
+/* Opens the physical volume files
+ * This function assumes the physical volume files are in same order as defined by the metadata
+ * Returns 1 if successful or -1 on error
+ */
+LIBVSLVM_EXTERN \
+int libvslvm_handle_open_physical_volume_files(
+     libvslvm_handle_t *handle,
+     char * const filenames[],
+     int number_of_filenames,
+     libvslvm_error_t **error );
+
+#if defined( LIBVSLVM_HAVE_WIDE_CHARACTER_TYPE )
+
+/* Opens the physical volume files
+ * This function assumes the physical volume files are in same order as defined by the metadata
+ * Returns 1 if successful or -1 on error
+ */
+LIBVSLVM_EXTERN \
+int libvslvm_handle_open_physical_volume_files_wide(
+     libvslvm_handle_t *handle,
+     wchar_t * const filenames[],
+     int number_of_filenames,
+     libvslvm_error_t **error );
+
+#endif /* defined( LIBVSLVM_HAVE_WIDE_CHARACTER_TYPE ) */
+
+#if defined( LIBVSLVM_HAVE_BFIO )
+
+/* Opens the physical volume files
+ * This function assumes the physical volume files are in same order as defined by the metadata
+ * Returns 1 if successful or -1 on error
+ */
+LIBVSLVM_EXTERN \
+int libvslvm_handle_open_physical_volume_files_file_io_pool(
+     libvslvm_handle_t *handle,
+     libbfio_pool_t *file_io_pool,
+     libvslvm_error_t **error );
+
+#endif /* defined( LIBVSLVM_HAVE_BFIO ) */
 
 /* Closes a handle
  * Returns 0 if successful or -1 on error
@@ -244,6 +288,7 @@ int libvslvm_handle_get_volume_group(
  * ------------------------------------------------------------------------- */
 
 /* Frees a volume group
+ * Returns 1 if successful or -1 on error
  */
 LIBVSLVM_EXTERN \
 int libvslvm_volume_group_free(
@@ -349,6 +394,7 @@ int libvslvm_volume_group_get_logical_volume(
  * ------------------------------------------------------------------------- */
 
 /* Frees a physical volume
+ * Returns 1 if successful or -1 on error
  */
 LIBVSLVM_EXTERN \
 int libvslvm_physical_volume_free(
@@ -426,6 +472,7 @@ int libvslvm_physical_volume_get_size(
  * ------------------------------------------------------------------------- */
 
 /* Frees a logical volume
+ * Returns 1 if successful or -1 on error
  */
 LIBVSLVM_EXTERN \
 int libvslvm_logical_volume_free(
@@ -543,6 +590,7 @@ int libvslvm_logical_volume_get_segment(
  * ------------------------------------------------------------------------- */
 
 /* Frees a segment
+ * Returns 1 if successful or -1 on error
  */
 LIBVSLVM_EXTERN \
 int libvslvm_segment_free(
@@ -567,15 +615,63 @@ int libvslvm_segment_get_size(
      size64_t *size,
      libvslvm_error_t **error );
 
+/* Retrieves the number of stripes
+ * Returns 1 if successful or -1 on error
+ */
+LIBVSLVM_EXTERN \
+int libvslvm_segment_get_number_of_stripes(
+     libvslvm_segment_t *segment,
+     int *number_of_stripes,
+     libvslvm_error_t **error );
+
+/* Retrieves a specific stripe
+ * Returns 1 if successful or -1 on error
+ */
+LIBVSLVM_EXTERN \
+int libvslvm_segment_get_stripe(
+     libvslvm_segment_t *segment,
+     int stripe_index,
+     libvslvm_stripe_t **stripe,
+     libvslvm_error_t **error );
+
 /* -------------------------------------------------------------------------
  * Stripe functions
  * ------------------------------------------------------------------------- */
 
 /* Frees a stripe
+ * Returns 1 if successful or -1 on error
  */
 LIBVSLVM_EXTERN \
 int libvslvm_stripe_free(
      libvslvm_stripe_t **stripe,
+     libvslvm_error_t **error );
+
+/* Retrieves the size of the ASCII formatted physical volume name
+ * Returns 1 if successful or -1 on error
+ */
+LIBVSLVM_EXTERN \
+int libvslvm_stripe_get_physical_volume_name_size(
+     libvslvm_stripe_t *stripe,
+     size_t *physical_volume_name_size,
+     libvslvm_error_t **error );
+
+/* Retrieves the ASCII formatted physical volume name
+ * Returns 1 if successful or -1 on error
+ */
+LIBVSLVM_EXTERN \
+int libvslvm_stripe_get_physical_volume_name(
+     libvslvm_stripe_t *stripe,
+     char *physical_volume_name,
+     size_t physical_volume_name_size,
+     libvslvm_error_t **error );
+
+/* Retrieves the data area offset
+ * Returns 1 if successful or -1 on error
+ */
+LIBVSLVM_EXTERN \
+int libvslvm_stripe_get_data_area_offset(
+     libvslvm_stripe_t *stripe,
+     off64_t *data_area_offset,
      libvslvm_error_t **error );
 
 #if defined( __cplusplus )

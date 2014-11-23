@@ -35,8 +35,6 @@
 extern "C" {
 #endif
 
-extern const char *vslvm_physical_volume_label_signature;
-
 typedef struct libvslvm_io_handle libvslvm_io_handle_t;
 
 struct libvslvm_io_handle
@@ -62,14 +60,6 @@ int libvslvm_io_handle_clear(
      libvslvm_io_handle_t *io_handle,
      libcerror_error_t **error );
 
-int libvslvm_io_handle_read_physical_volume_label(
-     libvslvm_io_handle_t *io_handle,
-     libbfio_handle_t *file_io_handle,
-     off64_t file_offset,
-     libcdata_array_t *data_area_descriptors_array,
-     libcdata_array_t *metadata_area_descriptors_array,
-     libcerror_error_t **error );
-
 int libvslvm_io_handle_read_chunk_data(
      intptr_t *data_handle,
      libbfio_handle_t *file_io_handle,
@@ -87,5 +77,5 @@ int libvslvm_io_handle_read_chunk_data(
 }
 #endif
 
-#endif
+#endif /* !defined( _LIBVSLVM_IO_HANDLE_H ) */
 

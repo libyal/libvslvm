@@ -101,34 +101,6 @@ int libvslvm_handle_initialize(
 
 		return( -1 );
 	}
-	if( libcdata_array_initialize(
-	     &( internal_handle->data_area_descriptors_array ),
-	     0,
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
-		 "%s: unable to create data area descriptors array.",
-		 function );
-
-		goto on_error;
-	}
-	if( libcdata_array_initialize(
-	     &( internal_handle->metadata_area_descriptors_array ),
-	     0,
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
-		 "%s: unable to create metadata area descriptors array.",
-		 function );
-
-		goto on_error;
-	}
 	if( libvslvm_io_handle_initialize(
 	     &( internal_handle->io_handle ),
 	     error ) != 1 )
@@ -208,34 +180,6 @@ int libvslvm_handle_free(
 			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 			 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
 			 "%s: unable to free IO handle.",
-			 function );
-
-			result = -1;
-		}
-		if( libcdata_array_free(
-		     &( internal_handle->data_area_descriptors_array ),
-		     (int (*)(intptr_t **, libcerror_error_t **)) &libvslvm_data_area_descriptor_free,
-		     error ) != 1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
-			 "%s: unable to free data area descriptors array.",
-			 function );
-
-			result = -1;
-		}
-		if( libcdata_array_free(
-		     &( internal_handle->metadata_area_descriptors_array ),
-		     (int (*)(intptr_t **, libcerror_error_t **)) &libvslvm_data_area_descriptor_free,
-		     error ) != 1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
-			 "%s: unable to free metadata area descriptors array.",
 			 function );
 
 			result = -1;
@@ -557,7 +501,7 @@ on_error:
 	return( -1 );
 }
 
-#endif
+#endif /* defined( HAVE_WIDE_CHARACTER_TYPE ) */
 
 /* Opens a handle using a Basic File IO (bfio) handle
  * Returns 1 if successful or -1 on error
@@ -685,28 +629,23 @@ int libvslvm_handle_open_file_io_handle(
 	return( 1 );
 }
 
-#ifdef TODO
-
-/* Opens the extent data files
- * If the extent data filenames were not set explicitly this function assumes the extent data files
- * are in the same location as the metadata file
+/* Opens the physical volume files
+ * This function assumes the physical volume files are in same order as defined by the metadata
  * Returns 1 if successful or -1 on error
  */
-int libvslvm_handle_open_extent_data_files(
+int libvslvm_handle_open_physical_volume_files(
      libvslvm_handle_t *handle,
+     char * const filenames[],
+     int number_of_filenames,
      libcerror_error_t **error )
 {
-	libcstring_system_character_t *extent_data_file_location  = NULL;
-	libcstring_system_character_t *extent_data_filename_start = NULL;
-        libbfio_pool_t *file_io_pool                              = NULL;
-	libvslvm_internal_extent_descriptor_t *extent_descriptor  = NULL;
-	libvslvm_internal_handle_t *internal_handle               = NULL;
-	static char *function                                     = "libvslvm_handle_open_extent_data_files";
-	size_t extent_data_file_location_size                     = 0;
-	size_t extent_data_filename_size                          = 0;
-	int extent_index                                          = 0;
-	int number_of_extents                                     = 0;
-	int result                                                = 0;
+        libbfio_pool_t *file_io_pool                = NULL;
+	libvslvm_internal_handle_t *internal_handle = NULL;
+	libvslvm_volume_group_t *volume_group       = NULL;
+	static char *function                       = "libvslvm_handle_open_physical_volume_files";
+	int number_of_physical_volumes              = 0;
+	int physical_volume_index                   = 0;
+	int result                                  = 0;
 
 	if( handle == NULL )
 	{
@@ -721,56 +660,100 @@ int libvslvm_handle_open_extent_data_files(
 	}
 	internal_handle = (libvslvm_internal_handle_t *) handle;
 
-	if( internal_handle->descriptor_file == NULL )
+	if( internal_handle->metadata == NULL )
 	{
 		libcerror_error_set(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid internal handle - missing descriptor file.",
+		 "%s: invalid internal handle - missing metadata.",
 		 function );
 
 		return( -1 );
 	}
-	if( internal_handle->extent_data_file_io_pool != NULL )
+	if( internal_handle->physical_volume_file_io_pool != NULL )
 	{
 		libcerror_error_set(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
-		 "%s: invalid handle - extent data file IO pool already exists.",
+		 "%s: invalid handle - physical volume file IO pool already exists.",
 		 function );
 
 		return( -1 );
 	}
-	if( libvslvm_descriptor_file_get_number_of_extents(
-	     internal_handle->descriptor_file,
-	     &number_of_extents,
+	result = libvslvm_metadata_get_volume_group(
+	          internal_handle->metadata,
+	          &volume_group,
+	          error );
+
+	if( result == -1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve number of metadata area descriptors from array.",
+		 function );
+
+		return( -1 );
+	}
+	else if( result == 0 )
+	{
+		return( 1 );
+	}
+	if( libvslvm_volume_group_get_number_of_physical_volumes(
+	     volume_group,
+	     &number_of_physical_volumes,
 	     error ) != 1 )
 	{
 		libcerror_error_set(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve number of extents.",
+		 "%s: unable to retrieve number of physical volumes.",
 		 function );
 
 		goto on_error;
 	}
-	if( number_of_extents == 0 )
+	if( libvslvm_volume_group_free(
+	     &volume_group,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+		 "%s: unable to free volume group.",
+		 function );
+
+		goto on_error;
+	}
+	if( number_of_physical_volumes == 0 )
 	{
 		libcerror_error_set(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: missing extents.",
+		 "%s: missing physical volumes.",
+		 function );
+
+		goto on_error;
+	}
+	if( number_of_filenames == number_of_physical_volumes )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: mismatch between number of filenames and physical volumes in metadata.",
 		 function );
 
 		goto on_error;
 	}
 	if( libbfio_pool_initialize(
 	     &file_io_pool,
-	     number_of_extents,
+	     number_of_physical_volumes,
 	     internal_handle->maximum_number_of_open_handles,
 	     error ) != 1 )
 	{
@@ -783,157 +766,42 @@ int libvslvm_handle_open_extent_data_files(
 
 		goto on_error;
 	}
-	for( extent_index = 0;
-	     extent_index < number_of_extents;
-	     extent_index++ )
+	for( physical_volume_index = 0;
+	     physical_volume_index < number_of_physical_volumes;
+	     physical_volume_index++ )
 	{
-		if( libvslvm_descriptor_file_get_extent_by_index(
-		     internal_handle->descriptor_file,
-		     extent_index,
-		     &extent_descriptor,
-		     error ) != 1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-			 "%s: unable to retrieve extent: %d from descriptor file.",
-			 function,
-			 extent_index );
-
-			goto on_error;
-		}
-		if( extent_descriptor == NULL )
+		if( filenames[ physical_volume_index ] == NULL )
 		{
 			libcerror_error_set(
 			 error,
 			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 			 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-			 "%s: missing extent descriptor: %d.",
+			 "%s: missing filename for physical volume: %d.",
 			 function,
-			 extent_index );
+			 physical_volume_index );
 
 			goto on_error;
 		}
-		if( extent_descriptor->type != LIBVSLVM_EXTENT_TYPE_ZERO )
+		if( libvslvm_handle_open_physical_volume_file(
+		     internal_handle,
+		     file_io_pool,
+		     physical_volume_index,
+		     filenames[ physical_volume_index ],
+		     error ) != 1 )
 		{
-			if( ( extent_descriptor->filename == NULL )
-			 || ( extent_descriptor->filename_size == 0 ) )
-			{
-				libcerror_error_set(
-				 error,
-				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-				 "%s: invalid extent descriptor: %d - missing filename.",
-				 function,
-				 extent_index );
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_IO,
+			 LIBCERROR_IO_ERROR_OPEN_FAILED,
+			 "%s: unable to open physical volume file: %" PRIs_LIBCSTRING_SYSTEM ".",
+			 function,
+			 filenames[ physical_volume_index ] );
 
-				goto on_error;
-			}
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
-			extent_data_filename_start = libcstring_wide_string_search_character_reverse(
-			                              extent_descriptor->filename,
-			                              (wint_t) LIBCPATH_SEPARATOR,
-			                              extent_descriptor->filename_size );
-#else
-			extent_data_filename_start = libcstring_narrow_string_search_character_reverse(
-			                              extent_descriptor->filename,
-			                              (int) LIBCPATH_SEPARATOR,
-			                              extent_descriptor->filename_size );
-#endif
-			if( extent_data_filename_start != NULL )
-			{
-				/* Ignore the path separator itself
-				 */
-				extent_data_filename_start++;
-
-/* TODO does this work for UTF-16 ? */
-				extent_data_filename_size = (size_t) ( extent_data_filename_start - extent_descriptor->filename );
-			}
-			else
-			{
-				extent_data_filename_start = extent_descriptor->filename;
-				extent_data_filename_size  = extent_descriptor->filename_size;
-			}
-/* TODO refactor to a function in extent table */
-			if( internal_handle->extent_table->basename != NULL )
-			{
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
-				if( libcpath_path_join_wide(
-				     &extent_data_file_location,
-				     &extent_data_file_location_size,
-				     internal_handle->extent_table->basename,
-				     internal_handle->extent_table->basename_size - 1,
-				     extent_data_filename_start,
-				     extent_data_filename_size - 1,
-				     error ) != 1 )
-#else
-				if( libcpath_path_join(
-				     &extent_data_file_location,
-				     &extent_data_file_location_size,
-				     internal_handle->extent_table->basename,
-				     internal_handle->extent_table->basename_size - 1,
-				     extent_data_filename_start,
-				     extent_data_filename_size - 1,
-				     error ) != 1 )
-#endif
-				{
-					libcerror_error_set(
-					 error,
-					 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-					 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
-					 "%s: unable to create extent data file location.",
-					 function );
-
-					goto on_error;
-				}
-			}
-			else
-			{
-				extent_data_file_location      = extent_data_filename_start;
-				extent_data_file_location_size = extent_data_filename_size;
-			}
-			/* Note that the open extent data file function will initialize extent_data_file_io_pool
-			 */
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
-			result = libvslvm_handle_open_extent_data_file_wide(
-				  internal_handle,
-				  file_io_pool,
-				  extent_index,
-				  extent_data_file_location,
-				  error );
-#else
-			result = libvslvm_handle_open_extent_data_file(
-				  internal_handle,
-				  file_io_pool,
-				  extent_index,
-				  extent_data_file_location,
-				  error );
-#endif
-			if( result != 1 )
-			{
-				libcerror_error_set(
-				 error,
-				 LIBCERROR_ERROR_DOMAIN_IO,
-				 LIBCERROR_IO_ERROR_OPEN_FAILED,
-				 "%s: unable to open extent data file: %" PRIs_LIBCSTRING_SYSTEM ".",
-				 function,
-				 extent_data_file_location );
-
-				goto on_error;
-			}
-			if( ( extent_data_file_location != NULL )
-			 && ( extent_data_file_location != extent_data_filename_start ) )
-			{
-				memory_free(
-				 extent_data_file_location );
-			}
-			extent_data_filename_start = NULL;
-			extent_data_file_location  = NULL;
+			goto on_error;
 		}
 	}
-	if( libvslvm_handle_open_extent_data_files_file_io_pool(
-	     handle,
+	if( libvslvm_handle_open_read_data_area_table(
+	     internal_handle,
 	     file_io_pool,
 	     error ) != 1 )
 	{
@@ -941,13 +809,13 @@ int libvslvm_handle_open_extent_data_files(
                  error,
                  LIBCERROR_ERROR_DOMAIN_RUNTIME,
                  LIBCERROR_RUNTIME_ERROR_SET_FAILED,
-		 "%s: unable to open extent data files using a file IO pool.",
+                 "%s: unable to read data area table.",
                  function );
 
                 goto on_error;
 	}
-	internal_handle->extent_data_file_io_pool                    = file_io_pool;
-	internal_handle->extent_data_file_io_pool_created_in_library = 1;
+	internal_handle->physical_volume_file_io_pool                    = file_io_pool;
+	internal_handle->physical_volume_file_io_pool_created_in_library = 1;
 
 	return( 1 );
 
@@ -961,26 +829,34 @@ on_error:
 		 &file_io_pool,
 		 NULL );
 	}
-	if( ( extent_data_file_location != NULL )
-	 && ( extent_data_file_location != extent_data_filename_start ) )
+	if( volume_group != NULL )
 	{
-		memory_free(
-		 extent_data_file_location );
+		libvslvm_volume_group_free(
+		 &volume_group,
+		 NULL );
 	}
 	return( -1 );
 }
 
-/* Opens the extent data files using a Basic File IO (bfio) pool
- * This function assumes the extent data files are in same order as defined by the descriptor file
+#if defined( HAVE_WIDE_CHARACTER_TYPE )
+
+/* Opens the physical volume files
+ * This function assumes the physical volume files are in same order as defined by the metadata
  * Returns 1 if successful or -1 on error
  */
-int libvslvm_handle_open_extent_data_files_file_io_pool(
+int libvslvm_handle_open_physical_volume_files_wide(
      libvslvm_handle_t *handle,
-     libbfio_pool_t *file_io_pool,
+     wchar_t * const filenames[],
+     int number_of_filenames,
      libcerror_error_t **error )
 {
+        libbfio_pool_t *file_io_pool                = NULL;
 	libvslvm_internal_handle_t *internal_handle = NULL;
-	static char *function                       = "libvslvm_handle_open_extent_data_files_file_io_pool";
+	libvslvm_volume_group_t *volume_group       = NULL;
+	static char *function                       = "libvslvm_handle_open_physical_volume_files_wide";
+	int number_of_physical_volumes              = 0;
+	int physical_volume_index                   = 0;
+	int result                                  = 0;
 
 	if( handle == NULL )
 	{
@@ -995,29 +871,147 @@ int libvslvm_handle_open_extent_data_files_file_io_pool(
 	}
 	internal_handle = (libvslvm_internal_handle_t *) handle;
 
-	if( internal_handle->descriptor_file == NULL )
+	if( internal_handle->metadata == NULL )
 	{
 		libcerror_error_set(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid internal handle - missing descriptor file.",
+		 "%s: invalid internal handle - missing metadata.",
 		 function );
 
 		return( -1 );
 	}
-	if( internal_handle->extent_data_file_io_pool != NULL )
+	if( internal_handle->physical_volume_file_io_pool != NULL )
 	{
 		libcerror_error_set(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
-		 "%s: invalid handle - extent data file IO pool already exists.",
+		 "%s: invalid handle - physical volume file IO pool already exists.",
 		 function );
 
 		return( -1 );
 	}
-	if( libvslvm_handle_open_read_grain_table(
+	result = libvslvm_metadata_get_volume_group(
+	          internal_handle->metadata,
+	          &volume_group,
+	          error );
+
+	if( result == -1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve number of metadata area descriptors from array.",
+		 function );
+
+		return( -1 );
+	}
+	else if( result == 0 )
+	{
+		return( 1 );
+	}
+	if( libvslvm_volume_group_get_number_of_physical_volumes(
+	     volume_group,
+	     &number_of_physical_volumes,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve number of physical volumes.",
+		 function );
+
+		goto on_error;
+	}
+	if( libvslvm_volume_group_free(
+	     &volume_group,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+		 "%s: unable to free volume group.",
+		 function );
+
+		goto on_error;
+	}
+	if( number_of_physical_volumes == 0 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: missing physical volumes.",
+		 function );
+
+		goto on_error;
+	}
+	if( number_of_filenames == number_of_physical_volumes )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: mismatch between number of filenames and physical volumes in metadata.",
+		 function );
+
+		goto on_error;
+	}
+	if( libbfio_pool_initialize(
+	     &file_io_pool,
+	     number_of_physical_volumes,
+	     internal_handle->maximum_number_of_open_handles,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+		 "%s: unable to create file IO pool.",
+		 function );
+
+		goto on_error;
+	}
+	for( physical_volume_index = 0;
+	     physical_volume_index < number_of_physical_volumes;
+	     physical_volume_index++ )
+	{
+		if( filenames[ physical_volume_index ] == NULL )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
+			 "%s: missing filename for physical volume: %d.",
+			 function,
+			 physical_volume_index );
+
+			goto on_error;
+		}
+		if( libvslvm_handle_open_physical_volume_file_wide(
+		     internal_handle,
+		     file_io_pool,
+		     physical_volume_index,
+		     filenames[ physical_volume_index ],
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_IO,
+			 LIBCERROR_IO_ERROR_OPEN_FAILED,
+			 "%s: unable to open physical volume file: %" PRIs_LIBCSTRING_SYSTEM ".",
+			 function,
+			 filenames[ physical_volume_index ] );
+
+			goto on_error;
+		}
+	}
+	if( libvslvm_handle_open_read_data_area_table(
 	     internal_handle,
 	     file_io_pool,
 	     error ) != 1 )
@@ -1026,28 +1020,116 @@ int libvslvm_handle_open_extent_data_files_file_io_pool(
                  error,
                  LIBCERROR_ERROR_DOMAIN_RUNTIME,
                  LIBCERROR_RUNTIME_ERROR_SET_FAILED,
-                 "%s: unable to read grain table.",
+                 "%s: unable to read data area table.",
+                 function );
+
+                goto on_error;
+	}
+	internal_handle->physical_volume_file_io_pool                    = file_io_pool;
+	internal_handle->physical_volume_file_io_pool_created_in_library = 1;
+
+	return( 1 );
+
+on_error:
+	if( file_io_pool != NULL )
+	{
+		libbfio_pool_close_all(
+		 file_io_pool,
+		 NULL );
+		libbfio_pool_free(
+		 &file_io_pool,
+		 NULL );
+	}
+	if( volume_group != NULL )
+	{
+		libvslvm_volume_group_free(
+		 &volume_group,
+		 NULL );
+	}
+	return( -1 );
+}
+
+#endif /* defined( HAVE_WIDE_CHARACTER_TYPE ) */
+
+/* Opens the physical volume files using a Basic File IO (bfio) pool
+ * This function assumes the physical volume files are in same order as defined by the metadata
+ * Returns 1 if successful or -1 on error
+ */
+int libvslvm_handle_open_physical_volume_files_file_io_pool(
+     libvslvm_handle_t *handle,
+     libbfio_pool_t *file_io_pool,
+     libcerror_error_t **error )
+{
+	libvslvm_internal_handle_t *internal_handle = NULL;
+	static char *function                       = "libvslvm_handle_open_physical_volume_files_file_io_pool";
+
+	if( handle == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid handle.",
+		 function );
+
+		return( -1 );
+	}
+	internal_handle = (libvslvm_internal_handle_t *) handle;
+
+	if( internal_handle->metadata == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: invalid internal handle - missing metadata.",
+		 function );
+
+		return( -1 );
+	}
+	if( internal_handle->physical_volume_file_io_pool != NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
+		 "%s: invalid handle - physical volume file IO pool already exists.",
+		 function );
+
+		return( -1 );
+	}
+	if( libvslvm_handle_open_read_data_area_table(
+	     internal_handle,
+	     file_io_pool,
+	     error ) != 1 )
+	{
+                libcerror_error_set(
+                 error,
+                 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+                 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
+                 "%s: unable to read data area table.",
                  function );
 
                 return( -1 );
 	}
-	internal_handle->extent_data_file_io_pool = file_io_pool;
+	internal_handle->physical_volume_file_io_pool = file_io_pool;
 
 	return( 1 );
 }
 
-/* Opens a specific extent data file
+/* Opens a specific physical volume file
  * Returns 1 if successful or -1 on error
  */
-int libvslvm_handle_open_extent_data_file(
+int libvslvm_handle_open_physical_volume_file(
      libvslvm_internal_handle_t *internal_handle,
      libbfio_pool_t *file_io_pool,
-     int extent_index,
+     int physical_volume_index,
      const char *filename,
      libcerror_error_t **error )
 {
 	libbfio_handle_t *file_io_handle = NULL;
-	static char *function            = "libvslvm_handle_open_extent_data_file";
+	static char *function            = "libvslvm_handle_open_physical_volume_file";
+	size_t filename_length           = 0;
 
 	if( internal_handle == NULL )
 	{
@@ -1060,13 +1142,13 @@ int libvslvm_handle_open_extent_data_file(
 
 		return( -1 );
 	}
-	if( internal_handle->descriptor_file == NULL )
+	if( internal_handle->metadata == NULL )
 	{
 		libcerror_error_set(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid internal handle - missing descriptor file.",
+		 "%s: invalid internal handle - missing metadata.",
 		 function );
 
 		return( -1 );
@@ -1111,11 +1193,13 @@ int libvslvm_handle_open_extent_data_file(
                 goto on_error;
 	}
 #endif
+	filename_length = libcstring_narrow_string_length(
+	                   filename );
+
 	if( libbfio_file_set_name(
 	     file_io_handle,
 	     filename,
-	     libcstring_narrow_string_length(
-	      filename ) + 1,
+	     filename_length + 1,
 	     error ) != 1 )
 	{
                 libcerror_error_set(
@@ -1127,10 +1211,10 @@ int libvslvm_handle_open_extent_data_file(
 
                 goto on_error;
 	}
-	if( libvslvm_handle_open_extent_data_file_io_handle(
+	if( libvslvm_handle_open_physical_volume_file_io_handle(
 	     internal_handle,
 	     file_io_pool,
-	     extent_index,
+	     physical_volume_index,
 	     file_io_handle,
 	     error ) != 1 )
 	{
@@ -1138,7 +1222,7 @@ int libvslvm_handle_open_extent_data_file(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_IO,
 		 LIBCERROR_IO_ERROR_OPEN_FAILED,
-		 "%s: unable to open extent data file: %s.",
+		 "%s: unable to open physical volume file: %s.",
 		 function,
 		 filename );
 
@@ -1158,18 +1242,19 @@ on_error:
 
 #if defined( HAVE_WIDE_CHARACTER_TYPE )
 
-/* Opens a specific extent data file
+/* Opens a specific physical volume file
  * Returns 1 if successful or -1 on error
  */
-int libvslvm_handle_open_extent_data_file_wide(
+int libvslvm_handle_open_physical_volume_file_wide(
      libvslvm_internal_handle_t *internal_handle,
      libbfio_pool_t *file_io_pool,
-     int extent_index,
+     int physical_volume_index,
      const wchar_t *filename,
      libcerror_error_t **error )
 {
 	libbfio_handle_t *file_io_handle = NULL;
-	static char *function            = "libvslvm_handle_open_extent_data_file_wide";
+	static char *function            = "libvslvm_handle_open_physical_volume_file_wide";
+	size_t filename_length           = 0;
 
 	if( internal_handle == NULL )
 	{
@@ -1182,13 +1267,13 @@ int libvslvm_handle_open_extent_data_file_wide(
 
 		return( -1 );
 	}
-	if( internal_handle->descriptor_file == NULL )
+	if( internal_handle->metadata == NULL )
 	{
 		libcerror_error_set(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid internal handle - missing descriptor file.",
+		 "%s: invalid internal handle - missing metadata.",
 		 function );
 
 		return( -1 );
@@ -1233,11 +1318,13 @@ int libvslvm_handle_open_extent_data_file_wide(
                 goto on_error;
 	}
 #endif
+	filename_length = libcstring_wide_string_length(
+	                   filename );
+
 	if( libbfio_file_set_name_wide(
 	     file_io_handle,
 	     filename,
-	     libcstring_wide_string_length(
-	      filename ) + 1,
+	     filename_length + 1,
 	     error ) != 1 )
 	{
                 libcerror_error_set(
@@ -1249,10 +1336,10 @@ int libvslvm_handle_open_extent_data_file_wide(
 
                 goto on_error;
 	}
-	if( libvslvm_handle_open_extent_data_file_io_handle(
+	if( libvslvm_handle_open_physical_volume_file_io_handle(
 	     internal_handle,
 	     file_io_pool,
-	     extent_index,
+	     physical_volume_index,
 	     file_io_handle,
 	     error ) != 1 )
 	{
@@ -1260,7 +1347,7 @@ int libvslvm_handle_open_extent_data_file_wide(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_IO,
 		 LIBCERROR_IO_ERROR_OPEN_FAILED,
-		 "%s: unable to open extent data file: %ls.",
+		 "%s: unable to open physical volume file: %ls.",
 		 function,
 		 filename );
 
@@ -1278,19 +1365,19 @@ on_error:
 	return( -1 );
 }
 
-#endif
+#endif /* defined( HAVE_WIDE_CHARACTER_TYPE ) */
 
-/* Opens an extent data file using a Basic File IO (bfio) handle
+/* Opens an physical volume file using a Basic File IO (bfio) handle
  * Returns 1 if successful or -1 on error
  */
-int libvslvm_handle_open_extent_data_file_io_handle(
+int libvslvm_handle_open_physical_volume_file_io_handle(
      libvslvm_internal_handle_t *internal_handle,
      libbfio_pool_t *file_io_pool,
-     int extent_index,
+     int physical_volume_index,
      libbfio_handle_t *file_io_handle,
      libcerror_error_t **error )
 {
-	static char *function = "libvslvm_handle_open_extent_data_file_io_handle";
+	static char *function = "libvslvm_handle_open_physical_volume_file_io_handle";
 	int bfio_access_flags = 0;
 
 	if( internal_handle == NULL )
@@ -1304,13 +1391,13 @@ int libvslvm_handle_open_extent_data_file_io_handle(
 
 		return( -1 );
 	}
-	if( internal_handle->descriptor_file == NULL )
+	if( internal_handle->metadata == NULL )
 	{
 		libcerror_error_set(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid internal handle - missing descriptor file.",
+		 "%s: invalid internal handle - missing metadata.",
 		 function );
 
 		return( -1 );
@@ -1358,7 +1445,7 @@ int libvslvm_handle_open_extent_data_file_io_handle(
 	}
 	if( libbfio_pool_set_handle(
 	     file_io_pool,
-	     extent_index,
+	     physical_volume_index,
 	     file_io_handle,
 	     bfio_access_flags,
 	     error ) != 1 )
@@ -1369,7 +1456,7 @@ int libvslvm_handle_open_extent_data_file_io_handle(
 		 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
 		 "%s: unable to set file IO handle: %d in pool.",
 		 function,
-		 extent_index );
+		 physical_volume_index );
 
 		goto on_error;
 	}
@@ -1383,7 +1470,229 @@ on_error:
 	return( -1 );
 }
 
-#endif /* TODO */
+/* Reads the data area table
+ * Returns 1 if successful or -1 on error
+ */
+int libvslvm_handle_open_read_data_area_table(
+     libvslvm_internal_handle_t *internal_handle,
+     libbfio_pool_t *file_io_pool,
+     libcerror_error_t **error )
+{
+	libbfio_handle_t *file_io_handle            = NULL;
+	libvslvm_physical_volume_t *physical_volume = NULL;
+	libvslvm_volume_group_t *volume_group       = NULL;
+	static char *function                       = "libvslvm_handle_open_read_data_area_table";
+	off64_t file_offset                         = 0;
+	int number_of_file_io_handles               = 0;
+	int number_of_data_area_descriptors         = 0;
+	int number_of_physical_volumes              = 0;
+	int physical_volume_index                   = 0;
+	int result                                  = 0;
+
+	if( internal_handle == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid handle.",
+		 function );
+
+		return( -1 );
+	}
+	result = libvslvm_metadata_get_volume_group(
+	          internal_handle->metadata,
+	          &volume_group,
+	          error );
+
+	if( result == -1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve number of metadata area descriptors from array.",
+		 function );
+
+		return( -1 );
+	}
+	else if( result == 0 )
+	{
+		return( 1 );
+	}
+	if( libvslvm_volume_group_get_number_of_physical_volumes(
+	     volume_group,
+	     &number_of_physical_volumes,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve number of physical volumes.",
+		 function );
+
+		goto on_error;
+	}
+	if( number_of_physical_volumes == 0 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: missing physical volumes.",
+		 function );
+
+		goto on_error;
+	}
+	if( libbfio_pool_get_number_of_handles(
+	     file_io_pool,
+	     &number_of_file_io_handles,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve the number of file IO handles.",
+		 function );
+
+		return( -1 );
+	}
+	if( number_of_file_io_handles != number_of_physical_volumes )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: mismatch between number of file IO handles in pool and physical volumes in metadata.",
+		 function );
+
+		goto on_error;
+	}
+	for( physical_volume_index = 0;
+	     physical_volume_index < number_of_physical_volumes;
+	     physical_volume_index++ )
+	{
+		if( libvslvm_volume_group_get_physical_volume(
+		     volume_group,
+		     physical_volume_index,
+		     &physical_volume,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+			 "%s: unable to retrieve physical volume: %d from volume group.",
+			 function,
+			 physical_volume_index );
+
+			goto on_error;
+		}
+		if( libbfio_pool_get_handle(
+		     file_io_pool,
+		     physical_volume_index,
+		     &file_io_handle,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+			 "%s: unable to retrieve file IO handle: %d from pool.",
+			 function,
+			 physical_volume_index );
+
+			return( -1 );
+		}
+		/* The physical volume label can be stored in one of the first 4 sectors
+		 */
+		file_offset = 0;
+
+		while( file_offset < 2048 )
+		{
+			result = libvslvm_physical_volume_read_label(
+				  physical_volume,
+				  file_io_handle,
+				  file_offset,
+				  error );
+
+			if( result == -1 )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_IO,
+				 LIBCERROR_IO_ERROR_READ_FAILED,
+				 "%s: unable to read physical volume label at offset: %" PRIi64 ".",
+				 function,
+				 file_offset );
+
+				goto on_error;
+			}
+			else if( result != 0 )
+			{
+				break;
+			}
+			file_offset += 512;
+		}
+		if( libvslvm_physical_volume_get_number_of_data_area_descriptors(
+		     physical_volume,
+		     &number_of_data_area_descriptors,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+			 "%s: unable to retrieve number of data area descriptors from array.",
+			 function );
+
+			goto on_error;
+		}
+		if( number_of_data_area_descriptors <= 0 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+			 "%s: unsupported number of data area descriptors.",
+			 function );
+
+			goto on_error;
+		}
+	}
+/* TODO build data area table */
+	if( libvslvm_volume_group_free(
+	     &volume_group,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+		 "%s: unable to free volume group.",
+		 function );
+
+		goto on_error;
+	}
+	return( 1 );
+
+on_error:
+	if( physical_volume != NULL )
+	{
+		libvslvm_physical_volume_free(
+		 &physical_volume,
+		 NULL );
+	}
+	if( volume_group != NULL )
+	{
+		libvslvm_volume_group_free(
+		 &volume_group,
+		 NULL );
+	}
+	return( -1 );
+}
 
 /* Closes a handle
  * Returns 0 if successful or -1 on error
@@ -1470,10 +1779,10 @@ int libvslvm_handle_close(
 	internal_handle->file_io_handle                    = NULL;
 	internal_handle->file_io_handle_created_in_library = 0;
 
-	if( internal_handle->extent_data_file_io_pool_created_in_library != 0 )
+	if( internal_handle->physical_volume_file_io_pool_created_in_library != 0 )
 	{
 		if( libbfio_pool_close_all(
-		     internal_handle->extent_data_file_io_pool,
+		     internal_handle->physical_volume_file_io_pool,
 		     error ) != 0 )
 		{
 			libcerror_error_set(
@@ -1486,21 +1795,21 @@ int libvslvm_handle_close(
 			result = -1;
 		}
 		if( libbfio_pool_free(
-		     &( internal_handle->extent_data_file_io_pool ),
+		     &( internal_handle->physical_volume_file_io_pool ),
 		     error ) != 1 )
 		{
 			libcerror_error_set(
 			 error,
 			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 			 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
-			 "%s: unable to extent data free file IO pool.",
+			 "%s: unable to physical volume data free file IO pool.",
 			 function );
 
 			result = -1;
 		}
-		internal_handle->extent_data_file_io_pool_created_in_library = 0;
+		internal_handle->physical_volume_file_io_pool_created_in_library = 0;
 	}
-	internal_handle->extent_data_file_io_pool = NULL;
+	internal_handle->physical_volume_file_io_pool = NULL;
 
 	if( libvslvm_io_handle_clear(
 	     internal_handle->io_handle,
@@ -1511,34 +1820,6 @@ int libvslvm_handle_close(
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
 		 "%s: unable to clear IO handle.",
-		 function );
-
-		result = -1;
-	}
-	if( libcdata_array_empty(
-	     internal_handle->data_area_descriptors_array,
-	     (int (*)(intptr_t **, libcerror_error_t **)) &libvslvm_data_area_descriptor_free,
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
-		 "%s: unable to empty data area descriptors array.",
-		 function );
-
-		result = -1;
-	}
-	if( libcdata_array_empty(
-	     internal_handle->metadata_area_descriptors_array,
-	     (int (*)(intptr_t **, libcerror_error_t **)) &libvslvm_data_area_descriptor_free,
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
-		 "%s: unable to empty metadata area descriptors array.",
 		 function );
 
 		result = -1;
@@ -1571,6 +1852,7 @@ int libvslvm_handle_open_read(
 {
 	libvslvm_data_area_descriptor_t *data_area_descriptor       = NULL;
 	libvslvm_metadata_area_t *metadata_area                     = NULL;
+	libvslvm_physical_volume_t *physical_volume                 = NULL;
 	libvslvm_raw_location_descriptor_t *raw_location_descriptor = NULL;
 	static char *function                                       = "libvslvm_handle_open_read";
 	off64_t file_offset                                         = 0;
@@ -1606,16 +1888,27 @@ int libvslvm_handle_open_read(
 
 		return( -1 );
 	}
+	if( libvslvm_physical_volume_initialize(
+	     &physical_volume,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+		 "%s: unable to create physical volume.",
+		 function );
+
+		goto on_error;
+	}
 	/* The physical volume label can be stored in one of the first 4 sectors
 	 */
 	while( file_offset < 2048 )
 	{
-		result = libvslvm_io_handle_read_physical_volume_label(
-		          internal_handle->io_handle,
+		result = libvslvm_physical_volume_read_label(
+		          physical_volume,
 		          internal_handle->file_io_handle,
 		          file_offset,
-		          internal_handle->data_area_descriptors_array,
-		          internal_handle->metadata_area_descriptors_array,
 		          error );
 
 		if( result == -1 )
@@ -1636,8 +1929,8 @@ int libvslvm_handle_open_read(
 		}
 		file_offset += 512;
 	}
-	if( libcdata_array_get_number_of_entries(
-	     internal_handle->metadata_area_descriptors_array,
+	if( libvslvm_physical_volume_get_number_of_metadata_area_descriptors(
+	     physical_volume,
 	     &number_of_data_area_descriptors,
 	     error ) != 1 )
 	{
@@ -1650,7 +1943,7 @@ int libvslvm_handle_open_read(
 
 		goto on_error;
 	}
-/* TODO */
+/* TODO add support for more than one metadata area descriptors */
 	if( number_of_data_area_descriptors != 1 )
 	{
 		libcerror_error_set(
@@ -1662,10 +1955,10 @@ int libvslvm_handle_open_read(
 
 		goto on_error;
 	}
-	if( libcdata_array_get_entry_by_index(
-	     internal_handle->metadata_area_descriptors_array,
+	if( libvslvm_physical_volume_get_metadata_area_descriptor(
+	     physical_volume,
 	     0,
-	     (intptr_t **) &data_area_descriptor,
+	     &data_area_descriptor,
 	     error ) != 1 )
 	{
 		libcerror_error_set(
@@ -1736,7 +2029,7 @@ int libvslvm_handle_open_read(
 
 		goto on_error;
 	}
-/* TODO */
+/* TODO add support for more than one raw location descriptors */
 	if( number_of_raw_location_descriptors != 1 )
 	{
 		libcerror_error_set(
@@ -1825,6 +2118,19 @@ int libvslvm_handle_open_read(
 
 		goto on_error;
 	}
+	if( libvslvm_physical_volume_free(
+	     &physical_volume,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+		 "%s: unable to free physical volume.",
+		 function );
+
+		goto on_error;
+	}
 	return( 1 );
 
 on_error:
@@ -1838,6 +2144,12 @@ on_error:
 	{
 		libvslvm_metadata_area_free(
 		 &metadata_area,
+		 NULL );
+	}
+	if( physical_volume != NULL )
+	{
+		libvslvm_physical_volume_free(
+		 &physical_volume,
 		 NULL );
 	}
 	return( -1 );

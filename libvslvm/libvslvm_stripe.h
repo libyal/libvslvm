@@ -63,10 +63,29 @@ int libvslvm_internal_stripe_free(
      libvslvm_internal_stripe_t **internal_stripe,
      libcerror_error_t **error );
 
+LIBVSLVM_EXTERN \
+int libvslvm_stripe_get_physical_volume_name_size(
+     libvslvm_stripe_t *stripe,
+     size_t *physical_volume_name_size,
+     libcerror_error_t **error );
+
+LIBVSLVM_EXTERN \
+int libvslvm_stripe_get_physical_volume_name(
+     libvslvm_stripe_t *stripe,
+     char *physical_volume_name,
+     size_t physical_volume_name_size,
+     libcerror_error_t **error );
+
 int libvslvm_stripe_set_physical_volume_name(
      libvslvm_stripe_t *stripe,
      const char *physical_volume_name,
      size_t physical_volume_name_size,
+     libcerror_error_t **error );
+
+LIBVSLVM_EXTERN \
+int libvslvm_stripe_get_data_area_offset(
+     libvslvm_stripe_t *stripe,
+     off64_t *data_area_offset,
      libcerror_error_t **error );
 
 #if defined( __cplusplus )

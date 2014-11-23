@@ -443,7 +443,7 @@ int info_handle_volume_group_fprint(
 		}
 		fprintf(
 		 info_handle->notify_stream,
-		 "\tName:\t\t\t\t%" PRIs_LIBCSTRING_SYSTEM "\n",
+		 "\tName:\t\t\t\t\t%" PRIs_LIBCSTRING_SYSTEM "\n",
 		 value_string );
 
 		memory_free(
@@ -509,7 +509,7 @@ int info_handle_volume_group_fprint(
 		}
 		fprintf(
 		 info_handle->notify_stream,
-		 "\tIdentifier:\t\t\t%" PRIs_LIBCSTRING_SYSTEM "\n",
+		 "\tIdentifier:\t\t\t\t%" PRIs_LIBCSTRING_SYSTEM "\n",
 		 value_string );
 
 		memory_free(
@@ -533,7 +533,7 @@ int info_handle_volume_group_fprint(
 	}
 	fprintf(
 	 info_handle->notify_stream,
-	 "\tSequence number:\t\t%" PRIu32 "\n",
+	 "\tSequence number:\t\t\t%" PRIu32 "\n",
 	 value_32bit );
 
 	if( libvslvm_volume_group_get_extent_size(
@@ -552,7 +552,7 @@ int info_handle_volume_group_fprint(
 	}
 	fprintf(
 	 info_handle->notify_stream,
-	 "\tExtent size:\t\t\t%" PRIu64 " bytes\n",
+	 "\tExtent size:\t\t\t\t%" PRIu64 " bytes\n",
 	 extent_size );
 
 	if( libvslvm_volume_group_get_number_of_physical_volumes(
@@ -571,7 +571,7 @@ int info_handle_volume_group_fprint(
 	}
 	fprintf(
 	 info_handle->notify_stream,
-	 "\tNumber of physical volumes:\t%d\n",
+	 "\tNumber of physical volumes:\t\t%d\n",
 	 number_of_physical_volumes );
 
 	if( libvslvm_volume_group_get_number_of_logical_volumes(
@@ -590,7 +590,7 @@ int info_handle_volume_group_fprint(
 	}
 	fprintf(
 	 info_handle->notify_stream,
-	 "\tNumber of logical volumes:\t%d\n",
+	 "\tNumber of logical volumes:\t\t%d\n",
 	 number_of_logical_volumes );
 
 	fprintf(
@@ -810,7 +810,7 @@ int info_handle_physical_volume_fprint(
 		}
 		fprintf(
 		 info_handle->notify_stream,
-		 "\tName:\t\t\t\t%" PRIs_LIBCSTRING_SYSTEM "\n",
+		 "\tName:\t\t\t\t\t%" PRIs_LIBCSTRING_SYSTEM "\n",
 		 value_string );
 
 		memory_free(
@@ -876,7 +876,7 @@ int info_handle_physical_volume_fprint(
 		}
 		fprintf(
 		 info_handle->notify_stream,
-		 "\tIdentifier:\t\t\t%" PRIs_LIBCSTRING_SYSTEM "\n",
+		 "\tIdentifier:\t\t\t\t%" PRIs_LIBCSTRING_SYSTEM "\n",
 		 value_string );
 
 		memory_free(
@@ -942,7 +942,7 @@ int info_handle_physical_volume_fprint(
 		}
 		fprintf(
 		 info_handle->notify_stream,
-		 "\tDevice path:\t\t\t%" PRIs_LIBCSTRING_SYSTEM "\n",
+		 "\tDevice path:\t\t\t\t%" PRIs_LIBCSTRING_SYSTEM "\n",
 		 value_string );
 
 		memory_free(
@@ -966,7 +966,7 @@ int info_handle_physical_volume_fprint(
 	}
 	fprintf(
 	 info_handle->notify_stream,
-	 "\tVolume size:\t\t\t%" PRIu64 " bytes\n",
+	 "\tVolume size:\t\t\t\t%" PRIu64 " bytes\n",
 	 volume_size );
 
 	fprintf(
@@ -1074,7 +1074,7 @@ int info_handle_logical_volume_fprint(
 		}
 		fprintf(
 		 info_handle->notify_stream,
-		 "\tName:\t\t\t\t%" PRIs_LIBCSTRING_SYSTEM "\n",
+		 "\tName:\t\t\t\t\t%" PRIs_LIBCSTRING_SYSTEM "\n",
 		 value_string );
 
 		memory_free(
@@ -1140,7 +1140,7 @@ int info_handle_logical_volume_fprint(
 		}
 		fprintf(
 		 info_handle->notify_stream,
-		 "\tIdentifier:\t\t\t%" PRIs_LIBCSTRING_SYSTEM "\n",
+		 "\tIdentifier:\t\t\t\t%" PRIs_LIBCSTRING_SYSTEM "\n",
 		 value_string );
 
 		memory_free(
@@ -1164,7 +1164,7 @@ int info_handle_logical_volume_fprint(
 	}
 	fprintf(
 	 info_handle->notify_stream,
-	 "\tNumber of segments:\t\t%d\n",
+	 "\tNumber of segments:\t\t\t%d\n",
 	 number_of_segments );
 
 	for( segment_index = 0;
@@ -1218,10 +1218,6 @@ int info_handle_logical_volume_fprint(
 			goto on_error;
 		}
 	}
-	fprintf(
-	 info_handle->notify_stream,
-	 "\n" );
-
 	return( 1 );
 
 on_error:
@@ -1253,9 +1249,12 @@ int info_handle_segment_fprint(
      libvslvm_segment_t *segment,
      libcerror_error_t **error )
 {
-	static char *function  = "info_handle_segment_fprint";
-	off64_t segment_offset = 0;
-	size64_t segment_size  = 0;
+	libvslvm_stripe_t *stripe = NULL;
+	static char *function     = "info_handle_segment_fprint";
+	off64_t segment_offset    = 0;
+	size64_t segment_size     = 0;
+	int number_of_stripes     = 0;
+	int stripe_index          = 0;
 
 	if( info_handle == NULL )
 	{
@@ -1285,11 +1284,11 @@ int info_handle_segment_fprint(
 		 "%s: unable to retrieve offset.",
 		 function );
 
-		return( -1 );
+		goto on_error;
 	}
 	fprintf(
 	 info_handle->notify_stream,
-	 "\t\tOffset:\t\t\t0x%08" PRIx64 " (%" PRIi64 ")\n",
+	 "\t\tOffset:\t\t\t\t0x%08" PRIx64 " (%" PRIi64 ")\n",
 	 segment_offset,
 	 segment_offset );
 
@@ -1305,18 +1304,224 @@ int info_handle_segment_fprint(
 		 "%s: unable to retrieve size.",
 		 function );
 
+		goto on_error;
+	}
+	fprintf(
+	 info_handle->notify_stream,
+	 "\t\tSize:\t\t\t\t%" PRIu64 " bytes\n",
+	 segment_size );
+
+	if( libvslvm_segment_get_number_of_stripes(
+	     segment,
+	     &number_of_stripes,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve number of stripes.",
+		 function );
+
+		goto on_error;
+	}
+	fprintf(
+	 info_handle->notify_stream,
+	 "\t\tNumber of stripes:\t\t%d\n",
+	 number_of_stripes );
+
+	for( stripe_index = 0;
+	     stripe_index < number_of_stripes;
+	     stripe_index++ )
+	{
+		if( libvslvm_segment_get_stripe(
+		     segment,
+		     stripe_index,
+		     &stripe,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+			 "%s: unable to retrieve stripe: %d.",
+			 function,
+			 stripe_index );
+
+			goto on_error;
+		}
+		if( info_handle_stripe_fprint(
+		     info_handle,
+		     stripe_index,
+		     stripe,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_PRINT_FAILED,
+			 "%s: unable to print stripe: %d information.",
+			 function,
+			 stripe_index );
+
+			goto on_error;
+		}
+		if( libvslvm_stripe_free(
+		     &stripe,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+			 "%s: unable to free stripe: %d.",
+			 function,
+			 stripe_index );
+
+			goto on_error;
+		}
+	}
+	return( 1 );
+
+on_error:
+	if( stripe != NULL )
+	{
+		libvslvm_stripe_free(
+		 &stripe,
+		 NULL );
+	}
+	return( -1 );
+}
+
+/* Prints the stripe information
+ * Returns 1 if successful or -1 on error
+ */
+int info_handle_stripe_fprint(
+     info_handle_t *info_handle,
+     int stripe_index,
+     libvslvm_stripe_t *stripe,
+     libcerror_error_t **error )
+{
+	static char *function    = "info_handle_stripe_fprint";
+	char *value_string       = NULL;
+	size_t value_string_size = 0;
+	off64_t data_area_offset = 0;
+
+	if( info_handle == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid info handle.",
+		 function );
+
 		return( -1 );
 	}
 	fprintf(
 	 info_handle->notify_stream,
-	 "\t\tSize:\t\t\t%" PRIu64 " bytes\n",
-	 segment_size );
+	 "\t\tStripe: %d\n",
+	 stripe_index + 1 );
+
+	if( libvslvm_stripe_get_physical_volume_name_size(
+	     stripe,
+	     &value_string_size,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve physical volume name size.",
+		 function );
+
+		goto on_error;
+	}
+	else if( value_string_size > 0 )
+	{
+		if( value_string_size > (size_t) SSIZE_MAX )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_VALUE_EXCEEDS_MAXIMUM,
+			 "%s: invalid parent value string size value exceeds maximum.",
+			 function );
+
+			goto on_error;
+		}
+		value_string = libcstring_narrow_string_allocate(
+		                value_string_size );
+
+		if( value_string == NULL )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_MEMORY,
+			 LIBCERROR_MEMORY_ERROR_INSUFFICIENT,
+			 "%s: unable to create physical volume name string.",
+			 function );
+
+			goto on_error;
+		}
+		if( libvslvm_stripe_get_physical_volume_name(
+		     stripe,
+		     value_string,
+		     value_string_size,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+			 "%s: unable to retrieve physical volume name.",
+			 function );
+
+			goto on_error;
+		}
+		fprintf(
+		 info_handle->notify_stream,
+		 "\t\t\tPhysical volume:\t%" PRIs_LIBCSTRING_SYSTEM "\n",
+		 value_string );
+
+		memory_free(
+		 value_string );
+
+		value_string = NULL;
+	}
+	if( libvslvm_stripe_get_data_area_offset(
+	     stripe,
+	     &data_area_offset,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve data area offset.",
+		 function );
+
+		goto on_error;
+	}
+	fprintf(
+	 info_handle->notify_stream,
+	 "\t\t\tData area offset:\t0x%08" PRIx64 " (%" PRIi64 ")\n",
+	 data_area_offset,
+	 data_area_offset );
 
 	fprintf(
 	 info_handle->notify_stream,
 	 "\n" );
 
 	return( 1 );
+
+on_error:
+	if( value_string != NULL )
+	{
+		memory_free(
+		 value_string );
+	}
+	return( -1 );
 }
 
 /* Prints the information

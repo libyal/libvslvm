@@ -1572,10 +1572,14 @@ int __stdcall vslvmmount_dokan_FindFiles(
 {
 	WIN32_FIND_DATAW find_data;
 
-	libcerror_error_t *error = NULL;
-	static char *function    = "vslvmmount_dokan_FindFiles";
-	size_t path_length       = 0;
-	int result               = 0;
+	wchar_t vslvmmount_dokan_path[ 10 ];
+
+	libcerror_error_t *error      = NULL;
+	static char *function         = "vslvmmount_dokan_FindFiles";
+	size_t path_length            = 0;
+	int logical_volume_index      = 0;
+	int number_of_logical_volumes = 0;
+	int result                    = 0;
 
 	if( path == NULL )
 	{
@@ -1590,7 +1594,6 @@ int __stdcall vslvmmount_dokan_FindFiles(
 
 		goto on_error;
 	}
-/* TODO implement dokan support */
 	path_length = libcstring_wide_string_length(
 	               path );
 
@@ -1606,6 +1609,52 @@ int __stdcall vslvmmount_dokan_FindFiles(
 		 path );
 
 		result = -ERROR_FILE_NOT_FOUND;
+
+		goto on_error;
+	}
+	if( libcstring_wide_string_copy(
+	     vslvmmount_dokan_path,
+	     vslvmmount_dokan_path_prefix,
+	     vslvmmount_dokan_path_prefix_length ) == NULL )
+	{
+		libcerror_error_set(
+		 &error,
+		 LIBCERROR_ERROR_DOMAIN_MEMORY,
+		 LIBCERROR_MEMORY_ERROR_COPY_FAILED,
+		 "%s: unable to copy path prefix.",
+		 function );
+
+		result = -ERROR_GEN_FAILURE;
+
+		goto on_error;
+	}
+	if( mount_handle_get_number_of_logical_volumes(
+	     vslvmmount_mount_handle,
+	     &number_of_logical_volumes,
+	     &error ) != 1 )
+	{
+		libcerror_error_set(
+		 &error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve number of input handles.",
+		 function );
+
+		result = -ERROR_GEN_FAILURE;
+
+		goto on_error;
+	}
+	if( ( number_of_logical_volumes < 0 )
+	 || ( number_of_logical_volumes > 99 ) )
+	{
+		libcerror_error_set(
+		 &error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_UNSUPPORTED_VALUE,
+		 "%s: unsupported number of input handles.",
+		 function );
+
+		result = -ERROR_GEN_FAILURE;
 
 		goto on_error;
 	}
@@ -1651,26 +1700,45 @@ int __stdcall vslvmmount_dokan_FindFiles(
 
 		goto on_error;
 	}
-	if( vslvmmount_dokan_filldir(
-	     fill_find_data,
-	     file_info,
-	     &( vslvmmount_dokan_path[ 1 ] ),
-	     vslvmmount_dokan_path_length,
-	     &find_data,
-	     vslvmmount_mount_handle,
-	     0,
-	     &error ) != 1 )
+	for( logical_volume_index = 1;
+	     logical_volume_index <= number_of_logical_volumes;
+	     logical_volume_index++ )
 	{
-		libcerror_error_set(
-		 &error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
-		 "%s: unable to set find data.",
-		 function );
+		string_index = (int) vslvmmount_dokan_path_prefix_length;
 
-		result = -ERROR_GEN_FAILURE;
+		if( logical_volume_index >= 100 )
+		{
+			vslvmmount_dokan_path[ string_index++ ] = (wchar_t) ( '0' + ( logical_volume_index / 100 ) );
+		}
+		if( logical_volume_index >= 10 )
+		{
+			vslvmmount_dokan_path[ string_index++ ] = (wchar_t) ( '0' + ( logical_volume_index / 10 ) );
+		}
+		vslvmmount_dokan_path[ string_index++ ] = (wchar_t) ( '0' + ( logical_volume_index % 10 ) );
+		vslvmmount_dokan_path[ string_index++ ] = 0;
 
-		goto on_error;
+		if( vslvmmount_dokan_filldir(
+		     fill_find_data,
+		     file_info,
+		     &( vslvmmount_dokan_path[ 1 ] ),
+		     string_index - 1,
+		     &find_data,
+		     vslvmmount_mount_handle,
+		     logical_volume_index - 1,
+		     1,
+		     &error ) != 1 )
+		{
+			libcerror_error_set(
+			 &error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
+			 "%s: unable to set find data.",
+			 function );
+
+			result = -ERROR_GEN_FAILURE;
+
+			goto on_error;
+		}
 	}
 	return( 0 );
 
@@ -1690,9 +1758,6 @@ on_error:
  */
 int vslvmmount_dokan_set_file_information(
      BY_HANDLE_FILE_INFORMATION *file_information,
-     uint64_t creation_time,
-     uint64_t modification_time,
-     uint64_t access_time,
      size64_t size,
      int number_of_sub_items,
      uint8_t use_mount_time,
@@ -1711,26 +1776,8 @@ int vslvmmount_dokan_set_file_information(
 
 		return( -1 );
 	}
-	if( use_mount_time == 0 )
-	{
-		if( creation_time != 0 )
-		{
-			file_information->ftCreationTime.dwLowDateTime  = (uint32_t) ( creation_time & 0x00000000ffffffffULL );
-			file_information->ftCreationTime.dwHighDateTime = creation_time >> 32;
-		}
-		if( modification_time != 0 )
-		{
-			file_information->ftLastWriteTime.dwLowDateTime  = (uint32_t) ( modification_time & 0x00000000ffffffffULL );
-			file_information->ftLastWriteTime.dwHighDateTime = modification_time >> 32;
-		}
-		if( access_time != 0 )
-		{
-			file_information->ftLastAccessTime.dwLowDateTime  = (uint32_t) ( access_time & 0x00000000ffffffffULL );
-			file_information->ftLastAccessTime.dwHighDateTime = access_time >> 32;
-		}
-	}
 /* TODO implement
-	else
+	if( use_mount_time != 0 )
 	{
 	}
 */
@@ -1760,6 +1807,7 @@ int __stdcall vslvmmount_dokan_GetFileInformation(
 	static char *function    = "vslvmmount_dokan_GetFileInformation";
 	size64_t volume_size     = 0;
 	size_t path_length       = 0;
+	int logical_volume_index = 0;
 	int number_of_sub_items  = 0;
 	int result               = 0;
 	uint8_t use_mount_time   = 0;
@@ -1814,11 +1862,12 @@ int __stdcall vslvmmount_dokan_GetFileInformation(
 	}
 	else
 	{
-		if( ( path_length != vslvmmount_dokan_path_length )
+		if( ( path_length <= vslvmmount_dokan_path_prefix_length )
+		 || ( path_length > ( vslvmmount_dokan_path_prefix_length + 3 ) )
 		 || ( libcstring_wide_string_compare(
 		       path,
-		       vslvmmount_dokan_path,
-		       vslvmmount_dokan_path_length ) != 0 ) )
+		       vslvmmount_dokan_path_prefix,
+		       vslvmmount_dokan_path_prefix_length ) != 0 ) )
 		{
 			libcerror_error_set(
 			 &error,
@@ -1832,10 +1881,25 @@ int __stdcall vslvmmount_dokan_GetFileInformation(
 
 			goto on_error;
 		}
-/* TODO implement */
+		string_index = (int) vslvmmount_dokan_path_prefix_length;
+
+		input_handle_index = path[ string_index++ ] - (wchar_t) '0';
+
+		if( string_index < (int) path_length )
+		{
+			input_handle_index *= 10;
+			input_handle_index += path[ string_index++ ] - (wchar_t) '0';
+		}
+		if( string_index < (int) path_length )
+		{
+			input_handle_index *= 10;
+			input_handle_index += path[ string_index++ ] - (wchar_t) '0';
+		}
+		input_handle_index -= 1;
+
 		if( mount_handle_get_volume_size(
 		     vslvmmount_mount_handle,
-		     0,
+		     input_handle_index,
 		     &volume_size,
 		     &error ) != 1 )
 		{
@@ -1850,12 +1914,10 @@ int __stdcall vslvmmount_dokan_GetFileInformation(
 
 			goto on_error;
 		}
+		use_mount_time = 1;
 	}
 	if( vslvmmount_dokan_set_file_information(
 	     file_information,
-	     0,
-	     0,
-	     0,
 	     volume_size,
 	     number_of_sub_items,
 	     use_mount_time,
@@ -1905,14 +1967,14 @@ int __stdcall vslvmmount_dokan_GetVolumeInformation(
 	LIBCSYSTEM_UNREFERENCED_PARAMETER( file_info )
 
 	if( ( volume_name != NULL )
-	 && ( volume_name_size > (DWORD) ( sizeof( wchar_t ) * 5 ) ) )
+	 && ( volume_name_size > (DWORD) ( sizeof( wchar_t ) * 4 ) ) )
 	{
 		/* Using wcsncpy seems to cause strange behavior here
 		 */
 		if( memory_copy(
 		     volume_name,
-		     L"QCOW",
-		     sizeof( wchar_t ) * 5 ) == NULL )
+		     L"LVM",
+		     sizeof( wchar_t ) * 4 ) == NULL )
 		{
 			libcerror_error_set(
 			 &error,
@@ -1992,7 +2054,6 @@ int __stdcall vslvmmount_dokan_Unmount(
 }
 
 #endif
-
 
 /* The main program
  */

@@ -1,22 +1,45 @@
 TODO
-* vslvmmount complete dokan support
+* implement libvslvm_handle_open_physical_volume_data_files
+* libvslvm_logical_volume_seek_offset fix locking issue.
 * finish:
   - libvslvm_internal_logical_volume_read_buffer_from_file_io_handle
+  - make sure to set the right offset in internal_logical_volume->chunks_vector 
 
-* make sure metadata is cleaned on close - also if no data files were set!
+* update manuals
+
+Library:
 * metadata
   - parse and expose global values
-* slices fill fdata stream
-* map pv names to file IO pool?
+  - make sure metadata is cleaned on close - also if no data files were set!
+  - metadata: handle trailing comment in more places?
+* implement read logical volume functionality
+  - stripes fill fdata stream
+* implement multi strip support
+* implement multi physical volume files support
+  - map pv names to file IO pool?
+* add support to specify metadata in external configuration file
 * API
   - allow for multiple input images (physical volumes)
-    use libvmdk data files approach
   - allow open to read a text file with the metadata
-  - expose segments and slices
-* metadata: handle trailing comment in more places?
-* add support to specify metadata in external configuration file?
-* add Python bindings
-* update manuals
+
+Python bindings:
+* implement
+
+Tools:
+* vslvminfo
+  - print stripes and in-volume offsets
+* vslvmmount
+  - allow use of names besides lvm#?
+
+20141123
+* worked on read logical volume functionality
+* worked on multi physical volume files support
+
+20141122
+* worked on vslvmmount
+* worked on read logical volume functionality
+* updated include header
+* worked on multi physical volume files support
 
 20141121
 * worked on read logical volume functionality

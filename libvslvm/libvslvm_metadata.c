@@ -1038,7 +1038,7 @@ int libvslvm_metadata_read_volume_group(
 				if( libcnotify_verbose != 0 )
 				{
 					libcnotify_printf(
-					 "%s: metadata copies\t: %s\n",
+					 "%s: metadata copies\t\t: %s\n",
 					 function,
 					 value );
 				}

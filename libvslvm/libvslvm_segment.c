@@ -379,6 +379,113 @@ int libvslvm_segment_get_size(
 	return( 1 );
 }
 
+/* Retrieves the number of stripes
+ * Returns 1 if successful or -1 on error
+ */
+int libvslvm_segment_get_number_of_stripes(
+     libvslvm_segment_t *segment,
+     int *number_of_stripes,
+     libcerror_error_t **error )
+{
+	libvslvm_internal_segment_t *internal_segment = NULL;
+	static char *function                         = "libvslvm_segment_get_number_of_stripes";
+
+	if( segment == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid segment.",
+		 function );
+
+		return( -1 );
+	}
+	internal_segment = (libvslvm_internal_segment_t *) segment;
+
+	if( libcdata_array_get_number_of_entries(
+	     internal_segment->stripes_array,
+	     number_of_stripes,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve number of elements from stripes array.",
+		 function );
+
+		return( -1 );
+	}
+	return( 1 );
+}
+
+/* Retrieves a specific stripe
+ * Returns 1 if successful or -1 on error
+ */
+int libvslvm_segment_get_stripe(
+     libvslvm_segment_t *segment,
+     int stripe_index,
+     libvslvm_stripe_t **stripe,
+     libcerror_error_t **error )
+{
+	libvslvm_internal_segment_t *internal_segment = NULL;
+	static char *function                         = "libvslvm_segment_get_stripe";
+
+	if( segment == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid segment.",
+		 function );
+
+		return( -1 );
+	}
+	internal_segment = (libvslvm_internal_segment_t *) segment;
+
+	if( stripe == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid stripe.",
+		 function );
+
+		return( -1 );
+	}
+	if( *stripe != NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
+		 "%s: invalid stripe value already set.",
+		 function );
+
+		return( -1 );
+	}
+	if( libcdata_array_get_entry_by_index(
+	     internal_segment->stripes_array,
+	     stripe_index,
+	     (intptr_t **) stripe,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve stripe: %d.",
+		 function,
+		 stripe_index );
+
+		return( -1 );
+	}
+	return( 1 );
+}
+
 /* Appends a stripe
  * Returns 1 if successful or -1 on error
  */

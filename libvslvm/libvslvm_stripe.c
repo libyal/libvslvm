@@ -163,6 +163,123 @@ int libvslvm_internal_stripe_free(
 	return( 1 );
 }
 
+/* Retrieves the size of the ASCII formatted physical volume name
+ * Returns 1 if successful or -1 on error
+ */
+int libvslvm_stripe_get_physical_volume_name_size(
+     libvslvm_stripe_t *stripe,
+     size_t *physical_volume_name_size,
+     libcerror_error_t **error )
+{
+	libvslvm_internal_stripe_t *internal_stripe = NULL;
+	static char *function                       = "libvslvm_stripe_get_physical_volume_name_size";
+
+	if( stripe == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid stripe.",
+		 function );
+
+		return( -1 );
+	}
+	internal_stripe = (libvslvm_internal_stripe_t *) stripe;
+
+	if( physical_volume_name_size == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid physical volume name size.",
+		 function );
+
+		return( -1 );
+	}
+	*physical_volume_name_size = internal_stripe->physical_volume_name_size;
+
+	return( 1 );
+}
+
+/* Retrieves the ASCII formatted physical volume name
+ * Returns 1 if successful or -1 on error
+ */
+int libvslvm_stripe_get_physical_volume_name(
+     libvslvm_stripe_t *stripe,
+     char *physical_volume_name,
+     size_t physical_volume_name_size,
+     libcerror_error_t **error )
+{
+	libvslvm_internal_stripe_t *internal_stripe = NULL;
+	static char *function                       = "libvslvm_stripe_set_physical_volume_name";
+
+	if( stripe == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid stripe.",
+		 function );
+
+		return( -1 );
+	}
+	internal_stripe = (libvslvm_internal_stripe_t *) stripe;
+
+	if( physical_volume_name == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid physical volume name.",
+		 function );
+
+		return( -1 );
+	}
+	if( physical_volume_name_size > (size_t) SSIZE_MAX )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_VALUE_EXCEEDS_MAXIMUM,
+		 "%s: invalid physical volume name size value exceeds maximum.",
+		 function );
+
+		return( -1 );
+	}
+	if( physical_volume_name_size < internal_stripe->physical_volume_name_size )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_VALUE_TOO_SMALL,
+		 "%s: invalid physical volume name size value too small.",
+		 function );
+
+		return( -1 );
+	}
+	if( memory_copy(
+	     physical_volume_name,
+	     internal_stripe->physical_volume_name,
+	     internal_stripe->physical_volume_name_size ) == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_MEMORY,
+		 LIBCERROR_MEMORY_ERROR_COPY_FAILED,
+		 "%s: unable to copy physical volume name.",
+		 function );
+
+		return( -1 );
+	}
+	physical_volume_name[ internal_stripe->physical_volume_name_size - 1 ] = 0;
+
+	return( 1 );
+}
+
 /* Sets the physical volume name
  * Returns 1 if successful or -1 on error
  */
@@ -263,5 +380,45 @@ on_error:
 	internal_stripe->physical_volume_name_size = 0;
 
 	return( -1 );
+}
+
+/* Retrieves the data area offset
+ * Returns 1 if successful or -1 on error
+ */
+int libvslvm_stripe_get_data_area_offset(
+     libvslvm_stripe_t *stripe,
+     off64_t *data_area_offset,
+     libcerror_error_t **error )
+{
+	libvslvm_internal_stripe_t *internal_stripe = NULL;
+	static char *function                       = "libvslvm_stripe_get_data_area_offset";
+
+	if( stripe == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid stripe.",
+		 function );
+
+		return( -1 );
+	}
+	internal_stripe = (libvslvm_internal_stripe_t *) stripe;
+
+	if( data_area_offset == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid data area offset.",
+		 function );
+
+		return( -1 );
+	}
+	*data_area_offset = internal_stripe->data_area_offset;
+
+	return( 1 );
 }
 

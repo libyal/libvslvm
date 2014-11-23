@@ -104,6 +104,12 @@ int info_handle_segment_fprint(
      libvslvm_segment_t *segment,
      libcerror_error_t **error );
 
+int info_handle_stripe_fprint(
+     info_handle_t *info_handle,
+     int stripe_index,
+     libvslvm_stripe_t *stripe,
+     libcerror_error_t **error );
+
 int info_handle_fprint(
      info_handle_t *info_handle,
      libcerror_error_t **error );

@@ -51,11 +51,13 @@ int libvslvm_logical_volume_initialize(
 	libvslvm_segment_t *segment                                 = NULL;
 	libvslvm_stripe_t *stripe                                   = NULL;
 	static char *function                                       = "libvslvm_logical_volume_initialize";
+	off64_t data_area_offset                                    = 0;
 	off64_t segment_offset                                      = 0;
-	off64_t stripe_offset                                       = 0;
+	off64_t volume_offset                                       = 0;
 	size64_t segment_size                                       = 0;
 	int element_index                                           = 0;
 	int number_of_segments                                      = 0;
+	int number_of_stripes                                       = 0;
 	int segment_index                                           = 0;
 	int stripe_index                                            = 0;
 
@@ -209,20 +211,83 @@ int libvslvm_logical_volume_initialize(
 
 			goto on_error;
 		}
-/* TODO get stripe */
-		if( libvslvm_stripe_free(
-		     &stripe,
+		if( libvslvm_segment_get_number_of_stripes(
+		     segment,
+		     &number_of_stripes,
 		     error ) != 1 )
 		{
 			libcerror_error_set(
 			 error,
 			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
-			 "%s: unable to free stripe: %d.",
-			 function,
-			 stripe_index );
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+			 "%s: unable to retrieve number of stripes.",
+			 function );
 
 			goto on_error;
+		}
+/* TODO add support for multi stripe segments */
+		if( number_of_stripes != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+			 "%s: unsupported number of stripes.",
+			 function );
+
+			goto on_error;
+		}
+		for( stripe_index = 0;
+		     stripe_index < number_of_stripes;
+		     stripe_index++ )
+		{
+			if( libvslvm_segment_get_stripe(
+			     segment,
+			     stripe_index,
+			     &stripe,
+			     error ) != 1 )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+				 "%s: unable to retrieve stripe: %d.",
+				 function,
+				 stripe_index );
+
+				goto on_error;
+			}
+/* TODO get pv */
+			if( libvslvm_stripe_get_data_area_offset(
+			     stripe,
+			     &data_area_offset,
+			     error ) != 1 )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+				 "%s: unable to retrieve stripe: %d data area offset.",
+				 function,
+				 stripe_index );
+
+				goto on_error;
+			}
+			if( libvslvm_stripe_free(
+			     &stripe,
+			     error ) != 1 )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+				 "%s: unable to free stripe: %d.",
+				 function,
+				 stripe_index );
+
+				goto on_error;
+			}
+/* TODO get volume offset for data area offset */
 		}
 		if( libvslvm_segment_free(
 		     &segment,
@@ -242,7 +307,7 @@ int libvslvm_logical_volume_initialize(
 		     internal_logical_volume->chunks_vector,
 		     &element_index,
 		     0,
-		     stripe_offset,
+		     volume_offset,
 		     segment_size,
 		     0,
 		     error ) != 1 )

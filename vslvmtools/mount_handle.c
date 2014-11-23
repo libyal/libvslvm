@@ -354,6 +354,7 @@ int mount_handle_open_input(
 	libvslvm_logical_volume_t *logical_volume = NULL;
 	static char *function                     = "mount_handle_open_input";
 	size_t filename_length                    = 0;
+	int entry_index                           = 0;
 	int logical_volume_index                  = 0;
 	int number_of_logical_volumes             = 0;
 	int result                                = 0;
@@ -441,27 +442,66 @@ int mount_handle_open_input(
 
 		goto on_error;
 	}
-/* TODO implement
-	if( libcdata_array_append_entry(
-	     mount_handle->logical_volumes_array,
-	     &entry_index,
-	     (intptr_t *) logical_volume,
+	if( libvslvm_volume_group_get_number_of_logical_volumes(
+	     mount_handle->volume_group,
+	     &number_of_logical_volumes,
 	     error ) != 1 )
 	{
 		libcerror_error_set(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_APPEND_FAILED,
-		 "%s: unable to append logical volume to array.",
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve number of logical volumes.",
 		 function );
 
 		goto on_error;
 	}
-*/
+	for( logical_volume_index = 0;
+	     logical_volume_index < number_of_logical_volumes;
+	     logical_volume_index++ )
+	{
+		if( libvslvm_volume_group_get_logical_volume(
+		     mount_handle->volume_group,
+		     logical_volume_index,
+		     &logical_volume,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+			 "%s: unable to retrieve logical volume: %d.",
+			 function,
+			 logical_volume_index );
+
+			goto on_error;
+		}
+		if( libcdata_array_append_entry(
+		     mount_handle->logical_volumes_array,
+		     &entry_index,
+		     (intptr_t *) logical_volume,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_APPEND_FAILED,
+			 "%s: unable to append logical volume to array.",
+			 function );
+
+			goto on_error;
+		}
+		logical_volume = NULL;
+	}
 	return( 1 );
 
 on_error:
-/* TODO empty array */
+	if( logical_volume != NULL )
+	{
+		libvslvm_logical_volume_free(
+		 &logical_volume,
+		 NULL );
+	}
 	if( mount_handle->volume_group != NULL )
 	{
 		libvslvm_volume_group_free(
@@ -474,6 +514,11 @@ on_error:
 		 &( mount_handle->input_handle ),
 		 NULL );
 	}
+	libcdata_array_empty(
+	 mount_handle->logical_volumes_array,
+	 (int (*)(intptr_t **, libcerror_error_t **)) &libvslvm_logical_volume_free,
+	 NULL );
+
 	return( -1 );
 }
 
