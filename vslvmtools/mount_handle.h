@@ -44,9 +44,9 @@ struct mount_handle
 	 */
 	off64_t volume_offset;
 
-	/* The libbfio input file IO handle
+	/* The libbfio input file IO pool
 	 */
-	libbfio_handle_t *input_file_io_handle;
+	libbfio_pool_t *input_file_io_pool;
 
 	/* The libvslvm input handle
 	 */

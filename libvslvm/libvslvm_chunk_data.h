@@ -56,7 +56,8 @@ int libvslvm_chunk_data_free(
 
 int libvslvm_chunk_data_read(
      libvslvm_chunk_data_t *chunk_data,
-     libbfio_handle_t *file_io_handle,
+     libbfio_pool_t *file_io_pool,
+     int file_io_pool_entry,
      off64_t cluster_offset,
      libcerror_error_t **error );
 

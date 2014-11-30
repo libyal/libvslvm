@@ -33,13 +33,21 @@
 #include "mount_handle.h"
 
 #if !defined( LIBVSLVM_HAVE_BFIO )
+
 extern \
 int libvslvm_handle_open_file_io_handle(
      libvslvm_handle_t *handle,
      libbfio_handle_t *file_io_handle,
      int access_flags,
      libvslvm_error_t **error );
-#endif
+
+extern \
+int libvslvm_handle_open_physical_volume_files_file_io_pool(
+     libvslvm_handle_t *handle,
+     libbfio_pool_t *file_io_pool,
+     libcerror_error_t **error );
+
+#endif /* !defined( LIBVSLVM_HAVE_BFIO ) */
 
 /* Creates a mount handle
  * Make sure the value mount_handle is referencing, is set to NULL
@@ -106,19 +114,6 @@ int mount_handle_initialize(
 
 		return( -1 );
 	}
-	if( libbfio_file_range_initialize(
-	     &( ( *mount_handle )->input_file_io_handle ),
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
-		 "%s: unable to initialize input file IO handle.",
-		 function );
-
-		goto on_error;
-	}
 	if( libvslvm_handle_initialize(
 	     &( ( *mount_handle )->input_handle ),
 	     error ) != 1 )
@@ -155,12 +150,6 @@ on_error:
 		{
 			libvslvm_handle_free(
 			 &( ( *mount_handle )->input_handle ),
-			 NULL );
-		}
-		if( ( *mount_handle )->input_file_io_handle != NULL )
-		{
-			libbfio_handle_free(
-			 &( ( *mount_handle )->input_file_io_handle ),
 			 NULL );
 		}
 		memory_free(
@@ -237,15 +226,15 @@ int mount_handle_free(
 
 			result = -1;
 		}
-		if( libbfio_handle_free(
-		     &( ( *mount_handle )->input_file_io_handle ),
+		if( libbfio_pool_free(
+		     &( ( *mount_handle )->input_file_io_pool ),
 		     error ) != 1 )
 		{
 			libcerror_error_set(
 			 error,
 			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 			 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
-			 "%s: unable to free input file IO handle.",
+			 "%s: unable to free input file IO pool.",
 			 function );
 
 			result = -1;
@@ -351,6 +340,7 @@ int mount_handle_open_input(
      const libcstring_system_character_t *filename,
      libcerror_error_t **error )
 {
+	libbfio_handle_t *file_io_handle          = NULL;
 	libvslvm_logical_volume_t *logical_volume = NULL;
 	static char *function                     = "mount_handle_open_input";
 	size_t filename_length                    = 0;
@@ -370,18 +360,31 @@ int mount_handle_open_input(
 
 		return( -1 );
 	}
+	if( libbfio_file_range_initialize(
+	     &file_io_handle,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+		 "%s: unable to initialize input file IO handle.",
+		 function );
+
+		goto on_error;
+	}
 	filename_length = libcstring_system_string_length(
 	                   filename );
 
 #if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
 	if( libbfio_file_range_set_name_wide(
-	     mount_handle->input_file_io_handle,
+	     file_io_handle,
 	     filename,
 	     filename_length,
 	     error ) != 1 )
 #else
 	if( libbfio_file_range_set_name(
-	     mount_handle->input_file_io_handle,
+	     file_io_handle,
 	     filename,
 	     filename_length,
 	     error ) != 1 )
@@ -397,7 +400,7 @@ int mount_handle_open_input(
 		goto on_error;
 	}
 	if( libbfio_file_range_set(
-	     mount_handle->input_file_io_handle,
+	     file_io_handle,
 	     mount_handle->volume_offset,
 	     0,
 	     error ) != 1 )
@@ -413,7 +416,7 @@ int mount_handle_open_input(
 	}
 	result = libvslvm_handle_open_file_io_handle(
 	          mount_handle->input_handle,
-	          mount_handle->input_file_io_handle,
+	          file_io_handle,
 	          LIBVSLVM_OPEN_READ,
 	          error );
 
@@ -512,6 +515,12 @@ on_error:
 	{
 		libvslvm_handle_free(
 		 &( mount_handle->input_handle ),
+		 NULL );
+	}
+	if( file_io_handle != NULL )
+	{
+		libbfio_handle_free(
+		 &file_io_handle,
 		 NULL );
 	}
 	libcdata_array_empty(

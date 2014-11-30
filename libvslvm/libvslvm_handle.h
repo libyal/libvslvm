@@ -44,14 +44,6 @@ struct libvslvm_internal_handle
 	 */
 	libvslvm_io_handle_t *io_handle;
 
-	/* The file IO handle
-	 */
-	libbfio_handle_t *file_io_handle;
-
-	/* Value to indicate if the file IO handle was created inside the library
-	 */
-	uint8_t file_io_handle_created_in_library;
-
 	/* The physical volume file IO pool
 	 */
 	libbfio_pool_t *physical_volume_file_io_pool;
@@ -174,6 +166,7 @@ int libvslvm_handle_close(
 
 int libvslvm_handle_open_read(
      libvslvm_internal_handle_t *internal_handle,
+     libbfio_handle_t *file_io_handle,
      libcerror_error_t **error );
 
 LIBVSLVM_EXTERN \

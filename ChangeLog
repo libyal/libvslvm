@@ -31,6 +31,9 @@ Tools:
 * vslvmmount
   - allow use of names besides lvm#?
 
+20141130
+* code clean up
+
 20141123
 * worked on read logical volume functionality
 * worked on multi physical volume files support

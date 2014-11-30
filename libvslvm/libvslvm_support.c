@@ -118,7 +118,7 @@ int libvslvm_set_codepage(
 
 #endif /* !defined( HAVE_LOCAL_LIBVSLVM ) */
 
-/* Determines if a volume is a LVM volume (check for the LVM identifier)
+/* Determines if a file contains a LVM volume system signature
  * Returns 1 if true, 0 if not or -1 on error
  */
 int libvslvm_check_volume_signature(
@@ -225,7 +225,7 @@ on_error:
 
 #if defined( HAVE_WIDE_CHARACTER_TYPE )
 
-/* Determines if a volume is a LVM volume (check for the LVM identifier)
+/* Determines if a file contains a LVM volume system signature
  * Returns 1 if true, 0 if not or -1 on error
  */
 int libvslvm_check_volume_signature_wide(
@@ -332,7 +332,7 @@ on_error:
 
 #endif /* defined( HAVE_WIDE_CHARACTER_TYPE ) */
 
-/* Determines if a volume is a LVM volume (check for the LVM identifier) using a Basic File IO (bfio) handle
+/* Determines if a file contains a LVM volume system signature using a Basic File IO (bfio) handle
  * Returns 1 if true, 0 if not or -1 on error
  */
 int libvslvm_check_volume_signature_file_io_handle(

@@ -193,7 +193,8 @@ int libvslvm_chunk_data_free(
  */
 int libvslvm_chunk_data_read(
      libvslvm_chunk_data_t *chunk_data,
-     libbfio_handle_t *file_io_handle,
+     libbfio_pool_t *file_io_pool,
+     int file_io_pool_entry,
      off64_t chunk_data_offset,
      libcerror_error_t **error )
 {
@@ -232,8 +233,9 @@ int libvslvm_chunk_data_read(
 		 chunk_data_offset );
 	}
 #endif
-	if( libbfio_handle_seek_offset(
-	     file_io_handle,
+	if( libbfio_pool_seek_offset(
+	     file_io_pool,
+	     file_io_pool_entry,
 	     chunk_data_offset,
 	     SEEK_SET,
 	     error ) == -1 )
@@ -249,8 +251,9 @@ int libvslvm_chunk_data_read(
 
 		return( -1 );
 	}
-	read_count = libbfio_handle_read_buffer(
-		      file_io_handle,
+	read_count = libbfio_pool_read_buffer(
+		      file_io_pool,
+		      file_io_pool_entry,
 		      chunk_data->data,
 		      chunk_data->data_size,
 		      error );

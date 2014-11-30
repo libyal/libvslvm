@@ -62,7 +62,7 @@ int libvslvm_io_handle_clear(
 
 int libvslvm_io_handle_read_chunk_data(
      intptr_t *data_handle,
-     libbfio_handle_t *file_io_handle,
+     libbfio_pool_t *file_io_pool,
      libfdata_vector_t *vector,
      libfcache_cache_t *cache,
      int element_index,

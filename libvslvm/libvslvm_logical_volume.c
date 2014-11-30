@@ -43,7 +43,7 @@
 int libvslvm_logical_volume_initialize(
      libvslvm_logical_volume_t **logical_volume,
      libvslvm_io_handle_t *io_handle,
-     libbfio_handle_t *file_io_handle,
+     libbfio_pool_t *file_io_pool,
      libvslvm_logical_volume_values_t *logical_volume_values,
      libcerror_error_t **error )
 {
@@ -366,7 +366,7 @@ int libvslvm_logical_volume_initialize(
 	}
 #endif
 	internal_logical_volume->io_handle             = io_handle;
-	internal_logical_volume->file_io_handle        = file_io_handle;
+	internal_logical_volume->file_io_pool          = file_io_pool;
 	internal_logical_volume->logical_volume_values = logical_volume_values;
 
 	*logical_volume= (libvslvm_logical_volume_t *) internal_logical_volume;
@@ -433,7 +433,7 @@ int libvslvm_logical_volume_free(
 		internal_logical_volume = (libvslvm_internal_logical_volume_t *) *logical_volume;
 		*logical_volume         = NULL;
 
-		/* The logical_volume_values and file_io_handle references are freed elsewhere
+		/* The logical_volume_values and file_io_pool references are freed elsewhere
 		 */
 		if( internal_logical_volume->chunks_vector != NULL )
 		{
@@ -488,19 +488,19 @@ int libvslvm_logical_volume_free(
 	return( result );
 }
 
-/* Reads (logical volume) data at the current offset into a buffer using a Basic File IO (bfio) handle
+/* Reads (logical volume) data at the current offset into a buffer using a Basic File IO (bfio) pool
  * This function is not multi-thread safe acquire write lock before call
  * Returns the number of bytes read or -1 on error
  */
-ssize_t libvslvm_internal_logical_volume_read_buffer_from_file_io_handle(
+ssize_t libvslvm_internal_logical_volume_read_buffer_from_file_io_pool(
          libvslvm_internal_logical_volume_t *internal_logical_volume,
-         libbfio_handle_t *file_io_handle,
+         libbfio_handle_t *file_io_pool,
          void *buffer,
          size_t buffer_size,
          libcerror_error_t **error )
 {
 	libvslvm_chunk_data_t *chunk_data = NULL;
-	static char *function             = "libvslvm_internal_logical_volume_read_buffer_from_file_io_handle";
+	static char *function             = "libvslvm_internal_logical_volume_read_buffer_from_file_io_pool";
 	off64_t element_data_offset       = 0;
 	size_t buffer_offset              = 0;
 	size_t read_size                  = 0;
@@ -543,7 +543,7 @@ ssize_t libvslvm_internal_logical_volume_read_buffer_from_file_io_handle(
 	{
 		if( libfdata_vector_get_element_value_at_offset(
 		     internal_logical_volume->chunks_vector,
-		     (intptr_t *) internal_logical_volume->file_io_handle,
+		     (intptr_t *) internal_logical_volume->file_io_pool,
 		     internal_logical_volume->chunks_cache,
 		     internal_logical_volume->current_offset,
 		     &element_data_offset,
@@ -642,9 +642,9 @@ ssize_t libvslvm_logical_volume_read_buffer(
 		return( -1 );
 	}
 #endif
-	read_count = libvslvm_internal_logical_volume_read_buffer_from_file_io_handle(
+	read_count = libvslvm_internal_logical_volume_read_buffer_from_file_io_pool(
 		      internal_logical_volume,
-		      internal_logical_volume->file_io_handle,
+		      internal_logical_volume->file_io_pool,
 		      buffer,
 		      buffer_size,
 		      error );
@@ -735,9 +735,9 @@ ssize_t libvslvm_logical_volume_read_buffer_at_offset(
 
 		goto on_error;
 	}
-	read_count = libvslvm_internal_logical_volume_read_buffer_from_file_io_handle(
+	read_count = libvslvm_internal_logical_volume_read_buffer_from_file_io_pool(
 		      internal_logical_volume,
-		      internal_logical_volume->file_io_handle,
+		      internal_logical_volume->file_io_pool,
 		      buffer,
 		      buffer_size,
 		      error );

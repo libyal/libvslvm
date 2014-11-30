@@ -183,11 +183,11 @@ int libvslvm_io_handle_clear(
  */
 int libvslvm_io_handle_read_chunk_data(
      intptr_t *data_handle LIBVSLVM_ATTRIBUTE_UNUSED,
-     libbfio_handle_t *file_io_handle,
+     libbfio_pool_t *file_io_pool,
      libfdata_vector_t *vector,
      libfcache_cache_t *cache,
      int element_index,
-     int element_data_file_index LIBVSLVM_ATTRIBUTE_UNUSED,
+     int element_data_file_index,
      off64_t element_data_offset,
      size64_t element_data_size,
      uint32_t element_data_flags LIBVSLVM_ATTRIBUTE_UNUSED,
@@ -198,7 +198,6 @@ int libvslvm_io_handle_read_chunk_data(
 	static char *function                   = "libvslvm_io_handle_read_chunk_data";
 
 	LIBVSLVM_UNREFERENCED_PARAMETER( data_handle );
-	LIBVSLVM_UNREFERENCED_PARAMETER( element_data_file_index );
 	LIBVSLVM_UNREFERENCED_PARAMETER( element_data_flags );
 	LIBVSLVM_UNREFERENCED_PARAMETER( read_flags );
 
@@ -229,7 +228,8 @@ int libvslvm_io_handle_read_chunk_data(
 	}
 	if( libvslvm_chunk_data_read(
 	     chunk_data,
-	     file_io_handle,
+	     file_io_pool,
+	     element_data_file_index,
              element_data_offset,
 	     error ) != 1 )
 	{
@@ -244,7 +244,7 @@ int libvslvm_io_handle_read_chunk_data(
 	}
 	if( libfdata_vector_set_element_value_by_index(
 	     vector,
-	     (intptr_t *) file_io_handle,
+	     (intptr_t *) file_io_pool,
 	     cache,
 	     element_index,
 	     (intptr_t *) chunk_data,
