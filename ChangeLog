@@ -1,4 +1,6 @@
 TODO
+* complete physical volume and data area table
+* libvslvm_volume_group_initialize pass data area table instead of pool
 * implement libvslvm_handle_open_physical_volume_data_files
 * libvslvm_logical_volume_seek_offset fix locking issue.
 * finish:
@@ -30,6 +32,12 @@ Tools:
   - print stripes and in-volume offsets
 * vslvmmount
   - allow use of names besides lvm#?
+
+20150105
+* 2015 update
+
+20141225
+* worked on multi physical volume files support
 
 20141130
 * code clean up

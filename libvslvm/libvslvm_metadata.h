@@ -1,7 +1,7 @@
 /*
  * The metadata functions
  *
- * Copyright (C) 2014, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (C) 2014-2015, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -65,7 +65,6 @@ int libvslvm_metadata_read(
 int libvslvm_metadata_read_volume_group(
      libvslvm_metadata_t *metadata,
      libvslvm_io_handle_t *io_handle,
-     libbfio_handle_t *file_io_handle,
      libcsplit_narrow_split_string_t *lines,
      int number_of_lines,
      int *line_index,

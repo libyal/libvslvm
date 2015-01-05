@@ -1,7 +1,7 @@
 /*
  * Physical volume functions
  *
- * Copyright (c) 2014, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (C) 2014-2015, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -30,6 +30,8 @@
 #include "libvslvm_libbfio.h"
 #include "libvslvm_libcdata.h"
 #include "libvslvm_libcerror.h"
+#include "libvslvm_libfcache.h"
+#include "libvslvm_libfdata.h"
 #include "libvslvm_types.h"
 
 #if defined( __cplusplus )
@@ -177,6 +179,18 @@ int libvslvm_physical_volume_read_label(
      libvslvm_physical_volume_t *physical_volume,
      libbfio_handle_t *file_io_handle,
      off64_t file_offset,
+     libcerror_error_t **error );
+
+int libvslvm_physical_volume_read_element_data(
+     intptr_t *data_handle,
+     libbfio_pool_t *file_io_pool,
+     libfdata_list_element_t *element,
+     libfcache_cache_t *cache,
+     int file_io_pool_entry,
+     off64_t physical_volume_offset,
+     size64_t physical_volume_size,
+     uint32_t element_flags,
+     uint8_t read_flags,
      libcerror_error_t **error );
 
 #if defined( __cplusplus )

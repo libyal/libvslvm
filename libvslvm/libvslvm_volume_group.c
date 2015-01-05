@@ -1,7 +1,7 @@
 /*
  * Volume group functions
  *
- * Copyright (c) 2014, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (C) 2014-2015, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -40,7 +40,7 @@
 int libvslvm_volume_group_initialize(
      libvslvm_volume_group_t **volume_group,
      libvslvm_io_handle_t *io_handle,
-     libbfio_handle_t *file_io_handle,
+     libbfio_pool_t *file_io_pool,
      libcerror_error_t **error )
 {
 	libvslvm_internal_volume_group_t *internal_volume_group = NULL;
@@ -127,8 +127,8 @@ int libvslvm_volume_group_initialize(
 
 		goto on_error;
 	}
-	internal_volume_group->io_handle      = io_handle;
-	internal_volume_group->file_io_handle = file_io_handle;
+	internal_volume_group->io_handle    = io_handle;
+	internal_volume_group->file_io_pool = file_io_pool;
 
 	*volume_group = (libvslvm_volume_group_t *) internal_volume_group;
 
@@ -200,7 +200,7 @@ int libvslvm_internal_volume_group_free(
 	}
 	if( *internal_volume_group != NULL )
 	{
-		/* The file_io_handle reference is freed elsewhere
+		/* The io_handle and file_io_pool references are freed elsewhere
 		 */
 		if( ( *internal_volume_group )->name != NULL )
 		{
@@ -1000,7 +1000,7 @@ int libvslvm_volume_group_get_logical_volume(
 	if( libvslvm_logical_volume_initialize(
 	     logical_volume,
 	     internal_volume_group->io_handle,
-	     internal_volume_group->file_io_handle,
+	     internal_volume_group->file_io_pool,
 	     logical_volume_values,
 	     error ) != 1 )
 	{

@@ -1,7 +1,7 @@
 /*
  * Physical volume functions
  *
- * Copyright (c) 2014, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (C) 2014-2015, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -31,6 +31,7 @@
 #include "libvslvm_libcnotify.h"
 #include "libvslvm_physical_volume.h"
 #include "libvslvm_types.h"
+#include "libvslvm_unused.h"
 
 #include "vslvm_physical_volume_label.h"
 
@@ -1566,3 +1567,115 @@ on_error:
 
 	return( -1 );
 }
+
+/* Reads the physical volume
+ * Callback function for the physical volume files list
+ * Returns 1 if successful or -1 on error
+ */
+int libvslvm_physical_volume_read_element_data(
+     intptr_t *data_handle LIBVSLVM_ATTRIBUTE_UNUSED,
+     libbfio_pool_t *file_io_pool,
+     libfdata_list_element_t *element,
+     libfcache_cache_t *cache,
+     int file_io_pool_entry,
+     off64_t physical_volume_offset,
+     size64_t physical_volume_size,
+     uint32_t element_flags LIBVSLVM_ATTRIBUTE_UNUSED,
+     uint8_t read_flags LIBVSLVM_ATTRIBUTE_UNUSED,
+     libcerror_error_t **error )
+{
+	libbfio_handle_t *file_io_handle            = NULL;
+	libvslvm_physical_volume_t *physical_volume = NULL;
+	static char *function                       = "libvslvm_physical_volume_read_element_data";
+	off64_t label_offset                        = 0;
+	int result                                  = 0;
+
+	LIBVSLVM_UNREFERENCED_PARAMETER( data_handle )
+	LIBVSLVM_UNREFERENCED_PARAMETER( element_flags )
+	LIBVSLVM_UNREFERENCED_PARAMETER( read_flags )
+
+	if( libvslvm_physical_volume_initialize(
+	     &physical_volume,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+		 "%s: unable to create physical volume.",
+		 function );
+
+		goto on_error;
+	}
+	/* The physical volume label can be stored in one of the first 4 sectors
+	 */
+	label_offset = 0;
+
+	while( label_offset < 2048 )
+	{
+/* TODO get file_io_handle */
+		result = libvslvm_physical_volume_read_label(
+			  physical_volume,
+			  file_io_handle,
+			  physical_volume_offset + label_offset,
+			  error );
+
+		if( result == -1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_IO,
+			 LIBCERROR_IO_ERROR_READ_FAILED,
+			 "%s: unable to read physical volume label at offset: %" PRIi64 ".",
+			 function,
+			 physical_volume_offset + label_offset );
+
+			goto on_error;
+		}
+		else if( result != 0 )
+		{
+			break;
+		}
+		label_offset += 512;
+	}
+	if( result != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_IO,
+		 LIBCERROR_IO_ERROR_READ_FAILED,
+		 "%s: unable to read physical volume label.",
+		 function );
+
+		goto on_error;
+	}
+	if( libfdata_list_element_set_element_value(
+	     element,
+	     (intptr_t *) file_io_pool,
+	     cache,
+	     (intptr_t *) physical_volume,
+	     (int (*)(intptr_t **, libcerror_error_t **)) &libvslvm_physical_volume_free,
+	     LIBFDATA_LIST_ELEMENT_VALUE_FLAG_MANAGED,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
+		 "%s: unable to set physical volume as element value.",
+		 function );
+
+		goto on_error;
+	}
+	return( 1 );
+
+on_error:
+	if( physical_volume != NULL )
+	{
+		libvslvm_physical_volume_free(
+		 &physical_volume,
+		 NULL );
+	}
+	return( -1 );
+}
+

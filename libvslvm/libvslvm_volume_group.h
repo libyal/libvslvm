@@ -1,7 +1,7 @@
 /*
  * Volume group functions
  *
- * Copyright (c) 2014, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (C) 2014-2015, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -46,9 +46,9 @@ struct libvslvm_internal_volume_group
 	 */
 	libvslvm_io_handle_t *io_handle;
 
-	/* The file IO handle
+	/* The file IO pool
 	 */
-	libbfio_handle_t *file_io_handle;
+	libbfio_pool_t *file_io_pool;
 
 	/* The name
 	 */
@@ -94,7 +94,7 @@ struct libvslvm_internal_volume_group
 int libvslvm_volume_group_initialize(
      libvslvm_volume_group_t **volume_group,
      libvslvm_io_handle_t *io_handle,
-     libbfio_handle_t *file_io_handle,
+     libbfio_pool_t *file_io_pool,
      libcerror_error_t **error );
 
 LIBVSLVM_EXTERN \

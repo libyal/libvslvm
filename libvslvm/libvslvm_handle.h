@@ -1,7 +1,7 @@
 /*
  * The internal handle functions
  *
- * Copyright (C) 2014, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (C) 2014-2015, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -30,6 +30,7 @@
 #include "libvslvm_libbfio.h"
 #include "libvslvm_libcerror.h"
 #include "libvslvm_metadata.h"
+#include "libvslvm_physical_volume_table.h"
 #include "libvslvm_types.h"
 
 #if defined( __cplusplus )
@@ -63,6 +64,10 @@ struct libvslvm_internal_handle
 	/* The metadata
 	 */
 	libvslvm_metadata_t *metadata;
+
+	/* The physical volume (file) table
+	 */
+	libvslvm_physical_volume_table_t *physical_volume_table;
 };
 
 LIBVSLVM_EXTERN \

@@ -1,13 +1,12 @@
 Source: libvslvm
-Section: unknown
+Section: libs
 Priority: extra
 Maintainer: Joachim Metz <joachim.metz@gmail.com>
 Build-Depends: debhelper (>= 7), autotools-dev, libfuse-dev, python-dev
-Standards-Version: 3.8.3
+Standards-Version: 3.9.5
 Homepage: https://github.com/libyal/libvslvm/
 
 Package: libvslvm
-Section: libs
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}
 Suggests: libvslvm-dbg
@@ -17,28 +16,28 @@ Description: Library to access the Linux Logical Volume Manager (LVM) volume sys
 Package: libvslvm-dbg
 Architecture: any
 Section: debug
-Depends: libvslvm (= ${Source-Version}), ${misc:Depends}
+Depends: libvslvm (= ${binary:Version}), ${misc:Depends}
 Description: Debugging symbols for libvslvm
  Debugging symbols for libvslvm.
 
 Package: libvslvm-dev
 Section: libdevel
 Architecture: any
-Depends: libvslvm (= ${Source-Version})
+Depends: libvslvm (= ${binary:Version}), ${misc:Depends}
 Description: Header files and libraries for developing applications for libvslvm
  Header files and libraries for developing applications for libvslvm.
 
 Package: libvslvm-tools
 Section: utils
 Architecture: any
-Depends: libvslvm (= ${Source-Version}), ${shlibs:Depends}
+Depends: libvslvm (= ${binary:Version}), ${shlibs:Depends}, ${misc:Depends}
 Description: Several tools for Several tools for reading Linux Logical Volume Manager (LVM) volume systems
  Several tools for Several tools for reading Linux Logical Volume Manager (LVM) volume system.
 
 Package: libvslvm-python
 Section: python
 Architecture: any
-Depends: libvslvm (= ${Source-Version}), ${shlibs:Depends}, ${python:Depends}
+Depends: libvslvm (= ${binary:Version}), ${shlibs:Depends}, ${misc:Depends}
 Suggests: libvslvm-python-dbg
 Description: Python bindings for libvslvm
  Python bindings for libvslvm.
@@ -46,7 +45,7 @@ Description: Python bindings for libvslvm
 Package: libvslvm-python-dbg
 Section: debug
 Architecture: any
-Depends: libvslvm-python (= ${Source-Version})
+Depends: libvslvm-python (= ${binary:Version}), ${misc:Depends}
 Description: Debugging symbols for libvslvm-python
  Debugging symbols for libvslvm-python.
 

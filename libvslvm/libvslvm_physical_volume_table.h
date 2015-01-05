@@ -1,5 +1,5 @@
 /*
- * Raw location descriptor functions
+ * Physical volume table functions
  *
  * Copyright (C) 2014-2015, Joachim Metz <joachim.metz@gmail.com>
  *
@@ -19,61 +19,54 @@
  * along with this software.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#if !defined( _LIBVSLVM_RAW_LOCATION_DESCRIPTOR_H )
-#define _LIBVSLVM_RAW_LOCATION_DESCRIPTOR_H
+#if !defined( _LIBVSLVM_PHYSICAL_VOLUME_TABLE_H )
+#define _LIBVSLVM_PHYSICAL_VOLUME_TABLE_H
 
 #include <common.h>
 #include <types.h>
 
+#include "libvslvm_io_handle.h"
 #include "libvslvm_libcerror.h"
+#include "libvslvm_libcstring.h"
+#include "libvslvm_libfcache.h"
+#include "libvslvm_libfdata.h"
 
 #if defined( __cplusplus )
 extern "C" {
 #endif
 
-typedef struct libvslvm_raw_location_descriptor libvslvm_raw_location_descriptor_t;
+typedef struct libvslvm_physical_volume_table libvslvm_physical_volume_table_t;
 
-struct libvslvm_raw_location_descriptor
+struct libvslvm_physical_volume_table
 {
-	/* The offset
+	/* The physical volumes list
 	 */
-	uint64_t offset;
+	libfdata_list_t *physical_volumes_list;
 
-	/* The size
+	/* The physical volumes cache
 	 */
-	uint64_t size;
+	libfcache_cache_t *physical_volumes_cache;
 
-	/* The checksum
+	/* The number of physical volumes
 	 */
-	uint32_t checksum;
-
-	/* The flags
-	 */
-	uint32_t flags;
+	int number_of_physical_volumes;
 };
 
-int libvslvm_raw_location_descriptor_initialize(
-     libvslvm_raw_location_descriptor_t **raw_location_descriptor,
+int libvslvm_physical_volume_table_initialize(
+     libvslvm_physical_volume_table_t **physical_volume_table,
      libcerror_error_t **error );
 
-int libvslvm_raw_location_descriptor_free(
-     libvslvm_raw_location_descriptor_t **raw_location_descriptor,
+int libvslvm_physical_volume_table_free(
+     libvslvm_physical_volume_table_t **physical_volume_table,
      libcerror_error_t **error );
 
-int libvslvm_raw_location_descriptor_get(
-     libvslvm_raw_location_descriptor_t *raw_location_descriptor,
-     off64_t *offset,
-     size64_t *size,
-     uint32_t *checksum,
-     uint32_t *flags,
+int libvslvm_physical_volume_table_clear(
+     libvslvm_physical_volume_table_t *physical_volume_table,
      libcerror_error_t **error );
 
-int libvslvm_raw_location_descriptor_set(
-     libvslvm_raw_location_descriptor_t *raw_location_descriptor,
-     off64_t offset,
-     size64_t size,
-     uint32_t checksum,
-     uint32_t flags,
+int libvslvm_physical_volume_table_initialize_physical_volumes(
+     libvslvm_physical_volume_table_t *physical_volume_table,
+     int number_of_physical_volumes,
      libcerror_error_t **error );
 
 #if defined( __cplusplus )

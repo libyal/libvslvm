@@ -1,7 +1,7 @@
 /*
  * Library read testing program
  *
- * Copyright (c) 2014, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (C) 2014-2015, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -643,6 +643,28 @@ int main( int argc, char * const argv[] )
 		fprintf(
 		 stderr,
 		 "Unable to open handle.\n" );
+
+		goto on_error;
+	}
+/* TODO determine if the first file is a metadata only file and change argv/argc accordingly
+ */
+#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+	if( libvslvm_handle_open_physical_volume_files_wide(
+	     handle,
+	     &( argv[ 1 ] ),
+	     argc - 1,
+	     &error ) != 1 )
+#else
+	if( libvslvm_handle_open_physical_volume_files(
+	     handle,
+	     &( argv[ 1 ] ),
+	     argc - 1,
+	     &error ) != 1 )
+#endif
+	{
+		fprintf(
+		 stderr,
+		 "Unable to open physical volume files.\n" );
 
 		goto on_error;
 	}

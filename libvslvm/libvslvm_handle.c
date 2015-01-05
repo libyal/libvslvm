@@ -1,7 +1,7 @@
 /*
  * The internal handle functions
  *
- * Copyright (C) 2014, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (C) 2014-2015, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -35,6 +35,7 @@
 #include "libvslvm_metadata.h"
 #include "libvslvm_metadata_area.h"
 #include "libvslvm_raw_location_descriptor.h"
+#include "libvslvm_physical_volume_table.h"
 #include "libvslvm_types.h"
 
 /* Creates a handle
@@ -114,6 +115,19 @@ int libvslvm_handle_initialize(
 
 		goto on_error;
 	}
+	if( libvslvm_physical_volume_table_initialize(
+	     &( internal_handle->physical_volume_table ),
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+		 "%s: unable to create physical volume table.",
+		 function );
+
+		goto on_error;
+	}
 	*handle = (libvslvm_handle_t *) internal_handle;
 
 	return( 1 );
@@ -121,6 +135,18 @@ int libvslvm_handle_initialize(
 on_error:
 	if( internal_handle != NULL )
 	{
+		if( internal_handle->physical_volume_table != NULL )
+		{
+			libvslvm_physical_volume_table_free(
+			 &( internal_handle->physical_volume_table ),
+			 NULL );
+		}
+		if( internal_handle->io_handle != NULL )
+		{
+			libvslvm_io_handle_free(
+			 &( internal_handle->io_handle ),
+			 NULL );
+		}
 		memory_free(
 		 internal_handle );
 	}
@@ -171,6 +197,19 @@ int libvslvm_handle_free(
 		}
 		*handle = NULL;
 
+		if( libvslvm_physical_volume_table_free(
+		     &( internal_handle->physical_volume_table ),
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+			 "%s: unable to free physical volume table.",
+			 function );
+
+			result = -1;
+		}
 		if( libvslvm_io_handle_free(
 		     &( internal_handle->io_handle ),
 		     error ) != 1 )
@@ -644,6 +683,8 @@ int libvslvm_handle_open_file_io_handle(
 		}
 		file_io_handle_opened_in_library = 0;
 	}
+	internal_handle->access_flags = access_flags;
+
 	return( 1 );
 
 on_error:
@@ -767,7 +808,7 @@ int libvslvm_handle_open_physical_volume_files(
 
 		goto on_error;
 	}
-	if( number_of_filenames == number_of_physical_volumes )
+	if( number_of_filenames != number_of_physical_volumes )
 	{
 		libcerror_error_set(
 		 error,
@@ -978,7 +1019,7 @@ int libvslvm_handle_open_physical_volume_files_wide(
 
 		goto on_error;
 	}
-	if( number_of_filenames == number_of_physical_volumes )
+	if( number_of_filenames != number_of_physical_volumes )
 	{
 		libcerror_error_set(
 		 error,
@@ -1404,8 +1445,10 @@ int libvslvm_handle_open_physical_volume_file_io_handle(
      libbfio_handle_t *file_io_handle,
      libcerror_error_t **error )
 {
-	static char *function = "libvslvm_handle_open_physical_volume_file_io_handle";
-	int bfio_access_flags = 0;
+	static char *function                = "libvslvm_handle_open_physical_volume_file_io_handle";
+	int bfio_access_flags                = 0;
+	int file_io_handle_is_open           = 0;
+	int file_io_handle_opened_in_library = 0;
 
 	if( internal_handle == NULL )
 	{
@@ -1456,19 +1499,38 @@ int libvslvm_handle_open_physical_volume_file_io_handle(
 	{
 		bfio_access_flags = LIBBFIO_ACCESS_FLAG_READ;
 	}
-	if( libbfio_handle_open(
-	     file_io_handle,
-	     bfio_access_flags,
-	     error ) != 1 )
+	file_io_handle_is_open = libbfio_handle_is_open(
+	                          file_io_handle,
+	                          error );
+
+	if( file_io_handle_is_open == -1 )
 	{
-                libcerror_error_set(
-                 error,
-                 LIBCERROR_ERROR_DOMAIN_IO,
-                 LIBCERROR_IO_ERROR_OPEN_FAILED,
-                 "%s: unable to open file IO handle.",
-                 function );
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_IO,
+		 LIBCERROR_IO_ERROR_OPEN_FAILED,
+		 "%s: unable to determine if file IO handle is open.",
+		 function );
 
 		goto on_error;
+	}
+	else if( file_io_handle_is_open == 0 )
+	{
+		if( libbfio_handle_open(
+		     file_io_handle,
+		     bfio_access_flags,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_IO,
+			 LIBCERROR_IO_ERROR_OPEN_FAILED,
+			 "%s: unable to open file IO handle.",
+			 function );
+
+			goto on_error;
+		}
+		file_io_handle_opened_in_library = 1;
 	}
 	if( libbfio_pool_set_handle(
 	     file_io_pool,
@@ -1490,10 +1552,12 @@ int libvslvm_handle_open_physical_volume_file_io_handle(
 	return( 1 );
 
 on_error:
-	libbfio_handle_close(
-	 file_io_handle,
-	 NULL );
-
+	if( file_io_handle_opened_in_library != 0 )
+	{
+		libbfio_handle_close(
+		 file_io_handle,
+		 error );
+	}
 	return( -1 );
 }
 
@@ -1597,6 +1661,21 @@ int libvslvm_handle_open_read_data_area_table(
 
 		goto on_error;
 	}
+	if( libvslvm_physical_volume_table_initialize_physical_volumes(
+	     internal_handle->physical_volume_table,
+	     number_of_physical_volumes,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+		 "%s: unable to initialize physical volume table physical volumes.",
+		 function );
+
+		goto on_error;
+	}
+/* TODO */
 	for( physical_volume_index = 0;
 	     physical_volume_index < number_of_physical_volumes;
 	     physical_volume_index++ )
@@ -1805,6 +1884,19 @@ int libvslvm_handle_close(
 
 			result = -1;
 		}
+	}
+	if( libvslvm_physical_volume_table_clear(
+	     internal_handle->physical_volume_table,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+		 "%s: unable to clear physical volume table.",
+		 function );
+
+		result = -1;
 	}
 	return( result );
 }

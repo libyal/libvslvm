@@ -14,8 +14,7 @@ AM_CPPFLAGS = \
 	@LIBVSLVM_DLL_IMPORT@
 
 if HAVE_PYTHON
-TESTS_PYVSLVM  = \
-	test_pyvslvm_open_close.sh
+TESTS_PYVSLVM =
 endif
 
 TESTS = \
@@ -26,9 +25,7 @@ TESTS = \
 	$(TESTS_PYVSLVM)
 
 check_SCRIPTS = \
-	pyvslvm_test_open_close.py \
 	test_open_close.sh \
-	test_pyvslvm_open_close.sh \
 	test_vslvminfo.sh \
 	test_read.sh \
 	test_runner.sh \

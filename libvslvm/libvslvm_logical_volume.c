@@ -1,7 +1,7 @@
 /*
  * Logical volume functions
  *
- * Copyright (c) 2014, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (C) 2014-2015, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -494,7 +494,7 @@ int libvslvm_logical_volume_free(
  */
 ssize_t libvslvm_internal_logical_volume_read_buffer_from_file_io_pool(
          libvslvm_internal_logical_volume_t *internal_logical_volume,
-         libbfio_handle_t *file_io_pool,
+         libbfio_pool_t *file_io_pool,
          void *buffer,
          size_t buffer_size,
          libcerror_error_t **error )
