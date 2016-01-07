@@ -39,8 +39,6 @@
  */
 int libvslvm_volume_group_initialize(
      libvslvm_volume_group_t **volume_group,
-     libvslvm_io_handle_t *io_handle,
-     libbfio_pool_t *file_io_pool,
      libcerror_error_t **error )
 {
 	libvslvm_internal_volume_group_t *internal_volume_group = NULL;
@@ -127,9 +125,6 @@ int libvslvm_volume_group_initialize(
 
 		goto on_error;
 	}
-	internal_volume_group->io_handle    = io_handle;
-	internal_volume_group->file_io_pool = file_io_pool;
-
 	*volume_group = (libvslvm_volume_group_t *) internal_volume_group;
 
 	return( 1 );
@@ -200,7 +195,7 @@ int libvslvm_internal_volume_group_free(
 	}
 	if( *internal_volume_group != NULL )
 	{
-		/* The io_handle and file_io_pool references are freed elsewhere
+		/* The io_handle and physical_volume_file_io_pool references are freed elsewhere
 		 */
 		if( ( *internal_volume_group )->name != NULL )
 		{
@@ -241,6 +236,48 @@ int libvslvm_internal_volume_group_free(
 		*internal_volume_group = NULL;
 	}
 	return( result );
+}
+
+/* Sets the IO values
+ * Returns 1 if successful or -1 on error
+ */
+int libvslvm_volume_group_set_io_values(
+     libvslvm_volume_group_t *volume_group,
+     libvslvm_io_handle_t *io_handle,
+     libbfio_pool_t *physical_volume_file_io_pool,
+     libcerror_error_t **error )
+{
+	libvslvm_internal_volume_group_t *internal_volume_group = NULL;
+	static char *function                                   = "libvslvm_volume_group_set_io_values";
+
+	if( volume_group == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid volume group.",
+		 function );
+
+		return( -1 );
+	}
+	internal_volume_group = (libvslvm_internal_volume_group_t *) volume_group;
+
+	if( io_handle == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid IO handle.",
+		 function );
+
+		return( -1 );
+	}
+	internal_volume_group->io_handle                    = io_handle;
+	internal_volume_group->physical_volume_file_io_pool = physical_volume_file_io_pool;
+
+	return( 1 );
 }
 
 /* Retrieves the size of the ASCII formatted name
@@ -293,7 +330,7 @@ int libvslvm_volume_group_get_name(
      libcerror_error_t **error )
 {
 	libvslvm_internal_volume_group_t *internal_volume_group = NULL;
-	static char *function                                   = "libvslvm_volume_group_set_name";
+	static char *function                                   = "libvslvm_volume_group_get_name";
 
 	if( volume_group == NULL )
 	{
@@ -1000,7 +1037,7 @@ int libvslvm_volume_group_get_logical_volume(
 	if( libvslvm_logical_volume_initialize(
 	     logical_volume,
 	     internal_volume_group->io_handle,
-	     internal_volume_group->file_io_pool,
+	     internal_volume_group->physical_volume_file_io_pool,
 	     logical_volume_values,
 	     error ) != 1 )
 	{

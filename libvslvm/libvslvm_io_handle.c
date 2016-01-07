@@ -195,7 +195,7 @@ int libvslvm_io_handle_read_chunk_data(
      libcerror_error_t **error )
 {
 	libvslvm_chunk_data_t *chunk_data = NULL;
-	static char *function                   = "libvslvm_io_handle_read_chunk_data";
+	static char *function             = "libvslvm_io_handle_read_chunk_data";
 
 	LIBVSLVM_UNREFERENCED_PARAMETER( data_handle );
 	LIBVSLVM_UNREFERENCED_PARAMETER( element_data_flags );

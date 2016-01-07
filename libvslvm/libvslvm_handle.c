@@ -277,9 +277,8 @@ int libvslvm_handle_open(
      int access_flags,
      libcerror_error_t **error )
 {
-	libbfio_handle_t *file_io_handle            = NULL;
-	libvslvm_internal_handle_t *internal_handle = NULL;
-	static char *function                       = "libvslvm_handle_open";
+	libbfio_handle_t *file_io_handle = NULL;
+	static char *function            = "libvslvm_handle_open";
 
 	if( handle == NULL )
 	{
@@ -292,8 +291,6 @@ int libvslvm_handle_open(
 
 		return( -1 );
 	}
-	internal_handle = (libvslvm_internal_handle_t *) handle;
-
 	if( filename == NULL )
 	{
 		libcerror_error_set(
@@ -425,9 +422,8 @@ int libvslvm_handle_open_wide(
      int access_flags,
      libcerror_error_t **error )
 {
-	libbfio_handle_t *file_io_handle            = NULL;
-	libvslvm_internal_handle_t *internal_handle = NULL;
-	static char *function                       = "libvslvm_handle_open_wide";
+	libbfio_handle_t *file_io_handle = NULL;
+	static char *function            = "libvslvm_handle_open_wide";
 
 	if( handle == NULL )
 	{
@@ -440,8 +436,6 @@ int libvslvm_handle_open_wide(
 
 		return( -1 );
 	}
-	internal_handle = (libvslvm_internal_handle_t *) handle;
-
 	if( filename == NULL )
 	{
 		libcerror_error_set(
@@ -2162,7 +2156,6 @@ int libvslvm_handle_open_read(
 	}
 	if( libvslvm_metadata_read(
 	     internal_handle->metadata,
-	     internal_handle->io_handle,
 	     file_io_handle,
 	     metadata_offset,
 	     metadata_size,
@@ -2239,6 +2232,17 @@ int libvslvm_handle_get_volume_group(
 	}
 	internal_handle = (libvslvm_internal_handle_t *) handle;
 
+	if( volume_group == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid volume group.",
+		 function );
+
+		return( -1 );
+	}
 	result = libvslvm_metadata_get_volume_group(
 	          internal_handle->metadata,
 	          volume_group,
@@ -2254,6 +2258,25 @@ int libvslvm_handle_get_volume_group(
 		 function );
 
 		return( -1 );
+	}
+	else if( result != 0 )
+	{
+/* TODO pass data area table */
+		if( libvslvm_volume_group_set_io_values(
+		     *volume_group,
+		     internal_handle->io_handle,
+		     internal_handle->physical_volume_file_io_pool,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
+			 "%s: unable to set IO values in volume group.",
+			 function );
+
+			return( -1 );
+		}
 	}
 	return( result );
 }

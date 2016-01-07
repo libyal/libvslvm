@@ -26,7 +26,6 @@
 
 #include "libvslvm_checksum.h"
 #include "libvslvm_definitions.h"
-#include "libvslvm_io_handle.h"
 #include "libvslvm_libbfio.h"
 #include "libvslvm_libcdata.h"
 #include "libvslvm_libcerror.h"
@@ -172,7 +171,6 @@ int libvslvm_metadata_free(
  */
 int libvslvm_metadata_read(
      libvslvm_metadata_t *metadata,
-     libvslvm_io_handle_t *io_handle,
      libbfio_handle_t *file_io_handle,
      off64_t file_offset,
      size64_t metadata_size,
@@ -340,7 +338,6 @@ int libvslvm_metadata_read(
 	}
 	if( libvslvm_metadata_read_volume_group(
 	     metadata,
-	     io_handle,
 	     lines,
 	     number_of_lines,
 	     &line_index,
@@ -393,7 +390,6 @@ on_error:
  */
 int libvslvm_metadata_read_volume_group(
      libvslvm_metadata_t *metadata,
-     libvslvm_io_handle_t *io_handle,
      libcsplit_narrow_split_string_t *lines,
      int number_of_lines,
      int *line_index,
@@ -543,11 +539,8 @@ int libvslvm_metadata_read_volume_group(
 
 		goto on_error;
 	}
-/* TODO pass data area table */
 	if( libvslvm_volume_group_initialize(
 	     &( metadata->volume_group ),
-	     io_handle,
-	     NULL,
 	     error ) != 1 )
 	{
 		libcerror_error_set(

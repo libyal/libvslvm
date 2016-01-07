@@ -25,7 +25,6 @@
 #include <common.h>
 #include <types.h>
 
-#include "libvslvm_io_handle.h"
 #include "libvslvm_libbfio.h"
 #include "libvslvm_libcerror.h"
 #include "libvslvm_libcsplit.h"
@@ -56,7 +55,6 @@ int libvslvm_metadata_free(
 
 int libvslvm_metadata_read(
      libvslvm_metadata_t *metadata,
-     libvslvm_io_handle_t *io_handle,
      libbfio_handle_t *file_io_handle,
      off64_t file_offset,
      size64_t metadata_size,
@@ -64,7 +62,6 @@ int libvslvm_metadata_read(
 
 int libvslvm_metadata_read_volume_group(
      libvslvm_metadata_t *metadata,
-     libvslvm_io_handle_t *io_handle,
      libcsplit_narrow_split_string_t *lines,
      int number_of_lines,
      int *line_index,

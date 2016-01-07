@@ -43,7 +43,7 @@
 int libvslvm_logical_volume_initialize(
      libvslvm_logical_volume_t **logical_volume,
      libvslvm_io_handle_t *io_handle,
-     libbfio_pool_t *file_io_pool,
+     libbfio_pool_t *physical_volume_file_io_pool,
      libvslvm_logical_volume_values_t *logical_volume_values,
      libcerror_error_t **error )
 {
@@ -365,9 +365,9 @@ int libvslvm_logical_volume_initialize(
 		goto on_error;
 	}
 #endif
-	internal_logical_volume->io_handle             = io_handle;
-	internal_logical_volume->file_io_pool          = file_io_pool;
-	internal_logical_volume->logical_volume_values = logical_volume_values;
+	internal_logical_volume->io_handle                    = io_handle;
+	internal_logical_volume->physical_volume_file_io_pool = physical_volume_file_io_pool;
+	internal_logical_volume->logical_volume_values        = logical_volume_values;
 
 	*logical_volume= (libvslvm_logical_volume_t *) internal_logical_volume;
 
@@ -433,7 +433,7 @@ int libvslvm_logical_volume_free(
 		internal_logical_volume = (libvslvm_internal_logical_volume_t *) *logical_volume;
 		*logical_volume         = NULL;
 
-		/* The logical_volume_values and file_io_pool references are freed elsewhere
+		/* The logical_volume_values and physical_volume_file_io_pool references are freed elsewhere
 		 */
 		if( internal_logical_volume->chunks_vector != NULL )
 		{
@@ -494,7 +494,7 @@ int libvslvm_logical_volume_free(
  */
 ssize_t libvslvm_internal_logical_volume_read_buffer_from_file_io_pool(
          libvslvm_internal_logical_volume_t *internal_logical_volume,
-         libbfio_pool_t *file_io_pool,
+         libbfio_pool_t *physical_volume_file_io_pool,
          void *buffer,
          size_t buffer_size,
          libcerror_error_t **error )
@@ -543,7 +543,7 @@ ssize_t libvslvm_internal_logical_volume_read_buffer_from_file_io_pool(
 	{
 		if( libfdata_vector_get_element_value_at_offset(
 		     internal_logical_volume->chunks_vector,
-		     (intptr_t *) internal_logical_volume->file_io_pool,
+		     (intptr_t *) physical_volume_file_io_pool,
 		     internal_logical_volume->chunks_cache,
 		     internal_logical_volume->current_offset,
 		     &element_data_offset,
@@ -644,7 +644,7 @@ ssize_t libvslvm_logical_volume_read_buffer(
 #endif
 	read_count = libvslvm_internal_logical_volume_read_buffer_from_file_io_pool(
 		      internal_logical_volume,
-		      internal_logical_volume->file_io_pool,
+		      internal_logical_volume->physical_volume_file_io_pool,
 		      buffer,
 		      buffer_size,
 		      error );
@@ -737,7 +737,7 @@ ssize_t libvslvm_logical_volume_read_buffer_at_offset(
 	}
 	read_count = libvslvm_internal_logical_volume_read_buffer_from_file_io_pool(
 		      internal_logical_volume,
-		      internal_logical_volume->file_io_pool,
+		      internal_logical_volume->physical_volume_file_io_pool,
 		      buffer,
 		      buffer_size,
 		      error );

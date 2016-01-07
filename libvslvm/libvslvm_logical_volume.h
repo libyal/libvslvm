@@ -51,9 +51,9 @@ struct libvslvm_internal_logical_volume
 	 */
 	libvslvm_io_handle_t *io_handle;
 
-	/* The file IO pool
+	/* The physical volume file IO pool
 	 */
-	libbfio_pool_t *file_io_pool;
+	libbfio_pool_t *physical_volume_file_io_pool;
 
 	/* The chunks vector
 	 */
@@ -81,7 +81,7 @@ struct libvslvm_internal_logical_volume
 int libvslvm_logical_volume_initialize(
      libvslvm_logical_volume_t **logical_volume,
      libvslvm_io_handle_t *io_handle,
-     libbfio_pool_t *file_io_pool,
+     libbfio_pool_t *physical_volume_file_io_pool,
      libvslvm_logical_volume_values_t *logical_volume_values,
      libcerror_error_t **error );
 
@@ -92,7 +92,7 @@ int libvslvm_logical_volume_free(
 
 ssize_t libvslvm_internal_logical_volume_read_buffer_from_file_io_pool(
          libvslvm_internal_logical_volume_t *internal_logical_volume,
-         libbfio_pool_t *file_io_pool,
+         libbfio_pool_t *physical_volume_file_io_pool,
          void *buffer,
          size_t buffer_size,
          libcerror_error_t **error );

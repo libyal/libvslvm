@@ -46,9 +46,9 @@ struct libvslvm_internal_volume_group
 	 */
 	libvslvm_io_handle_t *io_handle;
 
-	/* The file IO pool
+	/* The physical volume file IO pool
 	 */
-	libbfio_pool_t *file_io_pool;
+	libbfio_pool_t *physical_volume_file_io_pool;
 
 	/* The name
 	 */
@@ -93,8 +93,6 @@ struct libvslvm_internal_volume_group
 
 int libvslvm_volume_group_initialize(
      libvslvm_volume_group_t **volume_group,
-     libvslvm_io_handle_t *io_handle,
-     libbfio_pool_t *file_io_pool,
      libcerror_error_t **error );
 
 LIBVSLVM_EXTERN \
@@ -104,6 +102,12 @@ int libvslvm_volume_group_free(
 
 int libvslvm_internal_volume_group_free(
      libvslvm_internal_volume_group_t **internal_volume_group,
+     libcerror_error_t **error );
+
+int libvslvm_volume_group_set_io_values(
+     libvslvm_volume_group_t *volume_group,
+     libvslvm_io_handle_t *io_handle,
+     libbfio_pool_t *physical_volume_file_io_pool,
      libcerror_error_t **error );
 
 LIBVSLVM_EXTERN \

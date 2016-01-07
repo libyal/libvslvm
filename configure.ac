@@ -228,7 +228,6 @@ AC_CONFIG_FILES([common/types.h])
 AC_CONFIG_FILES([dpkg/changelog])
 AC_CONFIG_FILES([dpkg/copyright])
 AC_CONFIG_FILES([libvslvm/libvslvm.rc])
-AC_CONFIG_FILES([pyvslvm/setup.py])
 AC_CONFIG_FILES([libvslvm.pc])
 AC_CONFIG_FILES([libvslvm.spec])
 dnl Have configure write its configuration
