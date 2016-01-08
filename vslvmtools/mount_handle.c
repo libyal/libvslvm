@@ -114,6 +114,35 @@ int mount_handle_initialize(
 
 		return( -1 );
 	}
+	if( libbfio_file_range_initialize(
+	     &( ( *mount_handle )->input_file_io_handle ),
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+		 "%s: unable to initialize input file IO handle.",
+		 function );
+
+		goto on_error;
+	}
+/* TODO control maximum number of handles */
+	if( libbfio_pool_initialize(
+	     &( ( *mount_handle )->physical_volume_file_io_pool ),
+	     0,
+	     0,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+		 "%s: unable to initialize physical volume file IO pool.",
+		 function );
+
+		goto on_error;
+	}
 	if( libvslvm_handle_initialize(
 	     &( ( *mount_handle )->input_handle ),
 	     error ) != 1 )
@@ -150,6 +179,18 @@ on_error:
 		{
 			libvslvm_handle_free(
 			 &( ( *mount_handle )->input_handle ),
+			 NULL );
+		}
+		if( ( *mount_handle )->physical_volume_file_io_pool != NULL )
+		{
+			libbfio_pool_free(
+			 &( ( *mount_handle )->physical_volume_file_io_pool ),
+			 NULL );
+		}
+		if( ( *mount_handle )->input_file_io_handle != NULL )
+		{
+			libbfio_handle_free(
+			 &( ( *mount_handle )->input_file_io_handle ),
 			 NULL );
 		}
 		memory_free(
@@ -227,14 +268,27 @@ int mount_handle_free(
 			result = -1;
 		}
 		if( libbfio_pool_free(
-		     &( ( *mount_handle )->input_file_io_pool ),
+		     &( ( *mount_handle )->physical_volume_file_io_pool ),
 		     error ) != 1 )
 		{
 			libcerror_error_set(
 			 error,
 			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 			 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
-			 "%s: unable to free input file IO pool.",
+			 "%s: unable to free physical volume file IO pool.",
+			 function );
+
+			result = -1;
+		}
+		if( libbfio_handle_free(
+		     &( ( *mount_handle )->input_file_io_handle ),
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+			 "%s: unable to free input file IO handle.",
 			 function );
 
 			result = -1;
@@ -368,7 +422,7 @@ int mount_handle_open_input(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
-		 "%s: unable to initialize input file IO handle.",
+		 "%s: unable to initialize file IO handle.",
 		 function );
 
 		goto on_error;
@@ -394,7 +448,7 @@ int mount_handle_open_input(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_IO,
 		 LIBCERROR_IO_ERROR_OPEN_FAILED,
-		 "%s: unable to set file name.",
+		 "%s: unable to open set file name.",
 		 function );
 
 		goto on_error;
@@ -409,18 +463,16 @@ int mount_handle_open_input(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_IO,
 		 LIBCERROR_IO_ERROR_OPEN_FAILED,
-		 "%s: unable to set volume offset.",
+		 "%s: unable to open set volume offset.",
 		 function );
 
 		goto on_error;
 	}
-	result = libvslvm_handle_open_file_io_handle(
-	          mount_handle->input_handle,
-	          file_io_handle,
-	          LIBVSLVM_OPEN_READ,
-	          error );
-
-	if( result == -1 )
+	if( libvslvm_handle_open_file_io_handle(
+	     mount_handle->input_handle,
+	     file_io_handle,
+	     LIBVSLVM_OPEN_READ,
+	     error ) != 1 )
 	{
 		libcerror_error_set(
 		 error,
@@ -431,22 +483,32 @@ int mount_handle_open_input(
 
 		goto on_error;
 	}
+	if( libbfio_pool_append_handle(
+	     mount_handle->physical_volume_file_io_pool,
+	     &entry_index,
+	     file_io_handle,
+	     LIBBFIO_OPEN_READ,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_IO,
+		 LIBCERROR_IO_ERROR_OPEN_FAILED,
+		 "%s: unable to open input handle.",
+		 function );
+
+		goto on_error;
+	}
+	/* The takes over management of the file IO handle
+	 */
+	file_io_handle = NULL;
+
 /* TODO determine if the first file is a metadata only file and change filenames accordingly
  */
-/* TODO replace by libvslvm_handle_open_physical_volume_files_file_io_pool */
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
-	if( libvslvm_handle_open_physical_volume_files_wide(
+	if( libvslvm_handle_open_physical_volume_files_file_io_pool(
 	     mount_handle->input_handle,
-	     &filename,
-	     1,
+	     mount_handle->physical_volume_file_io_pool,
 	     error ) != 1 )
-#else
-	if( libvslvm_handle_open_physical_volume_files(
-	     mount_handle->input_handle,
-	     &filename,
-	     1,
-	     error ) != 1 )
-#endif
 	{
 		libcerror_error_set(
 		 error,
@@ -455,7 +517,7 @@ int mount_handle_open_input(
 		 "%s: unable to open physical volume files.",
 		 function );
 
-		return( -1 );
+		goto on_error;
 	}
 	if( libvslvm_handle_get_volume_group(
 	     mount_handle->input_handle,

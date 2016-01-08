@@ -640,17 +640,15 @@ ssize_t libvslvm_internal_logical_volume_read_buffer_from_file_io_pool(
 
 			return( -1 );
 		}
-		if( buffer_size < chunk_data->data_size )
+		read_size = chunk_data->data_size - (size_t) element_data_offset;
+
+		if( buffer_size < read_size )
 		{
 			read_size = buffer_size;
 		}
-		else
-		{
-			read_size = chunk_data->data_size;
-		}
 		if( memory_copy(
 		     &( ( (uint8_t *) buffer )[ buffer_offset ] ),
-		     chunk_data->data,
+		     &( chunk_data->data[ element_data_offset ] ),
 		     read_size ) == NULL )
 		{
 			libcerror_error_set(

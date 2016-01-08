@@ -43,10 +43,6 @@ struct info_handle
 	 */
 	off64_t volume_offset;
 
-	/* The libbfio input file IO handle
-	 */
-	libbfio_handle_t *input_file_io_handle;
-
 	/* The libbfio physical volume file IO pool
 	 */
 	libbfio_pool_t *physical_volume_file_io_pool;

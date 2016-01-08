@@ -112,19 +112,6 @@ int info_handle_initialize(
 
 		goto on_error;
 	}
-	if( libbfio_file_range_initialize(
-	     &( ( *info_handle )->input_file_io_handle ),
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
-		 "%s: unable to initialize input file IO handle.",
-		 function );
-
-		goto on_error;
-	}
 /* TODO control maximum number of handles */
 	if( libbfio_pool_initialize(
 	     &( ( *info_handle )->physical_volume_file_io_pool ),
@@ -165,12 +152,6 @@ on_error:
 		{
 			libbfio_pool_free(
 			 &( ( *info_handle )->physical_volume_file_io_pool ),
-			 NULL );
-		}
-		if( ( *info_handle )->input_file_io_handle != NULL )
-		{
-			libbfio_handle_free(
-			 &( ( *info_handle )->input_file_io_handle ),
 			 NULL );
 		}
 		memory_free(
@@ -226,19 +207,6 @@ int info_handle_free(
 			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 			 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
 			 "%s: unable to free physical volume file IO pool.",
-			 function );
-
-			result = -1;
-		}
-		if( libbfio_handle_free(
-		     &( ( *info_handle )->input_file_io_handle ),
-		     error ) != 1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
-			 "%s: unable to free input file IO handle.",
 			 function );
 
 			result = -1;
@@ -346,9 +314,10 @@ int info_handle_open_input(
      const libcstring_system_character_t *filename,
      libcerror_error_t **error )
 {
-	static char *function  = "info_handle_open_input";
-	size_t filename_length = 0;
-	int entry_index        = 0;
+	libbfio_handle_t *file_io_handle = NULL;
+	static char *function            = "info_handle_open_input";
+	size_t filename_length           = 0;
+	int entry_index                  = 0;
 
 	if( info_handle == NULL )
 	{
@@ -361,18 +330,31 @@ int info_handle_open_input(
 
 		return( -1 );
 	}
+	if( libbfio_file_range_initialize(
+	     &file_io_handle,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+		 "%s: unable to initialize file IO handle.",
+		 function );
+
+		goto on_error;
+	}
 	filename_length = libcstring_system_string_length(
 	                   filename );
 
 #if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
 	if( libbfio_file_range_set_name_wide(
-	     info_handle->input_file_io_handle,
+	     file_io_handle,
 	     filename,
 	     filename_length,
 	     error ) != 1 )
 #else
 	if( libbfio_file_range_set_name(
-	     info_handle->input_file_io_handle,
+	     file_io_handle,
 	     filename,
 	     filename_length,
 	     error ) != 1 )
@@ -385,10 +367,10 @@ int info_handle_open_input(
 		 "%s: unable to open set file name.",
 		 function );
 
-		return( -1 );
+		goto on_error;
 	}
 	if( libbfio_file_range_set(
-	     info_handle->input_file_io_handle,
+	     file_io_handle,
 	     info_handle->volume_offset,
 	     0,
 	     error ) != 1 )
@@ -400,11 +382,11 @@ int info_handle_open_input(
 		 "%s: unable to open set volume offset.",
 		 function );
 
-		return( -1 );
+		goto on_error;
 	}
 	if( libvslvm_handle_open_file_io_handle(
 	     info_handle->input_handle,
-	     info_handle->input_file_io_handle,
+	     file_io_handle,
 	     LIBVSLVM_OPEN_READ,
 	     error ) != 1 )
 	{
@@ -415,12 +397,12 @@ int info_handle_open_input(
 		 "%s: unable to open input handle.",
 		 function );
 
-		return( -1 );
+		goto on_error;
 	}
 	if( libbfio_pool_append_handle(
 	     info_handle->physical_volume_file_io_pool,
 	     &entry_index,
-	     info_handle->input_file_io_handle,
+	     file_io_handle,
 	     LIBBFIO_OPEN_READ,
 	     error ) != 1 )
 	{
@@ -431,10 +413,11 @@ int info_handle_open_input(
 		 "%s: unable to open input handle.",
 		 function );
 
-		return( -1 );
+		goto on_error;
 	}
-/* TODO have the pool manage te file object */
-	info_handle->input_file_io_handle = NULL;
+	/* The takes over management of the file IO handle
+	 */
+	file_io_handle = NULL;
 
 /* TODO determine if the first file is a metadata only file and change filenames accordingly
  */
@@ -450,9 +433,18 @@ int info_handle_open_input(
 		 "%s: unable to open physical volume files.",
 		 function );
 
-		return( -1 );
+		goto on_error;
 	}
 	return( 1 );
+
+on_error:
+	if( file_io_handle != NULL )
+	{
+		libbfio_handle_free(
+		 &file_io_handle,
+		 NULL );
+	}
+	return( -1 );
 }
 
 /* Closes the input
