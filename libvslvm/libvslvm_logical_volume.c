@@ -24,17 +24,21 @@
 #include <types.h>
 
 #include "libvslvm_chunk_data.h"
+#include "libvslvm_data_area_descriptor.h"
 #include "libvslvm_definitions.h"
 #include "libvslvm_io_handle.h"
 #include "libvslvm_libbfio.h"
 #include "libvslvm_libcerror.h"
+#include "libvslvm_libcstring.h"
 #include "libvslvm_libfcache.h"
 #include "libvslvm_libfdata.h"
 #include "libvslvm_logical_volume.h"
 #include "libvslvm_logical_volume_values.h"
+#include "libvslvm_physical_volume.h"
 #include "libvslvm_segment.h"
 #include "libvslvm_stripe.h"
 #include "libvslvm_types.h"
+#include "libvslvm_volume_group.h"
 
 /* Creates a logical volume
  * Make sure the value logical_volume is referencing, is set to NULL
@@ -43,21 +47,27 @@
 int libvslvm_logical_volume_initialize(
      libvslvm_logical_volume_t **logical_volume,
      libvslvm_io_handle_t *io_handle,
+     libvslvm_volume_group_t *volume_group,
      libbfio_pool_t *physical_volume_file_io_pool,
      libvslvm_logical_volume_values_t *logical_volume_values,
      libcerror_error_t **error )
 {
+	char physical_volume_name[ 64 ];
+
+	libvslvm_data_area_descriptor_t *data_area_descriptor       = NULL;
 	libvslvm_internal_logical_volume_t *internal_logical_volume = NULL;
+	libvslvm_physical_volume_t *physical_volume                 = NULL;
 	libvslvm_segment_t *segment                                 = NULL;
 	libvslvm_stripe_t *stripe                                   = NULL;
 	static char *function                                       = "libvslvm_logical_volume_initialize";
-	off64_t data_area_offset                                    = 0;
 	off64_t segment_offset                                      = 0;
-	off64_t volume_offset                                       = 0;
+	off64_t stripe_offset                                       = 0;
 	size64_t segment_size                                       = 0;
+	size_t physical_volume_name_length                          = 0;
 	int element_index                                           = 0;
 	int number_of_segments                                      = 0;
 	int number_of_stripes                                       = 0;
+	int result                                                  = 0;
 	int segment_index                                           = 0;
 	int stripe_index                                            = 0;
 
@@ -181,23 +191,9 @@ int libvslvm_logical_volume_initialize(
 
 			goto on_error;
 		}
-		if( libvslvm_segment_get_offset(
+		if( libvslvm_segment_get_range(
 		     segment,
 		     &segment_offset,
-		     error ) != 1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-			 "%s: unable to retrieve segment: %d offset.",
-			 function,
-			 segment_index );
-
-			goto on_error;
-		}
-		if( libvslvm_segment_get_size(
-		     segment,
 		     &segment_size,
 		     error ) != 1 )
 		{
@@ -205,7 +201,7 @@ int libvslvm_logical_volume_initialize(
 			 error,
 			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-			 "%s: unable to retrieve segment: %d size.",
+			 "%s: unable to retrieve segment: %d range.",
 			 function,
 			 segment_index );
 
@@ -257,10 +253,25 @@ int libvslvm_logical_volume_initialize(
 
 				goto on_error;
 			}
-/* TODO get pv */
+			if( libvslvm_stripe_get_physical_volume_name(
+			     stripe,
+			     physical_volume_name,
+			     64,
+			     error ) != 1 )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+				 "%s: unable to retrieve stripe: %d physical volume name.",
+				 function,
+				 stripe_index );
+
+				goto on_error;
+			}
 			if( libvslvm_stripe_get_data_area_offset(
 			     stripe,
-			     &data_area_offset,
+			     &stripe_offset,
 			     error ) != 1 )
 			{
 				libcerror_error_set(
@@ -287,7 +298,62 @@ int libvslvm_logical_volume_initialize(
 
 				goto on_error;
 			}
-/* TODO get volume offset for data area offset */
+			physical_volume_name_length = libcstring_narrow_string_length(
+			                               physical_volume_name );
+
+			if( libvslvm_volume_group_get_physical_volume_by_name(
+			     volume_group,
+			     physical_volume_name,
+			     physical_volume_name_length,
+			     &physical_volume,
+			     error ) != 1 )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+				 "%s: unable to retrieve physical volume by name.",
+				 function );
+
+				goto on_error;
+			}
+			result = libvslvm_physical_volume_get_data_area_descriptor_by_offset(
+			          physical_volume,
+			          stripe_offset,
+			          &data_area_descriptor,
+			          error );
+
+			if( result == -1 )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+				 "%s: unable to retrieve data area descriptor by offset: 0x%08" PRIx64 ".",
+				 function,
+				 segment_offset );
+
+				goto on_error;
+			}
+			else if( result != 0 )
+			{
+				if( data_area_descriptor == NULL )
+				{
+					libcerror_error_set(
+					 error,
+					 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+					 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
+					 "%s: missing data area descriptor.",
+					 function );
+
+					goto on_error;
+				}
+				/* The stripe data area offset is relative to the start
+				 * of the data area of the volume
+				 */
+				stripe_offset += data_area_descriptor->offset;
+			}
+/* TODO check segment size ? */
 		}
 		if( libvslvm_segment_free(
 		     &segment,
@@ -303,11 +369,12 @@ int libvslvm_logical_volume_initialize(
 
 			goto on_error;
 		}
+/* TODO skip the append if the physical volumes are not available? */
 		if( libfdata_vector_append_segment(
 		     internal_logical_volume->chunks_vector,
 		     &element_index,
 		     0,
-		     volume_offset,
+		     stripe_offset,
 		     segment_size,
 		     0,
 		     error ) != 1 )

@@ -1,6 +1,5 @@
 TODO
 * complete physical volume and data area table
-* libvslvm_volume_group_initialize pass data area table instead of pool
 * implement libvslvm_handle_open_physical_volume_data_files
 * libvslvm_logical_volume_seek_offset fix locking issue.
 * finish:
@@ -33,8 +32,12 @@ Tools:
 * vslvmmount
   - allow use of names besides lvm#?
 
+20160108
+* worked on format support
+
 20160107
 * 2016 update
+* worked on format support
 
 20151229
 * updated dependencies

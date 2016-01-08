@@ -1,4 +1,4 @@
-.Dd January  5, 2015
+.Dd January  7, 2016
 .Dt libvslvm 3
 .Os libvslvm
 .Sh NAME
@@ -99,11 +99,13 @@ Volume group functions
 .Ft int
 .Fn libvslvm_volume_group_get_number_of_physical_volumes "libvslvm_volume_group_t *volume_group, int *number_of_physical_volumes, libvslvm_error_t **error"
 .Ft int
-.Fn libvslvm_volume_group_get_physical_volume "libvslvm_volume_group_t *volume_group, int physical_volume_index, libvslvm_physical_volume_t **physical_volume, libvslvm_error_t **error"
+.Fn libvslvm_volume_group_get_physical_volume "libvslvm_volume_group_t *volume_group, int volume_index, libvslvm_physical_volume_t **physical_volume, libvslvm_error_t **error"
+.Ft int
+.Fn libvslvm_volume_group_get_physical_volume_by_name "libvslvm_volume_group_t *volume_group, const char *volume_name, size_t volume_name_length, libvslvm_physical_volume_t **physical_volume, libvslvm_error_t **error"
 .Ft int
 .Fn libvslvm_volume_group_get_number_of_logical_volumes "libvslvm_volume_group_t *volume_group, int *number_of_logical_volumes, libvslvm_error_t **error"
 .Ft int
-.Fn libvslvm_volume_group_get_logical_volume "libvslvm_volume_group_t *volume_group, int logical_volume_index, libvslvm_logical_volume_t **logical_volume, libvslvm_error_t **error"
+.Fn libvslvm_volume_group_get_logical_volume "libvslvm_volume_group_t *volume_group, int volume_index, libvslvm_logical_volume_t **logical_volume, libvslvm_error_t **error"
 .Pp
 Physical volume functions
 .Ft int

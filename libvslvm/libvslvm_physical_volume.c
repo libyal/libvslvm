@@ -298,7 +298,7 @@ int libvslvm_physical_volume_get_name(
      libcerror_error_t **error )
 {
 	libvslvm_internal_physical_volume_t *internal_physical_volume = NULL;
-	static char *function                                         = "libvslvm_physical_volume_set_name";
+	static char *function                                         = "libvslvm_physical_volume_get_name";
 
 	if( physical_volume == NULL )
 	{
@@ -465,6 +465,64 @@ on_error:
 	internal_physical_volume->name_size = 0;
 
 	return( -1 );
+}
+
+/* Compares the name with that of the physical volume
+ * Returns 1 if the name matches, 0 if not or -1 on error
+ */
+int libvslvm_physical_volume_compare_by_name(
+     libvslvm_physical_volume_t *physical_volume,
+     const char *name,
+     size_t name_length,
+     libcerror_error_t **error )
+{
+	libvslvm_internal_physical_volume_t *internal_physical_volume = NULL;
+	static char *function                                         = "libvslvm_physical_volume_compare_by_name";
+
+	if( physical_volume == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid physical volume.",
+		 function );
+
+		return( -1 );
+	}
+	internal_physical_volume = (libvslvm_internal_physical_volume_t *) physical_volume;
+
+	if( name == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid name.",
+		 function );
+
+		return( -1 );
+	}
+	if( name_length > (size_t) ( SSIZE_MAX - 1 ) )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_VALUE_EXCEEDS_MAXIMUM,
+		 "%s: name length value exceeds maximum.",
+		 function );
+
+		return( -1 );
+	}
+	if( ( internal_physical_volume->name_size == ( name_length + 1 ) )
+	 && ( memory_compare(
+	       name,
+	       internal_physical_volume->name,
+	       internal_physical_volume->name_size ) == 0 ) )
+	{
+		return( 1 );
+	}
+	return( 0 );
 }
 
 /* Retrieves the size of the ASCII formatted identifier
@@ -1000,6 +1058,110 @@ int libvslvm_physical_volume_get_data_area_descriptor(
 	return( 1 );
 }
 
+/* Retrieves the data area descriptor for a specific offset
+ * Returns 1 if successful, 0 if no such data area descriptor or -1 on error
+ */
+int libvslvm_physical_volume_get_data_area_descriptor_by_offset(
+     libvslvm_physical_volume_t *physical_volume,
+     uint64_t offset,
+     libvslvm_data_area_descriptor_t **data_area_descriptor,
+     libcerror_error_t **error )
+{
+	libvslvm_internal_physical_volume_t *internal_physical_volume = NULL;
+	static char *function                                         = "libvslvm_physical_volume_get_data_area_descriptor_by_offset";
+	int data_area_descriptor_index                                = 0;
+	int number_of_data_area_descriptors                           = 0;
+
+	if( physical_volume == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid physical volume.",
+		 function );
+
+		return( -1 );
+	}
+	internal_physical_volume = (libvslvm_internal_physical_volume_t *) physical_volume;
+
+	if( data_area_descriptor == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid data area descriptor.",
+		 function );
+
+		return( -1 );
+	}
+	if( *data_area_descriptor != NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
+		 "%s: invalid data area descriptor value already set.",
+		 function );
+
+		return( -1 );
+	}
+	if( libcdata_array_get_number_of_entries(
+	     internal_physical_volume->data_area_descriptors_array,
+	     &number_of_data_area_descriptors,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve number of data area descriptors from array.",
+		 function );
+
+		return( -1 );
+	}
+	for( data_area_descriptor_index = 0;
+	     data_area_descriptor_index < number_of_data_area_descriptors;
+	     data_area_descriptor_index++ )
+	{
+		if( libcdata_array_get_entry_by_index(
+		     internal_physical_volume->data_area_descriptors_array,
+		     data_area_descriptor_index,
+		     (intptr_t **) data_area_descriptor,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+			 "%s: unable to retrieve data area descriptor: %d.",
+			 function,
+			 data_area_descriptor_index );
+
+			return( -1 );
+		}
+		if( *data_area_descriptor == NULL )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
+			 "%s: missing data area descriptor: %d.",
+			 function,
+			 data_area_descriptor_index );
+
+			return( -1 );
+		}
+		if( ( *data_area_descriptor )->size == 0 )
+		{
+			return( 1 );
+		}
+		offset -= ( *data_area_descriptor )->size;
+	}
+	return( 0 );
+}
+
 /* Retrieves the number of metadata area descriptors
  * Returns 1 if successful or -1 on error
  */
@@ -1374,12 +1536,12 @@ int libvslvm_physical_volume_read_label(
 			if( libcnotify_verbose != 0 )
 			{
 				libcnotify_printf(
-				 "%s: offset\t\t\t\t: 0x%08" PRIx64 "\n",
+				 "%s: data area offset\t\t\t: 0x%08" PRIx64 "\n",
 				 function,
 				 offset );
 
 				libcnotify_printf(
-				 "%s: size\t\t\t\t: %" PRIu64 "\n",
+				 "%s: data area size\t\t\t: %" PRIu64 "\n",
 				 function,
 				 size );
 
@@ -1485,12 +1647,12 @@ int libvslvm_physical_volume_read_label(
 			if( libcnotify_verbose != 0 )
 			{
 				libcnotify_printf(
-				 "%s: offset\t\t\t\t: 0x%08" PRIx64 "\n",
+				 "%s: metadata area offset\t\t: 0x%08" PRIx64 "\n",
 				 function,
 				 offset );
 
 				libcnotify_printf(
-				 "%s: size\t\t\t\t: %" PRIu64 "\n",
+				 "%s: metadata area size\t\t\t: %" PRIu64 "\n",
 				 function,
 				 size );
 

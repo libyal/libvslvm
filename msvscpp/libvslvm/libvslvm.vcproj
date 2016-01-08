@@ -226,10 +226,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\libvslvm\libvslvm_physical_volume_table.c"
-				>
-			</File>
-			<File
 				RelativePath="..\..\libvslvm\libvslvm_raw_location_descriptor.c"
 				>
 			</File>
@@ -357,10 +353,6 @@
 			</File>
 			<File
 				RelativePath="..\..\libvslvm\libvslvm_physical_volume.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\libvslvm\libvslvm_physical_volume_table.h"
 				>
 			</File>
 			<File

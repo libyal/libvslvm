@@ -22,6 +22,7 @@ bin_PROGRAMS = \
 	vslvmmount
 
 vslvminfo_SOURCES = \
+	byte_size_string.c byte_size_string.h \
 	vslvminfo.c \
 	vslvmoutput.c vslvmoutput.h \
 	vslvmtools_libcerror.h \

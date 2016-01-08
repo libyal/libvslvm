@@ -81,6 +81,7 @@ struct libvslvm_internal_logical_volume
 int libvslvm_logical_volume_initialize(
      libvslvm_logical_volume_t **logical_volume,
      libvslvm_io_handle_t *io_handle,
+     libvslvm_volume_group_t *volume_group,
      libbfio_pool_t *physical_volume_file_io_pool,
      libvslvm_logical_volume_values_t *logical_volume_values,
      libcerror_error_t **error );

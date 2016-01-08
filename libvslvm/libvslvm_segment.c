@@ -299,6 +299,59 @@ on_error:
 	return( -1 );
 }
 
+/* Retrieves the range
+ * Returns 1 if successful or -1 on error
+ */
+int libvslvm_segment_get_range(
+     libvslvm_segment_t *segment,
+     off64_t *offset,
+     size64_t *size,
+     libcerror_error_t **error )
+{
+	libvslvm_internal_segment_t *internal_segment = NULL;
+	static char *function                         = "libvslvm_segment_get_range";
+
+	if( segment == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid segment.",
+		 function );
+
+		return( -1 );
+	}
+	internal_segment = (libvslvm_internal_segment_t *) segment;
+
+	if( offset == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid offset.",
+		 function );
+
+		return( -1 );
+	}
+	if( size == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid size.",
+		 function );
+
+		return( -1 );
+	}
+	*offset = internal_segment->offset;
+	*size   = internal_segment->size;
+
+	return( 1 );
+}
+
 /* Retrieves the offset
  * Returns 1 if successful or -1 on error
  */

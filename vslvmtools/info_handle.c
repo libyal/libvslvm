@@ -24,11 +24,12 @@
 #include <memory.h>
 #include <types.h>
 
+#include "byte_size_string.h"
+#include "info_handle.h"
 #include "vslvmtools_libcerror.h"
 #include "vslvmtools_libclocale.h"
 #include "vslvmtools_libcstring.h"
 #include "vslvmtools_libvslvm.h"
-#include "info_handle.h"
 
 #define INFO_HANDLE_NOTIFY_STREAM	stdout
 
@@ -308,6 +309,31 @@ int info_handle_open_input(
 		 LIBCERROR_ERROR_DOMAIN_IO,
 		 LIBCERROR_IO_ERROR_OPEN_FAILED,
 		 "%s: unable to open input handle.",
+		 function );
+
+		return( -1 );
+	}
+/* TODO determine if the first file is a metadata only file and change filenames accordingly
+ */
+#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+	if( libvslvm_handle_open_physical_volume_files_wide(
+	     info_handle->input_handle,
+	     &filename,
+	     1,
+	     error ) != 1 )
+#else
+	if( libvslvm_handle_open_physical_volume_files(
+	     info_handle->input_handle,
+	     &filename,
+	     1,
+	     error ) != 1 )
+#endif
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_IO,
+		 LIBCERROR_IO_ERROR_OPEN_FAILED,
+		 "%s: unable to open physical volume files.",
 		 function );
 
 		return( -1 );
@@ -1249,11 +1275,14 @@ int info_handle_segment_fprint(
      libvslvm_segment_t *segment,
      libcerror_error_t **error )
 {
+	libcstring_system_character_t segment_size_string[ 16 ];
+
 	libvslvm_stripe_t *stripe = NULL;
 	static char *function     = "info_handle_segment_fprint";
 	off64_t segment_offset    = 0;
 	size64_t segment_size     = 0;
 	int number_of_stripes     = 0;
+	int result                = 0;
 	int stripe_index          = 0;
 
 	if( info_handle == NULL )
@@ -1306,11 +1335,28 @@ int info_handle_segment_fprint(
 
 		goto on_error;
 	}
-	fprintf(
-	 info_handle->notify_stream,
-	 "\t\tSize:\t\t\t\t%" PRIu64 " bytes\n",
-	 segment_size );
+	result = byte_size_string_create(
+	          segment_size_string,
+	          16,
+	          segment_size,
+	          BYTE_SIZE_STRING_UNIT_MEBIBYTE,
+	          NULL );
 
+	if( result == 1 )
+	{
+		fprintf(
+		 info_handle->notify_stream,
+		 "\t\tSize:\t\t\t\t%" PRIs_LIBCSTRING_SYSTEM " (%" PRIu64 " bytes)\n",
+		 segment_size_string,
+		 segment_size );
+	}
+	else
+	{
+		fprintf(
+		 info_handle->notify_stream,
+		 "\t\tSize:\t\t\t\t%" PRIu64 " bytes\n",
+		 segment_size );
+	}
 	if( libvslvm_segment_get_number_of_stripes(
 	     segment,
 	     &number_of_stripes,

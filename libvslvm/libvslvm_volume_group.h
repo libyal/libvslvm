@@ -169,7 +169,15 @@ int libvslvm_volume_group_get_number_of_physical_volumes(
 LIBVSLVM_EXTERN \
 int libvslvm_volume_group_get_physical_volume(
      libvslvm_volume_group_t *volume_group,
-     int physical_volume_index,
+     int volume_index,
+     libvslvm_physical_volume_t **physical_volume,
+     libcerror_error_t **error );
+
+LIBVSLVM_EXTERN \
+int libvslvm_volume_group_get_physical_volume_by_name(
+     libvslvm_volume_group_t *volume_group,
+     const char *volume_name,
+     size_t volume_name_length,
      libvslvm_physical_volume_t **physical_volume,
      libcerror_error_t **error );
 
@@ -187,7 +195,7 @@ int libvslvm_volume_group_get_number_of_logical_volumes(
 LIBVSLVM_EXTERN \
 int libvslvm_volume_group_get_logical_volume(
      libvslvm_volume_group_t *volume_group,
-     int logical_volume_index,
+     int volume_index,
      libvslvm_logical_volume_t **logical_volume,
      libcerror_error_t **error );
 

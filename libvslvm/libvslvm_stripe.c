@@ -213,7 +213,7 @@ int libvslvm_stripe_get_physical_volume_name(
      libcerror_error_t **error )
 {
 	libvslvm_internal_stripe_t *internal_stripe = NULL;
-	static char *function                       = "libvslvm_stripe_set_physical_volume_name";
+	static char *function                       = "libvslvm_stripe_get_physical_volume_name";
 
 	if( stripe == NULL )
 	{
@@ -418,6 +418,35 @@ int libvslvm_stripe_get_data_area_offset(
 		return( -1 );
 	}
 	*data_area_offset = internal_stripe->data_area_offset;
+
+	return( 1 );
+}
+
+/* Sets the data area offset
+ * Returns 1 if successful or -1 on error
+ */
+int libvslvm_stripe_set_data_area_offset(
+     libvslvm_stripe_t *stripe,
+     off64_t data_area_offset,
+     libcerror_error_t **error )
+{
+	libvslvm_internal_stripe_t *internal_stripe = NULL;
+	static char *function                       = "libvslvm_stripe_set_data_area_offset";
+
+	if( stripe == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid stripe.",
+		 function );
+
+		return( -1 );
+	}
+	internal_stripe = (libvslvm_internal_stripe_t *) stripe;
+
+	internal_stripe->data_area_offset = data_area_offset;
 
 	return( 1 );
 }

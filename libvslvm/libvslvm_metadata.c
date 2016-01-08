@@ -573,7 +573,7 @@ int libvslvm_metadata_read_volume_group(
 	if( libcnotify_verbose != 0 )
 	{
 		libcnotify_printf(
-		 "%s: name\t\t\t: %s\n",
+		 "%s: name\t\t\t\t: %s\n",
 		 function,
 		 internal_volume_group->name );
 	}
@@ -851,7 +851,7 @@ int libvslvm_metadata_read_volume_group(
 				if( libcnotify_verbose != 0 )
 				{
 					libcnotify_printf(
-					 "%s: identifier\t\t\t: %s\n",
+					 "%s: identifier\t\t\t\t: %s\n",
 					 function,
 					 internal_volume_group->identifier );
 				}
@@ -869,7 +869,7 @@ int libvslvm_metadata_read_volume_group(
 				if( libcnotify_verbose != 0 )
 				{
 					libcnotify_printf(
-					 "%s: flags\t\t\t: %s\n",
+					 "%s: flags\t\t\t\t: %s\n",
 					 function,
 					 value );
 				}
@@ -885,7 +885,7 @@ int libvslvm_metadata_read_volume_group(
 				if( libcnotify_verbose != 0 )
 				{
 					libcnotify_printf(
-					 "%s: sequence number\t\t: %s\n",
+					 "%s: sequence number\t\t\t: %s\n",
 					 function,
 					 value );
 				}
@@ -932,7 +932,7 @@ int libvslvm_metadata_read_volume_group(
 				if( libcnotify_verbose != 0 )
 				{
 					libcnotify_printf(
-					 "%s: max_lv\t\t\t: %s\n",
+					 "%s: max_lv\t\t\t\t: %s\n",
 					 function,
 					 value );
 				}
@@ -948,7 +948,7 @@ int libvslvm_metadata_read_volume_group(
 				if( libcnotify_verbose != 0 )
 				{
 					libcnotify_printf(
-					 "%s: max_pv\t\t\t: %s\n",
+					 "%s: max_pv\t\t\t\t: %s\n",
 					 function,
 					 value );
 				}
@@ -964,7 +964,7 @@ int libvslvm_metadata_read_volume_group(
 				if( libcnotify_verbose != 0 )
 				{
 					libcnotify_printf(
-					 "%s: status flags\t\t: %s\n",
+					 "%s: status flags\t\t\t: %s\n",
 					 function,
 					 value );
 				}
@@ -983,7 +983,7 @@ int libvslvm_metadata_read_volume_group(
 				if( libcnotify_verbose != 0 )
 				{
 					libcnotify_printf(
-					 "%s: extent size\t\t: %s\n",
+					 "%s: extent size\t\t\t: %s\n",
 					 function,
 					 value );
 				}
@@ -1016,7 +1016,9 @@ int libvslvm_metadata_read_volume_group(
 
 					goto on_error;
 				}
-				internal_volume_group->extent_size = value_64bit * 512;
+				value_64bit *= 512;
+
+				internal_volume_group->extent_size = value_64bit;
 			}
 		}
 		else if( value_identifier_length == 15 )
@@ -1030,7 +1032,7 @@ int libvslvm_metadata_read_volume_group(
 				if( libcnotify_verbose != 0 )
 				{
 					libcnotify_printf(
-					 "%s: metadata copies\t\t: %s\n",
+					 "%s: metadata copies\t\t\t: %s\n",
 					 function,
 					 value );
 				}
@@ -1042,7 +1044,7 @@ int libvslvm_metadata_read_volume_group(
 		else if( libcnotify_verbose != 0 )
 		{
 			libcnotify_printf(
-			 "%s: value: %d\t\t: %s = %s\n",
+			 "%s: value: %d\t\t\t: %s = %s\n",
 			 function,
 			 *line_index,
 			 value_identifier,
@@ -1519,7 +1521,7 @@ int libvslvm_metadata_read_physical_volume(
 		 "\n" );
 
 		libcnotify_printf(
-		 "%s: name\t\t\t: %s\n",
+		 "%s: name\t\t\t\t: %s\n",
 		 function,
 		 ( (libvslvm_internal_physical_volume_t *) physical_volume )->name );
 	}
@@ -1741,7 +1743,7 @@ int libvslvm_metadata_read_physical_volume(
 				if( libcnotify_verbose != 0 )
 				{
 					libcnotify_printf(
-					 "%s: identifier\t\t: %s\n",
+					 "%s: identifier\t\t\t: %s\n",
 					 function,
 					 ( (libvslvm_internal_physical_volume_t *) physical_volume )->identifier );
 				}
@@ -1759,7 +1761,7 @@ int libvslvm_metadata_read_physical_volume(
 				if( libcnotify_verbose != 0 )
 				{
 					libcnotify_printf(
-					 "%s: flags\t\t\t: %s\n",
+					 "%s: flags\t\t\t\t: %s\n",
 					 function,
 					 value );
 				}
@@ -1793,7 +1795,7 @@ int libvslvm_metadata_read_physical_volume(
 				if( libcnotify_verbose != 0 )
 				{
 					libcnotify_printf(
-					 "%s: device path\t\t: %s\n",
+					 "%s: device path\t\t\t: %s\n",
 					 function,
 					 ( (libvslvm_internal_physical_volume_t *) physical_volume )->device_path );
 				}
@@ -1808,7 +1810,7 @@ int libvslvm_metadata_read_physical_volume(
 				if( libcnotify_verbose != 0 )
 				{
 					libcnotify_printf(
-					 "%s: status flags\t\t: %s\n",
+					 "%s: status flags\t\t\t: %s\n",
 					 function,
 					 value );
 				}
@@ -1828,7 +1830,7 @@ int libvslvm_metadata_read_physical_volume(
 				if( libcnotify_verbose != 0 )
 				{
 					libcnotify_printf(
-					 "%s: volume size\t\t: %s\n",
+					 "%s: volume size\t\t\t: %s\n",
 					 function,
 					 value );
 				}
@@ -1861,7 +1863,9 @@ int libvslvm_metadata_read_physical_volume(
 
 					goto on_error;
 				}
-				( (libvslvm_internal_physical_volume_t *) physical_volume )->size = value_64bit * 512;
+				value_64bit *= 512;
+
+				( (libvslvm_internal_physical_volume_t *) physical_volume )->size = value_64bit;
 			}
 			else if( libcstring_narrow_string_compare(
 			          value_identifier,
@@ -1872,7 +1876,7 @@ int libvslvm_metadata_read_physical_volume(
 				if( libcnotify_verbose != 0 )
 				{
 					libcnotify_printf(
-					 "%s: pe_count\t\t: %s\n",
+					 "%s: pe_count\t\t\t: %s\n",
 					 function,
 					 value );
 				}
@@ -1888,7 +1892,7 @@ int libvslvm_metadata_read_physical_volume(
 				if( libcnotify_verbose != 0 )
 				{
 					libcnotify_printf(
-					 "%s: pe_start\t\t: %s\n",
+					 "%s: pe_start\t\t\t: %s\n",
 					 function,
 					 value );
 				}
@@ -1900,7 +1904,7 @@ int libvslvm_metadata_read_physical_volume(
 		else if( libcnotify_verbose != 0 )
 		{
 			libcnotify_printf(
-			 "%s: value: %d\t\t: %s = %s\n",
+			 "%s: value: %d\t\t\t: %s = %s\n",
 			 function,
 			 *line_index,
 			 value_identifier,
@@ -2385,7 +2389,7 @@ int libvslvm_metadata_read_logical_volume(
 		 "\n" );
 
 		libcnotify_printf(
-		 "%s: name\t\t\t: %s\n",
+		 "%s: name\t\t\t\t: %s\n",
 		 function,
 		 logical_volume_values->name );
 	}
@@ -2636,7 +2640,7 @@ int libvslvm_metadata_read_logical_volume(
 				if( libcnotify_verbose != 0 )
 				{
 					libcnotify_printf(
-					 "%s: identifier\t\t: %s\n",
+					 "%s: identifier\t\t\t: %s\n",
 					 function,
 					 logical_volume_values->identifier );
 				}
@@ -2654,7 +2658,7 @@ int libvslvm_metadata_read_logical_volume(
 				if( libcnotify_verbose != 0 )
 				{
 					libcnotify_printf(
-					 "%s: flags\t\t\t: %s\n",
+					 "%s: flags\t\t\t\t: %s\n",
 					 function,
 					 value );
 				}
@@ -2673,7 +2677,7 @@ int libvslvm_metadata_read_logical_volume(
 				if( libcnotify_verbose != 0 )
 				{
 					libcnotify_printf(
-					 "%s: status flags\t\t: %s\n",
+					 "%s: status flags\t\t\t: %s\n",
 					 function,
 					 value );
 				}
@@ -2693,7 +2697,7 @@ int libvslvm_metadata_read_logical_volume(
 				if( libcnotify_verbose != 0 )
 				{
 					libcnotify_printf(
-					 "%s: number of segments\t: %s\n",
+					 "%s: number of segments\t\t: %s\n",
 					 function,
 					 value );
 				}
@@ -2706,7 +2710,7 @@ int libvslvm_metadata_read_logical_volume(
 		else if( libcnotify_verbose != 0 )
 		{
 			libcnotify_printf(
-			 "%s: value: %d\t\t: %s = %s\n",
+			 "%s: value: %d\t\t\t: %s = %s\n",
 			 function,
 			 *line_index,
 			 value_identifier,
@@ -2754,16 +2758,17 @@ int libvslvm_metadata_read_segment(
      int *line_index,
      libcerror_error_t **error )
 {
-	libvslvm_segment_t *segment      = NULL;
-	char *line_string_segment        = NULL;
-	char *value                      = NULL;
-	char *value_identifier           = NULL;
-	static char *function            = "libvslvm_metadata_read_segment";
-	size_t line_string_segment_index = 0;
-	size_t line_string_segment_size  = 0;
-	size_t value_identifier_length   = 0;
-	size_t value_length              = 0;
-	uint64_t value_64bit             = 0;
+	libvslvm_internal_volume_group_t *internal_volume_group = NULL;
+	libvslvm_segment_t *segment                             = NULL;
+	char *line_string_segment                               = NULL;
+	char *value                                             = NULL;
+	char *value_identifier                                  = NULL;
+	static char *function                                   = "libvslvm_metadata_read_segment";
+	size_t line_string_segment_index                        = 0;
+	size_t line_string_segment_size                         = 0;
+	size_t value_identifier_length                          = 0;
+	size_t value_length                                     = 0;
+	uint64_t value_64bit                                    = 0;
 
 	if( metadata == NULL )
 	{
@@ -2776,6 +2781,19 @@ int libvslvm_metadata_read_segment(
 
 		return( -1 );
 	}
+	if( metadata->volume_group == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: invalid metadata - missing volume group.",
+		 function );
+
+		goto on_error;
+	}
+	internal_volume_group = (libvslvm_internal_volume_group_t *) metadata->volume_group;
+
 	if( logical_volume_values == NULL )
 	{
 		libcerror_error_set(
@@ -2937,7 +2955,7 @@ int libvslvm_metadata_read_segment(
 		 "\n" );
 
 		libcnotify_printf(
-		 "%s: name\t\t\t\t: %s\n",
+		 "%s: name\t\t\t\t\t: %s\n",
 		 function,
 		 ( (libvslvm_internal_segment_t *) segment )->name );
 	}
@@ -3156,7 +3174,7 @@ int libvslvm_metadata_read_segment(
 				if( libcnotify_verbose != 0 )
 				{
 					libcnotify_printf(
-					 "%s: type\t\t\t\t: %s\n",
+					 "%s: type\t\t\t\t\t: %s\n",
 					 function,
 					 value );
 				}
@@ -3212,7 +3230,7 @@ int libvslvm_metadata_read_segment(
 				if( libcnotify_verbose != 0 )
 				{
 					libcnotify_printf(
-					 "%s: number of extents\t\t: %s\n",
+					 "%s: number of extents\t\t\t: %s\n",
 					 function,
 					 value );
 				}
@@ -3234,7 +3252,7 @@ int libvslvm_metadata_read_segment(
 
 					goto on_error;
 				}
-				if( value_64bit > (uint64_t) ( UINT64_MAX / 512 ) )
+				if( value_64bit > (uint64_t) ( UINT64_MAX / internal_volume_group->extent_size ) )
 				{
 					libcerror_error_set(
 					 error,
@@ -3245,7 +3263,9 @@ int libvslvm_metadata_read_segment(
 
 					goto on_error;
 				}
-				( (libvslvm_internal_segment_t *) segment )->size = value_64bit * 512;
+				value_64bit *= internal_volume_group->extent_size;
+
+				( (libvslvm_internal_segment_t *) segment )->size = value_64bit;
 			}
 			else if( libcstring_narrow_string_compare(
 			          value_identifier,
@@ -3256,7 +3276,7 @@ int libvslvm_metadata_read_segment(
 				if( libcnotify_verbose != 0 )
 				{
 					libcnotify_printf(
-					 "%s: start extent\t\t\t: %s\n",
+					 "%s: start extent\t\t\t\t: %s\n",
 					 function,
 					 value );
 				}
@@ -3278,7 +3298,7 @@ int libvslvm_metadata_read_segment(
 
 					goto on_error;
 				}
-				if( value_64bit > (uint64_t) ( UINT64_MAX / 512 ) )
+				if( value_64bit > (uint64_t) ( UINT64_MAX / internal_volume_group->extent_size ) )
 				{
 					libcerror_error_set(
 					 error,
@@ -3289,7 +3309,9 @@ int libvslvm_metadata_read_segment(
 
 					goto on_error;
 				}
-				( (libvslvm_internal_segment_t *) segment )->offset = value_64bit * 512;
+				value_64bit *= internal_volume_group->extent_size;
+
+				( (libvslvm_internal_segment_t *) segment )->offset = value_64bit;
 			}
 			else if( libcstring_narrow_string_compare(
 			          value_identifier,
@@ -3300,7 +3322,7 @@ int libvslvm_metadata_read_segment(
 				if( libcnotify_verbose != 0 )
 				{
 					libcnotify_printf(
-					 "%s: number of stripes\t\t: %s\n",
+					 "%s: number of stripes\t\t\t: %s\n",
 					 function,
 					 value );
 				}
@@ -3312,7 +3334,7 @@ int libvslvm_metadata_read_segment(
 		else if( libcnotify_verbose != 0 )
 		{
 			libcnotify_printf(
-			 "%s: value: %d\t\t\t: %s = %s\n",
+			 "%s: value: %d\t\t\t\t: %s = %s\n",
 			 function,
 			 *line_index,
 			 value_identifier,
@@ -3360,16 +3382,17 @@ int libvslvm_metadata_read_stripes_list(
      int *line_index,
      libcerror_error_t **error )
 {
-	libvslvm_stripe_t *stripe        = NULL;
-	char *line_string_segment        = NULL;
-	char *value                      = NULL;
-	char *value_identifier           = NULL;
-	static char *function            = "libvslvm_metadata_read_stripes_list";
-	size_t line_string_segment_index = 0;
-	size_t line_string_segment_size  = 0;
-	size_t value_identifier_length   = 0;
-	size_t value_length              = 0;
-	uint64_t value_64bit             = 0;
+	libvslvm_internal_volume_group_t *internal_volume_group = NULL;
+	libvslvm_stripe_t *stripe                               = NULL;
+	char *line_string_segment                               = NULL;
+	char *value                                             = NULL;
+	char *value_identifier                                  = NULL;
+	static char *function                                   = "libvslvm_metadata_read_stripes_list";
+	size_t line_string_segment_index                        = 0;
+	size_t line_string_segment_size                         = 0;
+	size_t value_identifier_length                          = 0;
+	size_t value_length                                     = 0;
+	uint64_t value_64bit                                    = 0;
 
 	if( metadata == NULL )
 	{
@@ -3382,6 +3405,19 @@ int libvslvm_metadata_read_stripes_list(
 
 		return( -1 );
 	}
+	if( metadata->volume_group == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: invalid metadata - missing volume group.",
+		 function );
+
+		goto on_error;
+	}
+	internal_volume_group = (libvslvm_internal_volume_group_t *) metadata->volume_group;
+
 	if( line_index == NULL )
 	{
 		libcerror_error_set(
@@ -3613,7 +3649,7 @@ int libvslvm_metadata_read_stripes_list(
 		if( libcnotify_verbose != 0 )
 		{
 			libcnotify_printf(
-			 "%s: value: %d\t\t\t: %s, %s\n",
+			 "%s: value: %d\t\t\t\t: %s, %s\n",
 			 function,
 			 *line_index,
 			 value_identifier,
@@ -3639,7 +3675,7 @@ int libvslvm_metadata_read_stripes_list(
 
 			goto on_error;
 		}
-		if( value_64bit > (uint64_t) ( UINT64_MAX / 512 ) )
+		if( value_64bit > (uint64_t) ( UINT64_MAX / internal_volume_group->extent_size ) )
 		{
 			libcerror_error_set(
 			 error,
@@ -3650,7 +3686,7 @@ int libvslvm_metadata_read_stripes_list(
 
 			goto on_error;
 		}
-		value_64bit *= 512;
+		value_64bit *= internal_volume_group->extent_size;
 
 		if( libvslvm_stripe_initialize(
 		     &stripe,
@@ -3680,8 +3716,20 @@ int libvslvm_metadata_read_stripes_list(
 
 			goto on_error;
 		}
-		( (libvslvm_internal_stripe_t *) stripe )->data_area_offset = value_64bit;
+		if( libvslvm_stripe_set_data_area_offset(
+		     stripe,
+		     value_64bit,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
+			 "%s: unable to set data area offset.",
+			 function );
 
+			goto on_error;
+		}
 		if( libvslvm_segment_append_stripe(
 		     segment,
 		     stripe,

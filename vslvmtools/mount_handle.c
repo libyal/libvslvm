@@ -431,6 +431,31 @@ int mount_handle_open_input(
 
 		goto on_error;
 	}
+/* TODO determine if the first file is a metadata only file and change filenames accordingly
+ */
+#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+	if( libvslvm_handle_open_physical_volume_files_wide(
+	     mount_handle->input_handle,
+	     &filename,
+	     1,
+	     error ) != 1 )
+#else
+	if( libvslvm_handle_open_physical_volume_files(
+	     mount_handle->input_handle,
+	     &filename,
+	     1,
+	     error ) != 1 )
+#endif
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_IO,
+		 LIBCERROR_IO_ERROR_OPEN_FAILED,
+		 "%s: unable to open physical volume files.",
+		 function );
+
+		return( -1 );
+	}
 	if( libvslvm_handle_get_volume_group(
 	     mount_handle->input_handle,
 	     &( mount_handle->volume_group ),

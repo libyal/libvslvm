@@ -47,7 +47,6 @@ libvslvm_la_SOURCES = \
 	libvslvm_metadata_area.c libvslvm_metadata_area.h \
 	libvslvm_notify.c libvslvm_notify.h \
 	libvslvm_physical_volume.c libvslvm_physical_volume.h \
-	libvslvm_physical_volume_table.c libvslvm_physical_volume_table.h \
 	libvslvm_raw_location_descriptor.c libvslvm_raw_location_descriptor.h \
 	libvslvm_segment.c libvslvm_segment.h \
 	libvslvm_stripe.c libvslvm_stripe.h \

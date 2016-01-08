@@ -814,7 +814,7 @@ int libvslvm_volume_group_get_number_of_physical_volumes(
  */
 int libvslvm_volume_group_get_physical_volume(
      libvslvm_volume_group_t *volume_group,
-     int physical_volume_index,
+     int volume_index,
      libvslvm_physical_volume_t **physical_volume,
      libcerror_error_t **error )
 {
@@ -858,7 +858,7 @@ int libvslvm_volume_group_get_physical_volume(
 	}
 	if( libcdata_array_get_entry_by_index(
 	     internal_volume_group->physical_volumes_array,
-	     physical_volume_index,
+	     volume_index,
 	     (intptr_t **) physical_volume,
 	     error ) != 1 )
 	{
@@ -868,11 +868,124 @@ int libvslvm_volume_group_get_physical_volume(
 		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve physical volume: %d.",
 		 function,
-		 physical_volume_index );
+		 volume_index );
 
 		return( -1 );
 	}
 	return( 1 );
+}
+
+/* Retrieves the physical volume for an ASCII encoded volume name
+ * Returns 1 if successful, 0 if no such physical volume or -1 on error
+ */
+int libvslvm_volume_group_get_physical_volume_by_name(
+     libvslvm_volume_group_t *volume_group,
+     const char *volume_name,
+     size_t volume_name_length,
+     libvslvm_physical_volume_t **physical_volume,
+     libcerror_error_t **error )
+{
+	libvslvm_internal_volume_group_t *internal_volume_group = NULL;
+	static char *function                                   = "libvslvm_volume_group_get_physical_volume_by_name";
+	int number_of_volumes                                   = 0;
+	int result                                              = 0;
+	int volume_index                                        = 0;
+
+	if( volume_group == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid volume group.",
+		 function );
+
+		return( -1 );
+	}
+	internal_volume_group = (libvslvm_internal_volume_group_t *) volume_group;
+
+	if( physical_volume == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid physical volume.",
+		 function );
+
+		return( -1 );
+	}
+	if( *physical_volume != NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
+		 "%s: invalid physical volume value already set.",
+		 function );
+
+		return( -1 );
+	}
+	if( libcdata_array_get_number_of_entries(
+	     internal_volume_group->physical_volumes_array,
+	     &number_of_volumes,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve number of elements from physical volumes array.",
+		 function );
+
+		return( -1 );
+	}
+	for( volume_index = 0;
+	     volume_index < number_of_volumes;
+	     volume_index++ )
+	{
+		if( libcdata_array_get_entry_by_index(
+		     internal_volume_group->physical_volumes_array,
+		     volume_index,
+		     (intptr_t **) physical_volume,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+			 "%s: unable to retrieve physical volume: %d.",
+			 function,
+			 volume_index );
+
+			return( -1 );
+		}
+		result = libvslvm_physical_volume_compare_by_name(
+		          *physical_volume,
+		          volume_name,
+		          volume_name_length,
+		          error );
+
+		if( result == -1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+			 "%s: unable to compare name of physical volume: %d.",
+			 function,
+			 volume_index );
+
+			return( -1 );
+		}
+		else if( result != 0 )
+		{
+			return( 1 );
+		}
+	}
+	*physical_volume = NULL;
+
+	return( 0 );
 }
 
 /* Appends a physical volume
@@ -975,7 +1088,7 @@ int libvslvm_volume_group_get_number_of_logical_volumes(
  */
 int libvslvm_volume_group_get_logical_volume(
      libvslvm_volume_group_t *volume_group,
-     int logical_volume_index,
+     int volume_index,
      libvslvm_logical_volume_t **logical_volume,
      libcerror_error_t **error )
 {
@@ -1020,7 +1133,7 @@ int libvslvm_volume_group_get_logical_volume(
 	}
 	if( libcdata_array_get_entry_by_index(
 	     internal_volume_group->logical_volumes_array,
-	     logical_volume_index,
+	     volume_index,
 	     (intptr_t **) &logical_volume_values,
 	     error ) != 1 )
 	{
@@ -1030,13 +1143,14 @@ int libvslvm_volume_group_get_logical_volume(
 		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve logical volume: %d.",
 		 function,
-		 logical_volume_index );
+		 volume_index );
 
 		return( -1 );
 	}
 	if( libvslvm_logical_volume_initialize(
 	     logical_volume,
 	     internal_volume_group->io_handle,
+	     volume_group,
 	     internal_volume_group->physical_volume_file_io_pool,
 	     logical_volume_values,
 	     error ) != 1 )

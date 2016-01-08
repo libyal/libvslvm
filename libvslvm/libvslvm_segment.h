@@ -79,6 +79,13 @@ int libvslvm_segment_set_name(
      libcerror_error_t **error );
 
 LIBVSLVM_EXTERN \
+int libvslvm_segment_get_range(
+     libvslvm_segment_t *segment,
+     off64_t *offset,
+     size64_t *size,
+     libcerror_error_t **error );
+
+LIBVSLVM_EXTERN \
 int libvslvm_segment_get_offset(
      libvslvm_segment_t *segment,
      off64_t *offset,

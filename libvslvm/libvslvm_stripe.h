@@ -88,6 +88,11 @@ int libvslvm_stripe_get_data_area_offset(
      off64_t *data_area_offset,
      libcerror_error_t **error );
 
+int libvslvm_stripe_set_data_area_offset(
+     libvslvm_stripe_t *stripe,
+     off64_t data_area_offset,
+     libcerror_error_t **error );
+
 #if defined( __cplusplus )
 }
 #endif

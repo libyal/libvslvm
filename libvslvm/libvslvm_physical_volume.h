@@ -109,6 +109,12 @@ int libvslvm_physical_volume_set_name(
      size_t name_size,
      libcerror_error_t **error );
 
+int libvslvm_physical_volume_compare_by_name(
+     libvslvm_physical_volume_t *physical_volume,
+     const char *name,
+     size_t name_length,
+     libcerror_error_t **error );
+
 LIBVSLVM_EXTERN \
 int libvslvm_physical_volume_get_identifier_size(
      libvslvm_physical_volume_t *physical_volume,
@@ -161,6 +167,12 @@ int libvslvm_physical_volume_get_number_of_data_area_descriptors(
 int libvslvm_physical_volume_get_data_area_descriptor(
      libvslvm_physical_volume_t *physical_volume,
      int data_area_descriptor_index,
+     libvslvm_data_area_descriptor_t **data_area_descriptor,
+     libcerror_error_t **error );
+
+int libvslvm_physical_volume_get_data_area_descriptor_by_offset(
+     libvslvm_physical_volume_t *physical_volume,
+     uint64_t offset,
      libvslvm_data_area_descriptor_t **data_area_descriptor,
      libcerror_error_t **error );
 

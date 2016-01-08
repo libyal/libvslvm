@@ -35,7 +35,6 @@
 #include "libvslvm_metadata.h"
 #include "libvslvm_metadata_area.h"
 #include "libvslvm_raw_location_descriptor.h"
-#include "libvslvm_physical_volume_table.h"
 #include "libvslvm_types.h"
 
 /* Creates a handle
@@ -115,19 +114,6 @@ int libvslvm_handle_initialize(
 
 		goto on_error;
 	}
-	if( libvslvm_physical_volume_table_initialize(
-	     &( internal_handle->physical_volume_table ),
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
-		 "%s: unable to create physical volume table.",
-		 function );
-
-		goto on_error;
-	}
 	*handle = (libvslvm_handle_t *) internal_handle;
 
 	return( 1 );
@@ -135,12 +121,6 @@ int libvslvm_handle_initialize(
 on_error:
 	if( internal_handle != NULL )
 	{
-		if( internal_handle->physical_volume_table != NULL )
-		{
-			libvslvm_physical_volume_table_free(
-			 &( internal_handle->physical_volume_table ),
-			 NULL );
-		}
 		if( internal_handle->io_handle != NULL )
 		{
 			libvslvm_io_handle_free(
@@ -197,19 +177,6 @@ int libvslvm_handle_free(
 		}
 		*handle = NULL;
 
-		if( libvslvm_physical_volume_table_free(
-		     &( internal_handle->physical_volume_table ),
-		     error ) != 1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
-			 "%s: unable to free physical volume table.",
-			 function );
-
-			result = -1;
-		}
 		if( libvslvm_io_handle_free(
 		     &( internal_handle->io_handle ),
 		     error ) != 1 )
@@ -1655,21 +1622,6 @@ int libvslvm_handle_open_read_data_area_table(
 
 		goto on_error;
 	}
-	if( libvslvm_physical_volume_table_initialize_physical_volumes(
-	     internal_handle->physical_volume_table,
-	     number_of_physical_volumes,
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
-		 "%s: unable to initialize physical volume table physical volumes.",
-		 function );
-
-		goto on_error;
-	}
-/* TODO */
 	for( physical_volume_index = 0;
 	     physical_volume_index < number_of_physical_volumes;
 	     physical_volume_index++ )
@@ -1879,19 +1831,6 @@ int libvslvm_handle_close(
 			result = -1;
 		}
 	}
-	if( libvslvm_physical_volume_table_clear(
-	     internal_handle->physical_volume_table,
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
-		 "%s: unable to clear physical volume table.",
-		 function );
-
-		result = -1;
-	}
 	return( result );
 }
 
@@ -2003,8 +1942,9 @@ int libvslvm_handle_open_read(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
-		 "%s: unsupported number of metadata area descriptors.",
-		 function );
+		 "%s: unsupported number of metadata area descriptors: %d.",
+		 function,
+		 number_of_data_area_descriptors );
 
 		goto on_error;
 	}
@@ -2261,7 +2201,6 @@ int libvslvm_handle_get_volume_group(
 	}
 	else if( result != 0 )
 	{
-/* TODO pass data area table */
 		if( libvslvm_volume_group_set_io_values(
 		     *volume_group,
 		     internal_handle->io_handle,

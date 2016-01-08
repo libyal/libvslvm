@@ -208,6 +208,10 @@ CRC-32 of [yellow-background]*TODO (metadata?)*
 See section: <<raw_location_descriptor_flags,Raw location descriptor flags>>
 |===
 
+[NOTE]
+The data area size can be 0. It is assumed it represents the remaining 
+available data.
+
 ==== [[raw_location_descriptor_flags]]Raw location descriptor flags
 
 [cols="1,1,5",options="header"]
@@ -347,7 +351,8 @@ Contains a list of strings. See section: <<status_flags,Status flags>>
 | dev_size | The physical volume size including non-usable space +
 The value contains the number of sectors +
 [yellow-background]*Note that the sector size is currently assumed to be 512 bytes.*
-| pe_start | The start extent
+| pe_start | The start extent +
+[yellow-background]*TODO: what is this value used for?*
 | pe_count | The number of (allocated) extents in the physical volume
 |===
 
@@ -426,6 +431,7 @@ Where:
 |===
 | Value | Description
 | start_extent | The start extent of the segment +
+The value contains the number of extents +
 The number is relative to the start of the segment
 | extent_count | The number of extents in the segment (or current logical extent)
 | type | The segment type +
@@ -455,6 +461,10 @@ Where:
 
 * <physical volume name> is a string containing the physical volume name e.g. "pv0".
 * <start extent number> the segment start extent number relative from the start of the data area.
+
+....
+start extent offset = ( start extent number x extent size x sector size ) + physical volume data area start offset 
+....
 
 === Global parameters
 
@@ -502,11 +512,6 @@ e.g. the version of LVM used.
 ....
 
 == Notes
-=== Reading data
-Get the lv start extent
-lv offset = extent x extent size
-physical volume offset = data area offset + lv offset
-
 === Tools
 
 * vgdisplay
