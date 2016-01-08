@@ -653,7 +653,7 @@ on_error:
 	{
 		libbfio_handle_close(
 		 file_io_handle,
-		 error );
+		 NULL );
 	}
 	return( -1 );
 }
@@ -741,19 +741,6 @@ int libvslvm_handle_open_physical_volume_files(
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve number of physical volumes.",
-		 function );
-
-		goto on_error;
-	}
-	if( libvslvm_volume_group_free(
-	     &volume_group,
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
-		 "%s: unable to free volume group.",
 		 function );
 
 		goto on_error;
@@ -858,12 +845,6 @@ on_error:
 		 &file_io_pool,
 		 NULL );
 	}
-	if( volume_group != NULL )
-	{
-		libvslvm_volume_group_free(
-		 &volume_group,
-		 NULL );
-	}
 	return( -1 );
 }
 
@@ -952,19 +933,6 @@ int libvslvm_handle_open_physical_volume_files_wide(
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve number of physical volumes.",
-		 function );
-
-		goto on_error;
-	}
-	if( libvslvm_volume_group_free(
-	     &volume_group,
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
-		 "%s: unable to free volume group.",
 		 function );
 
 		goto on_error;
@@ -1069,12 +1037,6 @@ on_error:
 		 &file_io_pool,
 		 NULL );
 	}
-	if( volume_group != NULL )
-	{
-		libvslvm_volume_group_free(
-		 &volume_group,
-		 NULL );
-	}
 	return( -1 );
 }
 
@@ -1090,7 +1052,11 @@ int libvslvm_handle_open_physical_volume_files_file_io_pool(
      libcerror_error_t **error )
 {
 	libvslvm_internal_handle_t *internal_handle = NULL;
+	libvslvm_volume_group_t *volume_group       = NULL;
 	static char *function                       = "libvslvm_handle_open_physical_volume_files_file_io_pool";
+	int number_of_file_io_handles               = 0;
+	int number_of_physical_volumes              = 0;
+	int result                                  = 0;
 
 	if( handle == NULL )
 	{
@@ -1123,6 +1089,76 @@ int libvslvm_handle_open_physical_volume_files_file_io_pool(
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
 		 "%s: invalid handle - physical volume file IO pool already exists.",
+		 function );
+
+		return( -1 );
+	}
+	result = libvslvm_metadata_get_volume_group(
+	          internal_handle->metadata,
+	          &volume_group,
+	          error );
+
+	if( result == -1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve number of metadata area descriptors from array.",
+		 function );
+
+		return( -1 );
+	}
+	else if( result == 0 )
+	{
+		return( 1 );
+	}
+	if( libvslvm_volume_group_get_number_of_physical_volumes(
+	     volume_group,
+	     &number_of_physical_volumes,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve number of physical volumes.",
+		 function );
+
+		return( -1 );
+	}
+	if( libbfio_pool_get_number_of_handles(
+	     file_io_pool,
+	     &number_of_file_io_handles,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve number of handles in file IO pool.",
+		 function );
+
+		return( -1 );
+	}
+	if( number_of_physical_volumes == 0 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: missing physical volumes.",
+		 function );
+
+		return( -1 );
+	}
+	if( number_of_file_io_handles != number_of_physical_volumes )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: mismatch between number of filenames and physical volumes in metadata.",
 		 function );
 
 		return( -1 );
@@ -1167,17 +1203,6 @@ int libvslvm_handle_open_physical_volume_file(
 		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
 		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid internal handle.",
-		 function );
-
-		return( -1 );
-	}
-	if( internal_handle->metadata == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid internal handle - missing metadata.",
 		 function );
 
 		return( -1 );
@@ -1292,17 +1317,6 @@ int libvslvm_handle_open_physical_volume_file_wide(
 		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
 		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid internal handle.",
-		 function );
-
-		return( -1 );
-	}
-	if( internal_handle->metadata == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid internal handle - missing metadata.",
 		 function );
 
 		return( -1 );
@@ -1422,17 +1436,6 @@ int libvslvm_handle_open_physical_volume_file_io_handle(
 
 		return( -1 );
 	}
-	if( internal_handle->metadata == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid internal handle - missing metadata.",
-		 function );
-
-		return( -1 );
-	}
 	if( ( ( internal_handle->access_flags & LIBVSLVM_ACCESS_FLAG_READ ) == 0 )
 	 && ( ( internal_handle->access_flags & LIBVSLVM_ACCESS_FLAG_WRITE ) == 0 ) )
 	{
@@ -1530,7 +1533,6 @@ int libvslvm_handle_open_read_data_area_table(
      libbfio_pool_t *file_io_pool,
      libcerror_error_t **error )
 {
-	libbfio_handle_t *file_io_handle            = NULL;
 	libvslvm_physical_volume_t *physical_volume = NULL;
 	libvslvm_volume_group_t *volume_group       = NULL;
 	static char *function                       = "libvslvm_handle_open_read_data_area_table";
@@ -1642,22 +1644,6 @@ int libvslvm_handle_open_read_data_area_table(
 
 			goto on_error;
 		}
-		if( libbfio_pool_get_handle(
-		     file_io_pool,
-		     physical_volume_index,
-		     &file_io_handle,
-		     error ) != 1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-			 "%s: unable to retrieve file IO handle: %d from pool.",
-			 function,
-			 physical_volume_index );
-
-			return( -1 );
-		}
 		/* The physical volume label can be stored in one of the first 4 sectors
 		 */
 		file_offset = 0;
@@ -1666,7 +1652,8 @@ int libvslvm_handle_open_read_data_area_table(
 		{
 			result = libvslvm_physical_volume_read_label(
 				  physical_volume,
-				  file_io_handle,
+				  file_io_pool,
+				  physical_volume_index,
 				  file_offset,
 				  error );
 
@@ -1715,19 +1702,6 @@ int libvslvm_handle_open_read_data_area_table(
 		}
 	}
 /* TODO build data area table */
-	if( libvslvm_volume_group_free(
-	     &volume_group,
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
-		 "%s: unable to free volume group.",
-		 function );
-
-		goto on_error;
-	}
 	return( 1 );
 
 on_error:
@@ -1735,12 +1709,6 @@ on_error:
 	{
 		libvslvm_physical_volume_free(
 		 &physical_volume,
-		 NULL );
-	}
-	if( volume_group != NULL )
-	{
-		libvslvm_volume_group_free(
-		 &volume_group,
 		 NULL );
 	}
 	return( -1 );
@@ -1793,7 +1761,7 @@ int libvslvm_handle_close(
 			 error,
 			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 			 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
-			 "%s: unable to physical volume data free file IO pool.",
+			 "%s: unable to free physical volume data file IO pool.",
 			 function );
 
 			result = -1;
@@ -1842,6 +1810,7 @@ int libvslvm_handle_open_read(
      libbfio_handle_t *file_io_handle,
      libcerror_error_t **error )
 {
+	libbfio_pool_t *file_io_pool                                = NULL;
 	libvslvm_data_area_descriptor_t *data_area_descriptor       = NULL;
 	libvslvm_metadata_area_t *metadata_area                     = NULL;
 	libvslvm_physical_volume_t *physical_volume                 = NULL;
@@ -1880,6 +1849,37 @@ int libvslvm_handle_open_read(
 
 		return( -1 );
 	}
+	if( libbfio_pool_initialize(
+	     &file_io_pool,
+	     1,
+	     0,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+		 "%s: unable to create file IO pool.",
+		 function );
+
+		goto on_error;
+	}
+	if( libbfio_pool_set_handle(
+	     file_io_pool,
+	     0,
+	     file_io_handle,
+	     LIBBFIO_OPEN_READ,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
+		 "%s: unable to set file IO handle: 0 in pool.",
+		 function );
+
+		goto on_error;
+	}
 	if( libvslvm_physical_volume_initialize(
 	     &physical_volume,
 	     error ) != 1 )
@@ -1899,7 +1899,8 @@ int libvslvm_handle_open_read(
 	{
 		result = libvslvm_physical_volume_read_label(
 		          physical_volume,
-		          file_io_handle,
+		          file_io_pool,
+		          0,
 		          file_offset,
 		          error );
 
@@ -1920,6 +1921,34 @@ int libvslvm_handle_open_read(
 			break;
 		}
 		file_offset += 512;
+	}
+	if( libbfio_pool_remove_handle(
+	     file_io_pool,
+	     0,
+	     &file_io_handle,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_REMOVE_FAILED,
+		 "%s: unable to remove file IO handle: 0 from pool.",
+		 function );
+
+		goto on_error;
+	}
+	if( libbfio_pool_free(
+	     &file_io_pool,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+		 "%s: unable to free file IO pool.",
+		 function );
+
+		goto on_error;
 	}
 	if( libvslvm_physical_volume_get_number_of_metadata_area_descriptors(
 	     physical_volume,
@@ -2142,6 +2171,17 @@ on_error:
 	{
 		libvslvm_physical_volume_free(
 		 &physical_volume,
+		 NULL );
+	}
+	if( file_io_pool != NULL )
+	{
+		libbfio_pool_remove_handle(
+		 file_io_pool,
+		 0,
+		 &file_io_handle,
+		 NULL );
+		libbfio_pool_free(
+		 &file_io_pool,
 		 NULL );
 	}
 	return( -1 );

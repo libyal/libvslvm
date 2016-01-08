@@ -1252,7 +1252,8 @@ int libvslvm_physical_volume_get_metadata_area_descriptor(
  */
 int libvslvm_physical_volume_read_label(
      libvslvm_physical_volume_t *physical_volume,
-     libbfio_handle_t *file_io_handle,
+     libbfio_pool_t *file_io_pool,
+     int file_io_pool_entry,
      off64_t file_offset,
      libcerror_error_t **error )
 {
@@ -1296,8 +1297,9 @@ int libvslvm_physical_volume_read_label(
 		 file_offset );
 	}
 #endif
-	if( libbfio_handle_seek_offset(
-	     file_io_handle,
+	if( libbfio_pool_seek_offset(
+	     file_io_pool,
+	     file_io_pool_entry,
 	     file_offset,
 	     SEEK_SET,
 	     error ) == -1 )
@@ -1313,8 +1315,9 @@ int libvslvm_physical_volume_read_label(
 
 		goto on_error;
 	}
-	read_count = libbfio_handle_read_buffer(
-	              file_io_handle,
+	read_count = libbfio_pool_read_buffer(
+	              file_io_pool,
+	              file_io_pool_entry,
 	              (uint8_t *) &physical_volume_label_header,
 	              sizeof( vslvm_physical_volume_label_header_t ),
 	              error );
@@ -1406,8 +1409,9 @@ int libvslvm_physical_volume_read_label(
 #endif
 /* TODO calculate checksum */
 
-	read_count = libbfio_handle_read_buffer(
-	              file_io_handle,
+	read_count = libbfio_pool_read_buffer(
+	              file_io_pool,
+	              file_io_pool_entry,
 	              (uint8_t *) &physical_volume_header,
 	              sizeof( vslvm_physical_volume_header_t ),
 	              error );
@@ -1488,8 +1492,9 @@ int libvslvm_physical_volume_read_label(
 #endif
 	do
 	{
-		read_count = libbfio_handle_read_buffer(
-		              file_io_handle,
+		read_count = libbfio_pool_read_buffer(
+		              file_io_pool,
+		              file_io_pool_entry,
 		              (uint8_t *) &data_area_descriptor_data,
 		              sizeof( vslvm_data_area_descriptor_t ),
 		              error );
@@ -1599,8 +1604,9 @@ int libvslvm_physical_volume_read_label(
 
 	do
 	{
-		read_count = libbfio_handle_read_buffer(
-		              file_io_handle,
+		read_count = libbfio_pool_read_buffer(
+		              file_io_pool,
+		              file_io_pool_entry,
 		              (uint8_t *) &data_area_descriptor_data,
 		              sizeof( vslvm_data_area_descriptor_t ),
 		              error );
@@ -1746,7 +1752,6 @@ int libvslvm_physical_volume_read_element_data(
      uint8_t read_flags LIBVSLVM_ATTRIBUTE_UNUSED,
      libcerror_error_t **error )
 {
-	libbfio_handle_t *file_io_handle            = NULL;
 	libvslvm_physical_volume_t *physical_volume = NULL;
 	static char *function                       = "libvslvm_physical_volume_read_element_data";
 	off64_t label_offset                        = 0;
@@ -1775,10 +1780,10 @@ int libvslvm_physical_volume_read_element_data(
 
 	while( label_offset < 2048 )
 	{
-/* TODO get file_io_handle */
 		result = libvslvm_physical_volume_read_label(
 			  physical_volume,
-			  file_io_handle,
+			  file_io_pool,
+			  file_io_pool_entry,
 			  physical_volume_offset + label_offset,
 			  error );
 

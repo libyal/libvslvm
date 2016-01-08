@@ -1,7 +1,4 @@
 TODO
-* complete physical volume and data area table
-* implement libvslvm_handle_open_physical_volume_data_files
-* libvslvm_logical_volume_seek_offset fix locking issue.
 * finish:
   - libvslvm_internal_logical_volume_read_buffer_from_file_io_handle
   - make sure to set the right offset in internal_logical_volume->chunks_vector 
@@ -30,7 +27,7 @@ Tools:
 * vslvminfo
   - print stripes and in-volume offsets
 * vslvmmount
-  - allow use of names besides lvm#?
+  - allow use of logical volume names instead of lvm#?
 
 20160108
 * worked on format support

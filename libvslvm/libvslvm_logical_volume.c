@@ -30,6 +30,7 @@
 #include "libvslvm_libbfio.h"
 #include "libvslvm_libcerror.h"
 #include "libvslvm_libcstring.h"
+#include "libvslvm_libcthreads.h"
 #include "libvslvm_libfcache.h"
 #include "libvslvm_libfdata.h"
 #include "libvslvm_logical_volume.h"
@@ -1132,6 +1133,7 @@ int libvslvm_logical_volume_get_name_size(
 {
 	libvslvm_internal_logical_volume_t *internal_logical_volume = NULL;
 	static char *function                                       = "libvslvm_logical_volume_get_name_size";
+	int result                                                  = 1;
 
 	if( logical_volume == NULL )
 	{
@@ -1146,6 +1148,21 @@ int libvslvm_logical_volume_get_name_size(
 	}
 	internal_logical_volume = (libvslvm_internal_logical_volume_t *) logical_volume;
 
+#if defined( HAVE_MULTI_THREAD_SUPPORT )
+	if( libcthreads_read_write_lock_grab_for_read(
+	     internal_logical_volume->read_write_lock,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
+		 "%s: unable to grab read/write lock for reading.",
+		 function );
+
+		return( -1 );
+	}
+#endif
 	if( libvslvm_logical_volume_values_get_name_size(
 	     internal_logical_volume->logical_volume_values,
 	     name_size,
@@ -1158,9 +1175,24 @@ int libvslvm_logical_volume_get_name_size(
 		 "%s: unable to retrieve name size.",
 		 function );
 
+		result = -1;
+	}
+#if defined( HAVE_MULTI_THREAD_SUPPORT )
+	if( libcthreads_read_write_lock_release_for_read(
+	     internal_logical_volume->read_write_lock,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
+		 "%s: unable to release read/write lock for reading.",
+		 function );
+
 		return( -1 );
 	}
-	return( 1 );
+#endif
+	return( result );
 }
 
 /* Retrieves the ASCII formatted name
@@ -1174,6 +1206,7 @@ int libvslvm_logical_volume_get_name(
 {
 	libvslvm_internal_logical_volume_t *internal_logical_volume = NULL;
 	static char *function                                       = "libvslvm_logical_volume_set_name";
+	int result                                                  = 1;
 
 	if( logical_volume == NULL )
 	{
@@ -1188,6 +1221,21 @@ int libvslvm_logical_volume_get_name(
 	}
 	internal_logical_volume = (libvslvm_internal_logical_volume_t *) logical_volume;
 
+#if defined( HAVE_MULTI_THREAD_SUPPORT )
+	if( libcthreads_read_write_lock_grab_for_read(
+	     internal_logical_volume->read_write_lock,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
+		 "%s: unable to grab read/write lock for reading.",
+		 function );
+
+		return( -1 );
+	}
+#endif
 	if( libvslvm_logical_volume_values_get_name(
 	     internal_logical_volume->logical_volume_values,
 	     name,
@@ -1201,9 +1249,24 @@ int libvslvm_logical_volume_get_name(
 		 "%s: unable to retrieve name.",
 		 function );
 
+		result = -1;
+	}
+#if defined( HAVE_MULTI_THREAD_SUPPORT )
+	if( libcthreads_read_write_lock_release_for_read(
+	     internal_logical_volume->read_write_lock,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
+		 "%s: unable to release read/write lock for reading.",
+		 function );
+
 		return( -1 );
 	}
-	return( 1 );
+#endif
+	return( result );
 }
 
 /* Retrieves the size of the ASCII formatted identifier
@@ -1216,6 +1279,7 @@ int libvslvm_logical_volume_get_identifier_size(
 {
 	libvslvm_internal_logical_volume_t *internal_logical_volume = NULL;
 	static char *function                                       = "libvslvm_logical_volume_get_identifier_size";
+	int result                                                  = 1;
 
 	if( logical_volume == NULL )
 	{
@@ -1230,6 +1294,21 @@ int libvslvm_logical_volume_get_identifier_size(
 	}
 	internal_logical_volume = (libvslvm_internal_logical_volume_t *) logical_volume;
 
+#if defined( HAVE_MULTI_THREAD_SUPPORT )
+	if( libcthreads_read_write_lock_grab_for_read(
+	     internal_logical_volume->read_write_lock,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
+		 "%s: unable to grab read/write lock for reading.",
+		 function );
+
+		return( -1 );
+	}
+#endif
 	if( libvslvm_logical_volume_values_get_identifier_size(
 	     internal_logical_volume->logical_volume_values,
 	     identifier_size,
@@ -1242,9 +1321,24 @@ int libvslvm_logical_volume_get_identifier_size(
 		 "%s: unable to retrieve identifier size.",
 		 function );
 
+		result = -1;
+	}
+#if defined( HAVE_MULTI_THREAD_SUPPORT )
+	if( libcthreads_read_write_lock_release_for_read(
+	     internal_logical_volume->read_write_lock,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
+		 "%s: unable to release read/write lock for reading.",
+		 function );
+
 		return( -1 );
 	}
-	return( 1 );
+#endif
+	return( result );
 }
 
 /* Retrieves the ASCII formatted identifier
@@ -1258,6 +1352,7 @@ int libvslvm_logical_volume_get_identifier(
 {
 	libvslvm_internal_logical_volume_t *internal_logical_volume = NULL;
 	static char *function                                       = "libvslvm_logical_volume_set_identifier";
+	int result                                                  = 1;
 
 	if( logical_volume == NULL )
 	{
@@ -1272,6 +1367,21 @@ int libvslvm_logical_volume_get_identifier(
 	}
 	internal_logical_volume = (libvslvm_internal_logical_volume_t *) logical_volume;
 
+#if defined( HAVE_MULTI_THREAD_SUPPORT )
+	if( libcthreads_read_write_lock_grab_for_read(
+	     internal_logical_volume->read_write_lock,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
+		 "%s: unable to grab read/write lock for reading.",
+		 function );
+
+		return( -1 );
+	}
+#endif
 	if( libvslvm_logical_volume_values_get_identifier(
 	     internal_logical_volume->logical_volume_values,
 	     identifier,
@@ -1285,9 +1395,24 @@ int libvslvm_logical_volume_get_identifier(
 		 "%s: unable to retrieve identifier.",
 		 function );
 
+		result = -1;
+	}
+#if defined( HAVE_MULTI_THREAD_SUPPORT )
+	if( libcthreads_read_write_lock_release_for_read(
+	     internal_logical_volume->read_write_lock,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
+		 "%s: unable to release read/write lock for reading.",
+		 function );
+
 		return( -1 );
 	}
-	return( 1 );
+#endif
+	return( result );
 }
 
 /* Retrieves the number of segments
@@ -1300,6 +1425,7 @@ int libvslvm_logical_volume_get_number_of_segments(
 {
 	libvslvm_internal_logical_volume_t *internal_logical_volume = NULL;
 	static char *function                                       = "libvslvm_logical_volume_get_number_of_segments";
+	int result                                                  = 1;
 
 	if( logical_volume == NULL )
 	{
@@ -1314,6 +1440,21 @@ int libvslvm_logical_volume_get_number_of_segments(
 	}
 	internal_logical_volume = (libvslvm_internal_logical_volume_t *) logical_volume;
 
+#if defined( HAVE_MULTI_THREAD_SUPPORT )
+	if( libcthreads_read_write_lock_grab_for_read(
+	     internal_logical_volume->read_write_lock,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
+		 "%s: unable to grab read/write lock for reading.",
+		 function );
+
+		return( -1 );
+	}
+#endif
 	if( libvslvm_logical_volume_values_get_number_of_segments(
 	     internal_logical_volume->logical_volume_values,
 	     number_of_segments,
@@ -1326,9 +1467,24 @@ int libvslvm_logical_volume_get_number_of_segments(
 		 "%s: unable to retrieve number of segments.",
 		 function );
 
+		result = -1;
+	}
+#if defined( HAVE_MULTI_THREAD_SUPPORT )
+	if( libcthreads_read_write_lock_release_for_read(
+	     internal_logical_volume->read_write_lock,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
+		 "%s: unable to release read/write lock for reading.",
+		 function );
+
 		return( -1 );
 	}
-	return( 1 );
+#endif
+	return( result );
 }
 
 /* Retrieves a specific segment
@@ -1342,6 +1498,7 @@ int libvslvm_logical_volume_get_segment(
 {
 	libvslvm_internal_logical_volume_t *internal_logical_volume = NULL;
 	static char *function                                       = "libvslvm_logical_volume_get_segment";
+	int result                                                  = 1;
 
 	if( logical_volume == NULL )
 	{
@@ -1356,6 +1513,21 @@ int libvslvm_logical_volume_get_segment(
 	}
 	internal_logical_volume = (libvslvm_internal_logical_volume_t *) logical_volume;
 
+#if defined( HAVE_MULTI_THREAD_SUPPORT )
+	if( libcthreads_read_write_lock_grab_for_read(
+	     internal_logical_volume->read_write_lock,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
+		 "%s: unable to grab read/write lock for reading.",
+		 function );
+
+		return( -1 );
+	}
+#endif
 	if( libvslvm_logical_volume_values_get_segment(
 	     internal_logical_volume->logical_volume_values,
 	     segment_index,
@@ -1370,8 +1542,23 @@ int libvslvm_logical_volume_get_segment(
 		 function,
 		 segment_index );
 
+		result = -1;
+	}
+#if defined( HAVE_MULTI_THREAD_SUPPORT )
+	if( libcthreads_read_write_lock_release_for_read(
+	     internal_logical_volume->read_write_lock,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
+		 "%s: unable to release read/write lock for reading.",
+		 function );
+
 		return( -1 );
 	}
-	return( 1 );
+#endif
+	return( result );
 }
 

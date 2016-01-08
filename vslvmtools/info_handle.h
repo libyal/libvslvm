@@ -26,6 +26,7 @@
 #include <file_stream.h>
 #include <types.h>
 
+#include "vslvmtools_libbfio.h"
 #include "vslvmtools_libcerror.h"
 #include "vslvmtools_libcstring.h"
 #include "vslvmtools_libvslvm.h"
@@ -38,13 +39,21 @@ typedef struct info_handle info_handle_t;
 
 struct info_handle
 {
+	/* The volume offset
+	 */
+	off64_t volume_offset;
+
+	/* The libbfio input file IO handle
+	 */
+	libbfio_handle_t *input_file_io_handle;
+
+	/* The libbfio physical volume file IO pool
+	 */
+	libbfio_pool_t *physical_volume_file_io_pool;
+
 	/* The libvslvm input handle
 	 */
 	libvslvm_handle_t *input_handle;
-
-	/* The ascii codepage
-	 */
-	int ascii_codepage;
 
 	/* The nofication output stream
 	 */
@@ -67,7 +76,7 @@ int info_handle_signal_abort(
      info_handle_t *info_handle,
      libcerror_error_t **error );
 
-int info_handle_set_ascii_codepage(
+int info_handle_set_volume_offset(
      info_handle_t *info_handle,
      const libcstring_system_character_t *string,
      libcerror_error_t **error );

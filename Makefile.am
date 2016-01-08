@@ -34,8 +34,11 @@ DPKG_FILES = \
 	dpkg/copyright \
 	dpkg/copyright.in \
 	dpkg/rules \
-	dpkg/libvslvm-dev.docs \
 	dpkg/libvslvm.docs \
+	dpkg/libvslvm-dev.docs \
+	dpkg/libvslvm-python.docs \
+	dpkg/libvslvm-python3.docs \
+	dpkg/libvslvm-tools.docs \
 	dpkg/source/format
 
 GETTEXT_FILES = \

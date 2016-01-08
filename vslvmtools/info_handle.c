@@ -26,12 +26,31 @@
 
 #include "byte_size_string.h"
 #include "info_handle.h"
+#include "vslvmtools_libbfio.h"
 #include "vslvmtools_libcerror.h"
 #include "vslvmtools_libclocale.h"
 #include "vslvmtools_libcstring.h"
+#include "vslvmtools_libcsystem.h"
 #include "vslvmtools_libvslvm.h"
 
-#define INFO_HANDLE_NOTIFY_STREAM	stdout
+#if !defined( LIBVSLVM_HAVE_BFIO )
+
+extern \
+int libvslvm_handle_open_file_io_handle(
+     libvslvm_handle_t *handle,
+     libbfio_handle_t *file_io_handle,
+     int access_flags,
+     libvslvm_error_t **error );
+
+extern \
+int libvslvm_handle_open_physical_volume_files_file_io_pool(
+     libvslvm_handle_t *handle,
+     libbfio_pool_t *file_io_pool,
+     libcerror_error_t **error );
+
+#endif /* !defined( LIBVSLVM_HAVE_BFIO ) */
+
+#define INFO_HANDLE_NOTIFY_STREAM		stdout
 
 /* Creates an info handle
  * Make sure the value info_handle is referencing, is set to NULL
@@ -93,6 +112,35 @@ int info_handle_initialize(
 
 		goto on_error;
 	}
+	if( libbfio_file_range_initialize(
+	     &( ( *info_handle )->input_file_io_handle ),
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+		 "%s: unable to initialize input file IO handle.",
+		 function );
+
+		goto on_error;
+	}
+/* TODO control maximum number of handles */
+	if( libbfio_pool_initialize(
+	     &( ( *info_handle )->physical_volume_file_io_pool ),
+	     0,
+	     0,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+		 "%s: unable to initialize physical volume file IO pool.",
+		 function );
+
+		goto on_error;
+	}
 	if( libvslvm_handle_initialize(
 	     &( ( *info_handle )->input_handle ),
 	     error ) != 1 )
@@ -106,14 +154,25 @@ int info_handle_initialize(
 
 		goto on_error;
 	}
-	( *info_handle )->ascii_codepage = LIBVSLVM_CODEPAGE_WINDOWS_1252;
-	( *info_handle )->notify_stream  = INFO_HANDLE_NOTIFY_STREAM;
+	( *info_handle )->notify_stream = INFO_HANDLE_NOTIFY_STREAM;
 
 	return( 1 );
 
 on_error:
 	if( *info_handle != NULL )
 	{
+		if( ( *info_handle )->physical_volume_file_io_pool != NULL )
+		{
+			libbfio_pool_free(
+			 &( ( *info_handle )->physical_volume_file_io_pool ),
+			 NULL );
+		}
+		if( ( *info_handle )->input_file_io_handle != NULL )
+		{
+			libbfio_handle_free(
+			 &( ( *info_handle )->input_file_io_handle ),
+			 NULL );
+		}
 		memory_free(
 		 *info_handle );
 
@@ -145,21 +204,44 @@ int info_handle_free(
 	}
 	if( *info_handle != NULL )
 	{
-		if( ( *info_handle )->input_handle != NULL )
+		if( libvslvm_handle_free(
+		     &( ( *info_handle )->input_handle ),
+		     error ) != 1 )
 		{
-			if( libvslvm_handle_free(
-			     &( ( *info_handle )->input_handle ),
-			     error ) != 1 )
-			{
-				libcerror_error_set(
-				 error,
-				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
-				 "%s: unable to free input handle.",
-				 function );
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+			 "%s: unable to free input handle.",
+			 function );
 
-				result = -1;
-			}
+			result = -1;
+		}
+		if( libbfio_pool_free(
+		     &( ( *info_handle )->physical_volume_file_io_pool ),
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+			 "%s: unable to free physical volume file IO pool.",
+			 function );
+
+			result = -1;
+		}
+		if( libbfio_handle_free(
+		     &( ( *info_handle )->input_file_io_handle ),
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+			 "%s: unable to free input file IO handle.",
+			 function );
+
+			result = -1;
 		}
 		memory_free(
 		 *info_handle );
@@ -210,18 +292,17 @@ int info_handle_signal_abort(
 	return( 1 );
 }
 
-/* Sets the ascii codepage
+/* Sets the volume offset
  * Returns 1 if successful or -1 on error
  */
-int info_handle_set_ascii_codepage(
+int info_handle_set_volume_offset(
      info_handle_t *info_handle,
      const libcstring_system_character_t *string,
      libcerror_error_t **error )
 {
-	static char *function  = "info_handle_set_ascii_codepage";
-	size_t string_length   = 0;
-	uint32_t feature_flags = 0;
-	int result             = 0;
+	static char *function = "info_handle_set_volume_offset";
+	size_t string_length  = 0;
+	uint64_t value_64bit  = 0;
 
 	if( info_handle == NULL )
 	{
@@ -234,39 +315,27 @@ int info_handle_set_ascii_codepage(
 
 		return( -1 );
 	}
-	feature_flags = LIBCLOCALE_CODEPAGE_FEATURE_FLAG_HAVE_KOI8
-	              | LIBCLOCALE_CODEPAGE_FEATURE_FLAG_HAVE_WINDOWS;
-
 	string_length = libcstring_system_string_length(
 	                 string );
 
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
-	result = libclocale_codepage_copy_from_string_wide(
-	          &( info_handle->ascii_codepage ),
-	          string,
-	          string_length,
-	          feature_flags,
-	          error );
-#else
-	result = libclocale_codepage_copy_from_string(
-	          &( info_handle->ascii_codepage ),
-	          string,
-	          string_length,
-	          feature_flags,
-	          error );
-#endif
-	if( result == -1 )
+	if( libcsystem_string_decimal_copy_to_64_bit(
+	     string,
+	     string_length + 1,
+	     &value_64bit,
+	     error ) != 1 )
 	{
 		libcerror_error_set(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to determine ASCII codepage.",
+		 LIBCERROR_RUNTIME_ERROR_COPY_FAILED,
+		 "%s: unable to copy string to 64-bit decimal.",
 		 function );
 
 		return( -1 );
 	}
-	return( result );
+	info_handle->volume_offset = (off64_t) value_64bit;
+
+	return( 1 );
 }
 
 /* Opens the input
@@ -277,7 +346,9 @@ int info_handle_open_input(
      const libcstring_system_character_t *filename,
      libcerror_error_t **error )
 {
-	static char *function = "info_handle_open_input";
+	static char *function  = "info_handle_open_input";
+	size_t filename_length = 0;
+	int entry_index        = 0;
 
 	if( info_handle == NULL )
 	{
@@ -290,19 +361,52 @@ int info_handle_open_input(
 
 		return( -1 );
 	}
+	filename_length = libcstring_system_string_length(
+	                   filename );
+
 #if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
-	if( libvslvm_handle_open_wide(
-	     info_handle->input_handle,
+	if( libbfio_file_range_set_name_wide(
+	     info_handle->input_file_io_handle,
 	     filename,
-	     LIBVSLVM_OPEN_READ,
+	     filename_length,
 	     error ) != 1 )
 #else
-	if( libvslvm_handle_open(
-	     info_handle->input_handle,
+	if( libbfio_file_range_set_name(
+	     info_handle->input_file_io_handle,
 	     filename,
-	     LIBVSLVM_OPEN_READ,
+	     filename_length,
 	     error ) != 1 )
 #endif
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_IO,
+		 LIBCERROR_IO_ERROR_OPEN_FAILED,
+		 "%s: unable to open set file name.",
+		 function );
+
+		return( -1 );
+	}
+	if( libbfio_file_range_set(
+	     info_handle->input_file_io_handle,
+	     info_handle->volume_offset,
+	     0,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_IO,
+		 LIBCERROR_IO_ERROR_OPEN_FAILED,
+		 "%s: unable to open set volume offset.",
+		 function );
+
+		return( -1 );
+	}
+	if( libvslvm_handle_open_file_io_handle(
+	     info_handle->input_handle,
+	     info_handle->input_file_io_handle,
+	     LIBVSLVM_OPEN_READ,
+	     error ) != 1 )
 	{
 		libcerror_error_set(
 		 error,
@@ -313,21 +417,31 @@ int info_handle_open_input(
 
 		return( -1 );
 	}
+	if( libbfio_pool_append_handle(
+	     info_handle->physical_volume_file_io_pool,
+	     &entry_index,
+	     info_handle->input_file_io_handle,
+	     LIBBFIO_OPEN_READ,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_IO,
+		 LIBCERROR_IO_ERROR_OPEN_FAILED,
+		 "%s: unable to open input handle.",
+		 function );
+
+		return( -1 );
+	}
+/* TODO have the pool manage te file object */
+	info_handle->input_file_io_handle = NULL;
+
 /* TODO determine if the first file is a metadata only file and change filenames accordingly
  */
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
-	if( libvslvm_handle_open_physical_volume_files_wide(
+	if( libvslvm_handle_open_physical_volume_files_file_io_pool(
 	     info_handle->input_handle,
-	     &filename,
-	     1,
+	     info_handle->physical_volume_file_io_pool,
 	     error ) != 1 )
-#else
-	if( libvslvm_handle_open_physical_volume_files(
-	     info_handle->input_handle,
-	     &filename,
-	     1,
-	     error ) != 1 )
-#endif
 	{
 		libcerror_error_set(
 		 error,

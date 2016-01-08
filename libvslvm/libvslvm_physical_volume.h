@@ -189,7 +189,8 @@ int libvslvm_physical_volume_get_metadata_area_descriptor(
 
 int libvslvm_physical_volume_read_label(
      libvslvm_physical_volume_t *physical_volume,
-     libbfio_handle_t *file_io_handle,
+     libbfio_pool_t *file_io_pool,
+     int file_io_pool_entry,
      off64_t file_offset,
      libcerror_error_t **error );
 

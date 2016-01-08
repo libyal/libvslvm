@@ -433,6 +433,7 @@ int mount_handle_open_input(
 	}
 /* TODO determine if the first file is a metadata only file and change filenames accordingly
  */
+/* TODO replace by libvslvm_handle_open_physical_volume_files_file_io_pool */
 #if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
 	if( libvslvm_handle_open_physical_volume_files_wide(
 	     mount_handle->input_handle,
@@ -723,7 +724,7 @@ off64_t mount_handle_seek_offset(
 		return( -1 );
 	}
 	offset = libvslvm_logical_volume_seek_offset(
-	          mount_handle->input_handle,
+	          logical_volume,
 	          offset,
 	          whence,
 	          error );

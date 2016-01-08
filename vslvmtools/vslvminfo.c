@@ -56,15 +56,12 @@ void usage_fprint(
 	fprintf( stream, "Use vslvminfo to determine information about a\n"
 	                 "Linux Logical Volume Manager (LVM) volume system.\n\n");
 
-	fprintf( stream, "Usage: vslvminfo [ -c codepage ] [ -hvV ] source\n\n" );
+	fprintf( stream, "Usage: vslvminfo [ -o offset ] [ -hvV ] source\n\n" );
 
 	fprintf( stream, "\tsource: the source file\n\n" );
 
-	fprintf( stream, "\t-c:     codepage of ASCII strings, options: ascii, windows-874,\n"
-	                 "\t        windows-932, windows-936, windows-1250, windows-1251,\n"
-	                 "\t        windows-1252 (default), windows-1253, windows-1254,\n"
-	                 "\t        windows-1255, windows-1256, windows-1257 or windows-1258\n" );
 	fprintf( stream, "\t-h:     shows this help\n" );
+	fprintf( stream, "\t-o:     specify the volume offset in bytes\n" );
 	fprintf( stream, "\t-v:     verbose output to stderr\n" );
 	fprintf( stream, "\t-V:     print version\n" );
 }
@@ -116,13 +113,12 @@ int wmain( int argc, wchar_t * const argv[] )
 int main( int argc, char * const argv[] )
 #endif
 {
-	libcerror_error_t *error                             = NULL;
-	libcstring_system_character_t *option_ascii_codepage = NULL;
-	libcstring_system_character_t *source                = NULL;
-	char *program                                        = "vslvminfo";
-	libcstring_system_integer_t option                   = 0;
-	int result                                           = 0;
-	int verbose                                          = 0;
+	libcerror_error_t *error                            = NULL;
+	libcstring_system_character_t *option_volume_offset = NULL;
+	libcstring_system_character_t *source               = NULL;
+	char *program                                       = "vslvminfo";
+	libcstring_system_integer_t option                  = 0;
+	int verbose                                         = 0;
 
 	libcnotify_stream_set(
 	 stderr,
@@ -157,7 +153,7 @@ int main( int argc, char * const argv[] )
 	while( ( option = libcsystem_getopt(
 	                   argc,
 	                   argv,
-	                   _LIBCSTRING_SYSTEM_STRING( "c:hvV" ) ) ) != (libcstring_system_integer_t) -1 )
+	                   _LIBCSTRING_SYSTEM_STRING( "ho:vV" ) ) ) != (libcstring_system_integer_t) -1 )
 	{
 		switch( option )
 		{
@@ -173,16 +169,16 @@ int main( int argc, char * const argv[] )
 
 				return( EXIT_FAILURE );
 
-			case (libcstring_system_integer_t) 'c':
-				option_ascii_codepage = optarg;
-
-				break;
-
 			case (libcstring_system_integer_t) 'h':
 				usage_fprint(
 				 stdout );
 
 				return( EXIT_SUCCESS );
+
+			case (libcstring_system_integer_t) 'o':
+				option_volume_offset = optarg;
+
+				break;
 
 			case (libcstring_system_integer_t) 'v':
 				verbose = 1;
@@ -227,26 +223,22 @@ int main( int argc, char * const argv[] )
 
 		goto on_error;
 	}
-	if( option_ascii_codepage != NULL )
+	if( option_volume_offset != NULL )
 	{
-		result = info_handle_set_ascii_codepage(
-		          vslvminfo_info_handle,
-		          option_ascii_codepage,
-		          &error );
-
-		if( result == -1 )
+		if( info_handle_set_volume_offset(
+		     vslvminfo_info_handle,
+		     option_volume_offset,
+		     &error ) != 1 )
 		{
+			libcnotify_print_error_backtrace(
+			 error );
+			libcerror_error_free(
+			 &error );
+
 			fprintf(
 			 stderr,
-			 "Unable to set ASCII codepage in info handle.\n" );
-
-			goto on_error;
-		}
-		else if( result == 0 )
-		{
-			fprintf(
-			 stderr,
-			 "Unsupported ASCII codepage defaulting to: windows-1252.\n" );
+			 "Unsupported volume offset defaulting to: %" PRIi64 ".\n",
+			 vslvminfo_info_handle->volume_offset );
 		}
 	}
 	if( info_handle_open_input(
