@@ -21,6 +21,8 @@ SUBDIRS = \
 	libcsystem \
 	vslvmtools \
 	pyvslvm \
+	pyvslvm2 \
+	pyvslvm3 \
 	po \
 	manuals \
 	tests \
@@ -48,6 +50,9 @@ GETTEXT_FILES = \
 PKGCONFIG_FILES = \
 	libvslvm.pc.in
 
+SETUP_PY_FILES = \
+	setup.py
+
 SPEC_FILES = \
 	libvslvm.spec \
 	libvslvm.spec.in
@@ -56,6 +61,7 @@ EXTRA_DIST = \
 	$(DPKG_FILES) \
 	$(GETTEXT_FILES) \
 	$(PKGCONFIG_FILES) \
+	$(SETUP_PY_FILES) \
 	$(SPEC_FILES)
 
 MAINTAINERCLEANFILES = \
