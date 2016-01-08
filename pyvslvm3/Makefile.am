@@ -12,16 +12,28 @@ AM_CFLAGS = \
 	@LIBCERROR_CPPFLAGS@ \
 	@LIBCDATA_CPPFLAGS@ \
 	@LIBCLOCALE_CPPFLAGS@ \
+	@LIBCSPLIT_CPPFLAGS@ \
 	@LIBUNA_CPPFLAGS@ \
 	@LIBCFILE_CPPFLAGS@ \
 	@LIBCPATH_CPPFLAGS@ \
-	@LIBBFIO_CPPFLAGS@ \
-	@LIBFGUID_CPPFLAGS@
+	@LIBBFIO_CPPFLAGS@
 
 am_pyvslvm_la_rpath = -rpath $(pyexecdir3)
 
 BUILT_SOURCES = \
-	pyvslvm.c pyvslvm.h
+	pyvslvm.c pyvslvm.h \
+	pyvslvm_error.c pyvslvm_error.h \
+	pyvslvm_file_object_io_handle.c pyvslvm_file_object_io_handle.h \
+	pyvslvm_file_objects_io_pool.c pyvslvm_file_objects_io_pool.h \
+	pyvslvm_handle.c pyvslvm_handle.h \
+	pyvslvm_integer.c pyvslvm_integer.h \
+	pyvslvm_libbfio.h \
+	pyvslvm_libcerror.h \
+	pyvslvm_libclocale.h \
+	pyvslvm_libcstring.h \
+	pyvslvm_libvslvm.h \
+	pyvslvm_python.h \
+	pyvslvm_unused.h
 
 pyexec_LTLIBRARIES = pyvslvm.la
 
@@ -33,10 +45,11 @@ pyvslvm_la_LIBADD = \
 	../libvslvm/libvslvm.la \
 	@LIBCDATA_LIBADD@ \
 	@LIBCLOCALE_LIBADD@ \
+	@LIBCSPLIT_LIBADD@ \
+	@LIBUNA_LIBADD@ \
 	@LIBCFILE_LIBADD@ \
 	@LIBCPATH_LIBADD@ \
-	@LIBBFIO_LIBADD@ \
-	@LIBFGUID_LIBADD@
+	@LIBBFIO_LIBADD@
 
 pyvslvm_la_CPPFLAGS = $(PYTHON3_CPPFLAGS)
 pyvslvm_la_LDFLAGS  = -module -avoid-version $(PYTHON3_LDFLAGS)
