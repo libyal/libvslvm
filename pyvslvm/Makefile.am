@@ -31,6 +31,10 @@ pyvslvm_la_SOURCES = \
 	pyvslvm_physical_volume.c pyvslvm_physical_volume.h \
 	pyvslvm_physical_volumes.c pyvslvm_physical_volumes.h \
 	pyvslvm_python.h \
+	pyvslvm_segment.c pyvslvm_segment.h \
+	pyvslvm_segments.c pyvslvm_segments.h \
+	pyvslvm_stripe.c pyvslvm_stripe.h \
+	pyvslvm_stripes.c pyvslvm_stripes.h \
 	pyvslvm_unused.h \
 	pyvslvm_volume_group.c pyvslvm_volume_group.h
 

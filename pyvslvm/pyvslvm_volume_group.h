@@ -64,6 +64,35 @@ int pyvslvm_volume_group_init(
 void pyvslvm_volume_group_free(
       pyvslvm_volume_group_t *pyvslvm_volume_group );
 
+PyObject *pyvslvm_volume_group_get_name(
+           pyvslvm_volume_group_t *pyvslvm_volume_group,
+           PyObject *arguments );
+
+PyObject *pyvslvm_volume_group_get_identifier(
+           pyvslvm_volume_group_t *pyvslvm_volume_group,
+           PyObject *arguments );
+
+/* TODO add get sequence number */
+
+/* TODO add get extent_size */
+
+PyObject *pyvslvm_volume_group_get_number_of_physical_volumes(
+           pyvslvm_volume_group_t *pyvslvm_volume_group,
+           PyObject *arguments );
+
+PyObject *pyvslvm_volume_group_get_physical_volume_by_index(
+           pyvslvm_volume_group_t *pyvslvm_volume_group,
+           int volume_index );
+
+PyObject *pyvslvm_volume_group_get_physical_volume(
+           pyvslvm_volume_group_t *pyvslvm_volume_group,
+           PyObject *arguments,
+           PyObject *keywords );
+
+PyObject *pyvslvm_volume_group_get_physical_volumes(
+           pyvslvm_volume_group_t *pyvslvm_volume_group,
+           PyObject *arguments );
+
 PyObject *pyvslvm_volume_group_get_number_of_logical_volumes(
            pyvslvm_volume_group_t *pyvslvm_volume_group,
            PyObject *arguments );

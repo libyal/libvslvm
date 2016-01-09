@@ -1,9 +1,10 @@
 TODO
+* pyvslvm
+  - complete segment object methods
+  - complete stripe object methods
 * finish:
   - libvslvm_internal_logical_volume_read_buffer_from_file_io_handle
   - make sure to set the right offset in internal_logical_volume->chunks_vector 
-
-* update manuals
 
 Library:
 * metadata
@@ -12,7 +13,7 @@ Library:
   - metadata: handle trailing comment in more places?
 * implement read logical volume functionality
   - stripes fill fdata stream
-* implement multi strip support
+* implement multi stripe support
 * implement multi physical volume files support
   - map pv names to file IO pool?
 * add support to specify metadata in external configuration file
@@ -20,17 +21,26 @@ Library:
   - allow for multiple input images (physical volumes)
   - allow open to read a text file with the metadata
 
-Python bindings:
-* implement
-
 Tools:
 * vslvminfo
   - print stripes and in-volume offsets
 * vslvmmount
   - allow use of logical volume names instead of lvm#?
 
+Tests:
+* add tests for library
+* add tests for Python bindings
+* add tests for tools
+
+Deployment:
+* update manuals
+
+20160109
+* worked on Python bindings
+
 20160108
 * worked on format support
+* worked on Python bindings
 
 20160107
 * 2016 update

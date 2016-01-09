@@ -33,11 +33,52 @@
 #include "pyvslvm_libvslvm.h"
 #include "pyvslvm_logical_volume.h"
 #include "pyvslvm_logical_volumes.h"
+#include "pyvslvm_physical_volume.h"
+#include "pyvslvm_physical_volumes.h"
 #include "pyvslvm_python.h"
 #include "pyvslvm_unused.h"
 #include "pyvslvm_volume_group.h"
 
 PyMethodDef pyvslvm_volume_group_object_methods[] = {
+
+	/* Functions to access the volume group values */
+
+	{ "get_name",
+	  (PyCFunction) pyvslvm_volume_group_get_name,
+	  METH_NOARGS,
+	  "get_name() -> Unicode string or None\n"
+	  "\n"
+	  "Retrieves the name." },
+
+	{ "get_identifier",
+	  (PyCFunction) pyvslvm_volume_group_get_identifier,
+	  METH_NOARGS,
+	  "get_identifier() -> Unicode string or None\n"
+	  "\n"
+	  "Retrieves the identifier." },
+
+	/* Functions to access the physical volumes */
+
+	{ "get_number_of_physical_volumes",
+	  (PyCFunction) pyvslvm_volume_group_get_number_of_physical_volumes,
+	  METH_NOARGS,
+	  "get_number_of_physical_volumes() -> Integer\n"
+	  "\n"
+	  "Retrieves the number of physical volumes." },
+
+	{ "get_physical_volume",
+	  (PyCFunction) pyvslvm_volume_group_get_physical_volume,
+	  METH_VARARGS | METH_KEYWORDS,
+	  "get_physical_volume(volume_index) -> Object or None\n"
+	  "\n"
+	  "Retrieves a specific physical volume." },
+
+	{ "get_physical_volumes",
+	  (PyCFunction) pyvslvm_volume_group_get_physical_volumes,
+	  METH_VARARGS | METH_KEYWORDS,
+	  "get_physical_volumes() -> Object\n"
+	  "\n"
+	  "Retrieves a sequence object of the physical volumes." },
 
 	/* Functions to access the logical volumes */
 
@@ -67,6 +108,30 @@ PyMethodDef pyvslvm_volume_group_object_methods[] = {
 };
 
 PyGetSetDef pyvslvm_volume_group_object_get_set_definitions[] = {
+
+	{ "name",
+	  (getter) pyvslvm_volume_group_get_name,
+	  (setter) 0,
+	  "The name.",
+	  NULL },
+
+	{ "identifier",
+	  (getter) pyvslvm_volume_group_get_identifier,
+	  (setter) 0,
+	  "The identifier.",
+	  NULL },
+
+	{ "number_of_physical_volumes",
+	  (getter) pyvslvm_volume_group_get_number_of_physical_volumes,
+	  (setter) 0,
+	  "The number of physical volumes.",
+	  NULL },
+
+	{ "physical_volumes",
+	  (getter) pyvslvm_volume_group_get_physical_volumes,
+	  (setter) 0,
+	  "The physical volumes.",
+	  NULL },
 
 	{ "number_of_logical_volumes",
 	  (getter) pyvslvm_volume_group_get_number_of_logical_volumes,
@@ -328,6 +393,452 @@ void pyvslvm_volume_group_free(
 	}
 	ob_type->tp_free(
 	 (PyObject*) pyvslvm_volume_group );
+}
+
+/* Retrieves the name
+ * Returns a Python object if successful or NULL on error
+ */
+PyObject *pyvslvm_volume_group_get_name(
+           pyvslvm_volume_group_t *pyvslvm_volume_group,
+           PyObject *arguments PYVSLVM_ATTRIBUTE_UNUSED )
+{
+	libcerror_error_t *error = NULL;
+	PyObject *string_object  = NULL;
+	char *name               = NULL;
+	const char *errors       = NULL;
+	static char *function    = "pyvslvm_volume_group_get_name";
+	size_t name_size         = 0;
+	int result               = 0;
+
+	PYVSLVM_UNREFERENCED_PARAMETER( arguments )
+
+	if( pyvslvm_volume_group == NULL )
+	{
+		PyErr_Format(
+		 PyExc_TypeError,
+		 "%s: invalid volume group.",
+		 function );
+
+		return( NULL );
+	}
+	Py_BEGIN_ALLOW_THREADS
+
+	result = libvslvm_volume_group_get_name_size(
+	          pyvslvm_volume_group->volume_group,
+	          &name_size,
+	          &error );
+
+	Py_END_ALLOW_THREADS
+
+	if( result == -1 )
+	{
+		pyvslvm_error_raise(
+		 error,
+		 PyExc_IOError,
+		 "%s: unable to retrieve name size.",
+		 function );
+
+		libcerror_error_free(
+		 &error );
+
+		goto on_error;
+	}
+	else if( ( result == 0 )
+	      || ( name_size == 0 ) )
+	{
+		Py_IncRef(
+		 Py_None );
+
+		return( Py_None );
+	}
+	name = (char *) PyMem_Malloc(
+	                 sizeof( char ) * name_size );
+
+	if( name == NULL )
+	{
+		PyErr_Format(
+		 PyExc_IOError,
+		 "%s: unable to create name.",
+		 function );
+
+		goto on_error;
+	}
+	Py_BEGIN_ALLOW_THREADS
+
+	result = libvslvm_volume_group_get_name(
+		  pyvslvm_volume_group->volume_group,
+		  name,
+		  name_size,
+		  &error );
+
+	Py_END_ALLOW_THREADS
+
+	if( result != 1 )
+	{
+		pyvslvm_error_raise(
+		 error,
+		 PyExc_IOError,
+		 "%s: unable to retrieve name.",
+		 function );
+
+		libcerror_error_free(
+		 &error );
+
+		goto on_error;
+	}
+	/* Pass the string length to PyUnicode_DecodeUTF8
+	 * otherwise it makes the end of string character is part
+	 * of the string
+	 */
+	string_object = PyUnicode_DecodeUTF8(
+			 name,
+			 (Py_ssize_t) name_size - 1,
+			 errors );
+
+	PyMem_Free(
+	 name );
+
+	return( string_object );
+
+on_error:
+	if( name != NULL )
+	{
+		PyMem_Free(
+		 name );
+	}
+	return( NULL );
+}
+
+/* Retrieves the identifier
+ * Returns a Python object if successful or NULL on error
+ */
+PyObject *pyvslvm_volume_group_get_identifier(
+           pyvslvm_volume_group_t *pyvslvm_volume_group,
+           PyObject *arguments PYVSLVM_ATTRIBUTE_UNUSED )
+{
+	libcerror_error_t *error = NULL;
+	PyObject *string_object  = NULL;
+	char *identifier         = NULL;
+	const char *errors       = NULL;
+	static char *function    = "pyvslvm_volume_group_get_identifier";
+	size_t identifier_size   = 0;
+	int result               = 0;
+
+	PYVSLVM_UNREFERENCED_PARAMETER( arguments )
+
+	if( pyvslvm_volume_group == NULL )
+	{
+		PyErr_Format(
+		 PyExc_TypeError,
+		 "%s: invalid volume group.",
+		 function );
+
+		return( NULL );
+	}
+	Py_BEGIN_ALLOW_THREADS
+
+	result = libvslvm_volume_group_get_identifier_size(
+	          pyvslvm_volume_group->volume_group,
+	          &identifier_size,
+	          &error );
+
+	Py_END_ALLOW_THREADS
+
+	if( result == -1 )
+	{
+		pyvslvm_error_raise(
+		 error,
+		 PyExc_IOError,
+		 "%s: unable to retrieve identifier size.",
+		 function );
+
+		libcerror_error_free(
+		 &error );
+
+		goto on_error;
+	}
+	else if( ( result == 0 )
+	      || ( identifier_size == 0 ) )
+	{
+		Py_IncRef(
+		 Py_None );
+
+		return( Py_None );
+	}
+	identifier = (char *) PyMem_Malloc(
+	                       sizeof( char ) * identifier_size );
+
+	if( identifier == NULL )
+	{
+		PyErr_Format(
+		 PyExc_IOError,
+		 "%s: unable to create identifier.",
+		 function );
+
+		goto on_error;
+	}
+	Py_BEGIN_ALLOW_THREADS
+
+	result = libvslvm_volume_group_get_identifier(
+		  pyvslvm_volume_group->volume_group,
+		  identifier,
+		  identifier_size,
+		  &error );
+
+	Py_END_ALLOW_THREADS
+
+	if( result != 1 )
+	{
+		pyvslvm_error_raise(
+		 error,
+		 PyExc_IOError,
+		 "%s: unable to retrieve identifier.",
+		 function );
+
+		libcerror_error_free(
+		 &error );
+
+		goto on_error;
+	}
+	/* Pass the string length to PyUnicode_DecodeUTF8
+	 * otherwise it makes the end of string character is part
+	 * of the string
+	 */
+	string_object = PyUnicode_DecodeUTF8(
+			 identifier,
+			 (Py_ssize_t) identifier_size - 1,
+			 errors );
+
+	PyMem_Free(
+	 identifier );
+
+	return( string_object );
+
+on_error:
+	if( identifier != NULL )
+	{
+		PyMem_Free(
+		 identifier );
+	}
+	return( NULL );
+}
+
+/* Retrieves the number of physical volumes
+ * Returns a Python object if successful or NULL on error
+ */
+PyObject *pyvslvm_volume_group_get_number_of_physical_volumes(
+           pyvslvm_volume_group_t *pyvslvm_volume_group,
+           PyObject *arguments PYVSLVM_ATTRIBUTE_UNUSED )
+{
+	libcerror_error_t *error       = NULL;
+	PyObject *integer_object       = NULL;
+	static char *function          = "pyvslvm_volume_group_get_number_of_physical_volumes";
+	int number_of_physical_volumes = 0;
+	int result                     = 0;
+
+	PYVSLVM_UNREFERENCED_PARAMETER( arguments )
+
+	if( pyvslvm_volume_group == NULL )
+	{
+		PyErr_Format(
+		 PyExc_TypeError,
+		 "%s: invalid volume group.",
+		 function );
+
+		return( NULL );
+	}
+	Py_BEGIN_ALLOW_THREADS
+
+	result = libvslvm_volume_group_get_number_of_physical_volumes(
+	          pyvslvm_volume_group->volume_group,
+	          &number_of_physical_volumes,
+	          &error );
+
+	Py_END_ALLOW_THREADS
+
+	if( result != 1 )
+	{
+		pyvslvm_error_raise(
+		 error,
+		 PyExc_IOError,
+		 "%s: unable to retrieve number of physical volumes.",
+		 function );
+
+		libcerror_error_free(
+		 &error );
+
+		return( NULL );
+	}
+#if PY_MAJOR_VERSION >= 3
+	integer_object = PyLong_FromLong(
+	                  (long) number_of_physical_volumes );
+#else
+	integer_object = PyInt_FromLong(
+	                  (long) number_of_physical_volumes );
+#endif
+	return( integer_object );
+}
+
+/* Retrieves a specific physical volume by index
+ * Returns a Python object if successful or NULL on error
+ */
+PyObject *pyvslvm_volume_group_get_physical_volume_by_index(
+           pyvslvm_volume_group_t *pyvslvm_volume_group,
+           int volume_index )
+{
+	libcerror_error_t *error                    = NULL;
+	libvslvm_physical_volume_t *physical_volume = NULL;
+	PyObject *physical_volume_object            = NULL;
+	static char *function                       = "pyvslvm_volume_group_get_physical_volume_by_index";
+	int result                                  = 0;
+
+	if( pyvslvm_volume_group == NULL )
+	{
+		PyErr_Format(
+		 PyExc_TypeError,
+		 "%s: invalid volume group.",
+		 function );
+
+		return( NULL );
+	}
+	Py_BEGIN_ALLOW_THREADS
+
+	result = libvslvm_volume_group_get_physical_volume(
+	          pyvslvm_volume_group->volume_group,
+	          volume_index,
+	          &physical_volume,
+	          &error );
+
+	Py_END_ALLOW_THREADS
+
+	if( result != 1 )
+	{
+		pyvslvm_error_raise(
+		 error,
+		 PyExc_IOError,
+		 "%s: unable to retrieve physical volume: %d.",
+		 function,
+		 volume_index );
+
+		libcerror_error_free(
+		 &error );
+
+		goto on_error;
+	}
+	physical_volume_object = pyvslvm_physical_volume_new(
+	                          physical_volume,
+	                          pyvslvm_volume_group );
+
+	if( physical_volume_object == NULL )
+	{
+		PyErr_Format(
+		 PyExc_MemoryError,
+		 "%s: unable to create physical volume object.",
+		 function );
+
+		goto on_error;
+	}
+	return( physical_volume_object );
+
+on_error:
+	if( physical_volume != NULL )
+	{
+		libvslvm_physical_volume_free(
+		 &physical_volume,
+		 NULL );
+	}
+	return( NULL );
+}
+
+/* Retrieves a specific physical volume
+ * Returns a Python object if successful or NULL on error
+ */
+PyObject *pyvslvm_volume_group_get_physical_volume(
+           pyvslvm_volume_group_t *pyvslvm_volume_group,
+           PyObject *arguments,
+           PyObject *keywords )
+{
+	PyObject *physical_volume_object = NULL;
+	static char *keyword_list[]      = { "volume_index", NULL };
+	int volume_index                 = 0;
+
+	if( PyArg_ParseTupleAndKeywords(
+	     arguments,
+	     keywords,
+	     "i",
+	     keyword_list,
+	     &volume_index ) == 0 )
+	{
+		return( NULL );
+	}
+	physical_volume_object = pyvslvm_volume_group_get_physical_volume_by_index(
+	                          pyvslvm_volume_group,
+	                          volume_index );
+
+	return( physical_volume_object );
+}
+
+/* Retrieves a physical volumes sequence and iterator object for the physical volumes
+ * Returns a Python object if successful or NULL on error
+ */
+PyObject *pyvslvm_volume_group_get_physical_volumes(
+           pyvslvm_volume_group_t *pyvslvm_volume_group,
+           PyObject *arguments PYVSLVM_ATTRIBUTE_UNUSED )
+{
+	libcerror_error_t *error          = NULL;
+	PyObject *physical_volumes_object = NULL;
+	static char *function             = "pyvslvm_volume_group_get_physical_volumes";
+	int number_of_physical_volumes    = 0;
+	int result                        = 0;
+
+	PYVSLVM_UNREFERENCED_PARAMETER( arguments )
+
+	if( pyvslvm_volume_group == NULL )
+	{
+		PyErr_Format(
+		 PyExc_TypeError,
+		 "%s: invalid volume group.",
+		 function );
+
+		return( NULL );
+	}
+	Py_BEGIN_ALLOW_THREADS
+
+	result = libvslvm_volume_group_get_number_of_physical_volumes(
+	          pyvslvm_volume_group->volume_group,
+	          &number_of_physical_volumes,
+	          &error );
+
+	Py_END_ALLOW_THREADS
+
+	if( result != 1 )
+	{
+		pyvslvm_error_raise(
+		 error,
+		 PyExc_IOError,
+		 "%s: unable to retrieve number of physical volumes.",
+		 function );
+
+		libcerror_error_free(
+		 &error );
+
+		return( NULL );
+	}
+	physical_volumes_object = pyvslvm_physical_volumes_new(
+	                           pyvslvm_volume_group,
+	                           &pyvslvm_volume_group_get_physical_volume_by_index,
+	                           number_of_physical_volumes );
+
+	if( physical_volumes_object == NULL )
+	{
+		PyErr_Format(
+		 PyExc_MemoryError,
+		 "%s: unable to create physical volumes object.",
+		 function );
+
+		return( NULL );
+	}
+	return( physical_volumes_object );
 }
 
 /* Retrieves the number of logical volumes

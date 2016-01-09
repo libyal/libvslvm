@@ -86,6 +86,31 @@ PyObject *pyvslvm_logical_volume_get_size(
            pyvslvm_logical_volume_t *pyvslvm_logical_volume,
            PyObject *arguments );
 
+PyObject *pyvslvm_logical_volume_get_name(
+           pyvslvm_logical_volume_t *pyvslvm_logical_volume,
+           PyObject *arguments );
+
+PyObject *pyvslvm_logical_volume_get_identifier(
+           pyvslvm_logical_volume_t *pyvslvm_logical_volume,
+           PyObject *arguments );
+
+PyObject *pyvslvm_logical_volume_get_number_of_segments(
+           pyvslvm_logical_volume_t *pyvslvm_logical_volume,
+           PyObject *arguments );
+
+PyObject *pyvslvm_logical_volume_get_segment_by_index(
+           pyvslvm_logical_volume_t *pyvslvm_logical_volume,
+           int segment_index );
+
+PyObject *pyvslvm_logical_volume_get_segment(
+           pyvslvm_logical_volume_t *pyvslvm_logical_volume,
+           PyObject *arguments,
+           PyObject *keywords );
+
+PyObject *pyvslvm_logical_volume_get_segments(
+           pyvslvm_logical_volume_t *pyvslvm_logical_volume,
+           PyObject *arguments );
+
 #if defined( __cplusplus )
 }
 #endif

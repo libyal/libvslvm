@@ -63,6 +63,22 @@ int pyvslvm_physical_volume_init(
 void pyvslvm_physical_volume_free(
       pyvslvm_physical_volume_t *pyvslvm_physical_volume );
 
+PyObject *pyvslvm_physical_volume_get_name(
+           pyvslvm_physical_volume_t *pyvslvm_physical_volume,
+           PyObject *arguments );
+
+PyObject *pyvslvm_physical_volume_get_identifier(
+           pyvslvm_physical_volume_t *pyvslvm_physical_volume,
+           PyObject *arguments );
+
+PyObject *pyvslvm_physical_volume_get_device_path(
+           pyvslvm_physical_volume_t *pyvslvm_physical_volume,
+           PyObject *arguments );
+
+PyObject *pyvslvm_physical_volume_get_size(
+           pyvslvm_physical_volume_t *pyvslvm_physical_volume,
+           PyObject *arguments );
+
 #if defined( __cplusplus )
 }
 #endif

@@ -33,6 +33,8 @@
 #include "pyvslvm_libvslvm.h"
 #include "pyvslvm_logical_volume.h"
 #include "pyvslvm_python.h"
+#include "pyvslvm_segment.h"
+#include "pyvslvm_segments.h"
 #include "pyvslvm_unused.h"
 #include "pyvslvm_volume_group.h"
 
@@ -100,6 +102,43 @@ PyMethodDef pyvslvm_logical_volume_object_methods[] = {
 	  "\n"
 	  "Retrieves the size of the volume." },
 
+	{ "get_name",
+	  (PyCFunction) pyvslvm_logical_volume_get_name,
+	  METH_NOARGS,
+	  "get_name() -> Unicode string or None\n"
+	  "\n"
+	  "Retrieves the name." },
+
+	{ "get_identifier",
+	  (PyCFunction) pyvslvm_logical_volume_get_identifier,
+	  METH_NOARGS,
+	  "get_identifier() -> Unicode string or None\n"
+	  "\n"
+	  "Retrieves the identifier." },
+
+	/* Functions to access the segments */
+
+	{ "get_number_of_segments",
+	  (PyCFunction) pyvslvm_logical_volume_get_number_of_segments,
+	  METH_NOARGS,
+	  "get_number_of_segments() -> Integer\n"
+	  "\n"
+	  "Retrieves the number of segments." },
+
+	{ "get_segment",
+	  (PyCFunction) pyvslvm_logical_volume_get_segment,
+	  METH_VARARGS | METH_KEYWORDS,
+	  "get_segment(segment_index) -> Object or None\n"
+	  "\n"
+	  "Retrieves a specific segment." },
+
+	{ "get_segments",
+	  (PyCFunction) pyvslvm_logical_volume_get_segments,
+	  METH_VARARGS | METH_KEYWORDS,
+	  "get_segments() -> Object\n"
+	  "\n"
+	  "Retrieves a sequence object of the segments." },
+
 	/* Sentinel */
 	{ NULL, NULL, 0, NULL }
 };
@@ -110,6 +149,30 @@ PyGetSetDef pyvslvm_logical_volume_object_get_set_definitions[] = {
 	  (getter) pyvslvm_logical_volume_get_size,
 	  (setter) 0,
 	  "The volume size.",
+	  NULL },
+
+	{ "name",
+	  (getter) pyvslvm_logical_volume_get_name,
+	  (setter) 0,
+	  "The name.",
+	  NULL },
+
+	{ "identifier",
+	  (getter) pyvslvm_logical_volume_get_identifier,
+	  (setter) 0,
+	  "The identifier.",
+	  NULL },
+
+	{ "number_of_segments",
+	  (getter) pyvslvm_logical_volume_get_number_of_segments,
+	  (setter) 0,
+	  "The number of segments.",
+	  NULL },
+
+	{ "segments",
+	  (getter) pyvslvm_logical_volume_get_segments,
+	  (setter) 0,
+	  "The segments.",
 	  NULL },
 
 	/* Sentinel */
@@ -772,5 +835,451 @@ PyObject *pyvslvm_logical_volume_get_size(
 	                  (uint64_t) size );
 
 	return( integer_object );
+}
+
+/* Retrieves the name
+ * Returns a Python object if successful or NULL on error
+ */
+PyObject *pyvslvm_logical_volume_get_name(
+           pyvslvm_logical_volume_t *pyvslvm_logical_volume,
+           PyObject *arguments PYVSLVM_ATTRIBUTE_UNUSED )
+{
+	libcerror_error_t *error = NULL;
+	PyObject *string_object  = NULL;
+	char *name               = NULL;
+	const char *errors       = NULL;
+	static char *function    = "pyvslvm_logical_volume_get_name";
+	size_t name_size         = 0;
+	int result               = 0;
+
+	PYVSLVM_UNREFERENCED_PARAMETER( arguments )
+
+	if( pyvslvm_logical_volume == NULL )
+	{
+		PyErr_Format(
+		 PyExc_TypeError,
+		 "%s: invalid logical volume.",
+		 function );
+
+		return( NULL );
+	}
+	Py_BEGIN_ALLOW_THREADS
+
+	result = libvslvm_logical_volume_get_name_size(
+	          pyvslvm_logical_volume->logical_volume,
+	          &name_size,
+	          &error );
+
+	Py_END_ALLOW_THREADS
+
+	if( result == -1 )
+	{
+		pyvslvm_error_raise(
+		 error,
+		 PyExc_IOError,
+		 "%s: unable to retrieve name size.",
+		 function );
+
+		libcerror_error_free(
+		 &error );
+
+		goto on_error;
+	}
+	else if( ( result == 0 )
+	      || ( name_size == 0 ) )
+	{
+		Py_IncRef(
+		 Py_None );
+
+		return( Py_None );
+	}
+	name = (char *) PyMem_Malloc(
+	                 sizeof( char ) * name_size );
+
+	if( name == NULL )
+	{
+		PyErr_Format(
+		 PyExc_IOError,
+		 "%s: unable to create name.",
+		 function );
+
+		goto on_error;
+	}
+	Py_BEGIN_ALLOW_THREADS
+
+	result = libvslvm_logical_volume_get_name(
+		  pyvslvm_logical_volume->logical_volume,
+		  name,
+		  name_size,
+		  &error );
+
+	Py_END_ALLOW_THREADS
+
+	if( result != 1 )
+	{
+		pyvslvm_error_raise(
+		 error,
+		 PyExc_IOError,
+		 "%s: unable to retrieve name.",
+		 function );
+
+		libcerror_error_free(
+		 &error );
+
+		goto on_error;
+	}
+	/* Pass the string length to PyUnicode_DecodeUTF8
+	 * otherwise it makes the end of string character is part
+	 * of the string
+	 */
+	string_object = PyUnicode_DecodeUTF8(
+			 name,
+			 (Py_ssize_t) name_size - 1,
+			 errors );
+
+	PyMem_Free(
+	 name );
+
+	return( string_object );
+
+on_error:
+	if( name != NULL )
+	{
+		PyMem_Free(
+		 name );
+	}
+	return( NULL );
+}
+
+/* Retrieves the identifier
+ * Returns a Python object if successful or NULL on error
+ */
+PyObject *pyvslvm_logical_volume_get_identifier(
+           pyvslvm_logical_volume_t *pyvslvm_logical_volume,
+           PyObject *arguments PYVSLVM_ATTRIBUTE_UNUSED )
+{
+	libcerror_error_t *error = NULL;
+	PyObject *string_object  = NULL;
+	char *identifier         = NULL;
+	const char *errors       = NULL;
+	static char *function    = "pyvslvm_logical_volume_get_identifier";
+	size_t identifier_size   = 0;
+	int result               = 0;
+
+	PYVSLVM_UNREFERENCED_PARAMETER( arguments )
+
+	if( pyvslvm_logical_volume == NULL )
+	{
+		PyErr_Format(
+		 PyExc_TypeError,
+		 "%s: invalid logical volume.",
+		 function );
+
+		return( NULL );
+	}
+	Py_BEGIN_ALLOW_THREADS
+
+	result = libvslvm_logical_volume_get_identifier_size(
+	          pyvslvm_logical_volume->logical_volume,
+	          &identifier_size,
+	          &error );
+
+	Py_END_ALLOW_THREADS
+
+	if( result == -1 )
+	{
+		pyvslvm_error_raise(
+		 error,
+		 PyExc_IOError,
+		 "%s: unable to retrieve identifier size.",
+		 function );
+
+		libcerror_error_free(
+		 &error );
+
+		goto on_error;
+	}
+	else if( ( result == 0 )
+	      || ( identifier_size == 0 ) )
+	{
+		Py_IncRef(
+		 Py_None );
+
+		return( Py_None );
+	}
+	identifier = (char *) PyMem_Malloc(
+	                       sizeof( char ) * identifier_size );
+
+	if( identifier == NULL )
+	{
+		PyErr_Format(
+		 PyExc_IOError,
+		 "%s: unable to create identifier.",
+		 function );
+
+		goto on_error;
+	}
+	Py_BEGIN_ALLOW_THREADS
+
+	result = libvslvm_logical_volume_get_identifier(
+		  pyvslvm_logical_volume->logical_volume,
+		  identifier,
+		  identifier_size,
+		  &error );
+
+	Py_END_ALLOW_THREADS
+
+	if( result != 1 )
+	{
+		pyvslvm_error_raise(
+		 error,
+		 PyExc_IOError,
+		 "%s: unable to retrieve identifier.",
+		 function );
+
+		libcerror_error_free(
+		 &error );
+
+		goto on_error;
+	}
+	/* Pass the string length to PyUnicode_DecodeUTF8
+	 * otherwise it makes the end of string character is part
+	 * of the string
+	 */
+	string_object = PyUnicode_DecodeUTF8(
+			 identifier,
+			 (Py_ssize_t) identifier_size - 1,
+			 errors );
+
+	PyMem_Free(
+	 identifier );
+
+	return( string_object );
+
+on_error:
+	if( identifier != NULL )
+	{
+		PyMem_Free(
+		 identifier );
+	}
+	return( NULL );
+}
+
+/* Retrieves the number of segments
+ * Returns a Python object if successful or NULL on error
+ */
+PyObject *pyvslvm_logical_volume_get_number_of_segments(
+           pyvslvm_logical_volume_t *pyvslvm_logical_volume,
+           PyObject *arguments PYVSLVM_ATTRIBUTE_UNUSED )
+{
+	libcerror_error_t *error = NULL;
+	PyObject *integer_object = NULL;
+	static char *function    = "pyvslvm_logical_volume_get_number_of_segments";
+	int number_of_segments   = 0;
+	int result               = 0;
+
+	PYVSLVM_UNREFERENCED_PARAMETER( arguments )
+
+	if( pyvslvm_logical_volume == NULL )
+	{
+		PyErr_Format(
+		 PyExc_TypeError,
+		 "%s: invalid logical volume.",
+		 function );
+
+		return( NULL );
+	}
+	Py_BEGIN_ALLOW_THREADS
+
+	result = libvslvm_logical_volume_get_number_of_segments(
+	          pyvslvm_logical_volume->logical_volume,
+	          &number_of_segments,
+	          &error );
+
+	Py_END_ALLOW_THREADS
+
+	if( result != 1 )
+	{
+		pyvslvm_error_raise(
+		 error,
+		 PyExc_IOError,
+		 "%s: unable to retrieve number of segments.",
+		 function );
+
+		libcerror_error_free(
+		 &error );
+
+		return( NULL );
+	}
+#if PY_MAJOR_VERSION >= 3
+	integer_object = PyLong_FromLong(
+	                  (long) number_of_segments );
+#else
+	integer_object = PyInt_FromLong(
+	                  (long) number_of_segments );
+#endif
+	return( integer_object );
+}
+
+/* Retrieves a specific segment by index
+ * Returns a Python object if successful or NULL on error
+ */
+PyObject *pyvslvm_logical_volume_get_segment_by_index(
+           pyvslvm_logical_volume_t *pyvslvm_logical_volume,
+           int segment_index )
+{
+	libcerror_error_t *error    = NULL;
+	libvslvm_segment_t *segment = NULL;
+	PyObject *segment_object    = NULL;
+	static char *function       = "pyvslvm_logical_volume_get_segment_by_index";
+	int result                  = 0;
+
+	if( pyvslvm_logical_volume == NULL )
+	{
+		PyErr_Format(
+		 PyExc_TypeError,
+		 "%s: invalid logical volume.",
+		 function );
+
+		return( NULL );
+	}
+	Py_BEGIN_ALLOW_THREADS
+
+	result = libvslvm_logical_volume_get_segment(
+	          pyvslvm_logical_volume->logical_volume,
+	          segment_index,
+	          &segment,
+	          &error );
+
+	Py_END_ALLOW_THREADS
+
+	if( result != 1 )
+	{
+		pyvslvm_error_raise(
+		 error,
+		 PyExc_IOError,
+		 "%s: unable to retrieve segment: %d.",
+		 function,
+		 segment_index );
+
+		libcerror_error_free(
+		 &error );
+
+		goto on_error;
+	}
+	segment_object = pyvslvm_segment_new(
+	                  segment,
+	                  pyvslvm_logical_volume );
+
+	if( segment_object == NULL )
+	{
+		PyErr_Format(
+		 PyExc_MemoryError,
+		 "%s: unable to create segment object.",
+		 function );
+
+		goto on_error;
+	}
+	return( segment_object );
+
+on_error:
+	if( segment != NULL )
+	{
+		libvslvm_segment_free(
+		 &segment,
+		 NULL );
+	}
+	return( NULL );
+}
+
+/* Retrieves a specific segment
+ * Returns a Python object if successful or NULL on error
+ */
+PyObject *pyvslvm_logical_volume_get_segment(
+           pyvslvm_logical_volume_t *pyvslvm_logical_volume,
+           PyObject *arguments,
+           PyObject *keywords )
+{
+	PyObject *segment_object    = NULL;
+	static char *keyword_list[] = { "segment_index", NULL };
+	int segment_index           = 0;
+
+	if( PyArg_ParseTupleAndKeywords(
+	     arguments,
+	     keywords,
+	     "i",
+	     keyword_list,
+	     &segment_index ) == 0 )
+	{
+		return( NULL );
+	}
+	segment_object = pyvslvm_logical_volume_get_segment_by_index(
+	                  pyvslvm_logical_volume,
+	                  segment_index );
+
+	return( segment_object );
+}
+
+/* Retrieves a segments sequence and iterator object for the segments
+ * Returns a Python object if successful or NULL on error
+ */
+PyObject *pyvslvm_logical_volume_get_segments(
+           pyvslvm_logical_volume_t *pyvslvm_logical_volume,
+           PyObject *arguments PYVSLVM_ATTRIBUTE_UNUSED )
+{
+	libcerror_error_t *error  = NULL;
+	PyObject *segments_object = NULL;
+	static char *function     = "pyvslvm_logical_volume_get_segments";
+	int number_of_segments    = 0;
+	int result                = 0;
+
+	PYVSLVM_UNREFERENCED_PARAMETER( arguments )
+
+	if( pyvslvm_logical_volume == NULL )
+	{
+		PyErr_Format(
+		 PyExc_TypeError,
+		 "%s: invalid logical volume.",
+		 function );
+
+		return( NULL );
+	}
+	Py_BEGIN_ALLOW_THREADS
+
+	result = libvslvm_logical_volume_get_number_of_segments(
+	          pyvslvm_logical_volume->logical_volume,
+	          &number_of_segments,
+	          &error );
+
+	Py_END_ALLOW_THREADS
+
+	if( result != 1 )
+	{
+		pyvslvm_error_raise(
+		 error,
+		 PyExc_IOError,
+		 "%s: unable to retrieve number of segments.",
+		 function );
+
+		libcerror_error_free(
+		 &error );
+
+		return( NULL );
+	}
+	segments_object = pyvslvm_segments_new(
+	                   pyvslvm_logical_volume,
+	                   &pyvslvm_logical_volume_get_segment_by_index,
+	                   number_of_segments );
+
+	if( segments_object == NULL )
+	{
+		PyErr_Format(
+		 PyExc_MemoryError,
+		 "%s: unable to create segments object.",
+		 function );
+
+		return( NULL );
+	}
+	return( segments_object );
 }
 

@@ -38,11 +38,65 @@
 
 PyMethodDef pyvslvm_physical_volume_object_methods[] = {
 
+	/* Functions to access the physical volume values */
+
+	{ "get_name",
+	  (PyCFunction) pyvslvm_physical_volume_get_name,
+	  METH_NOARGS,
+	  "get_name() -> Unicode string or None\n"
+	  "\n"
+	  "Retrieves the name." },
+
+	{ "get_identifier",
+	  (PyCFunction) pyvslvm_physical_volume_get_identifier,
+	  METH_NOARGS,
+	  "get_identifier() -> Unicode string or None\n"
+	  "\n"
+	  "Retrieves the identifier." },
+
+	{ "get_device_path",
+	  (PyCFunction) pyvslvm_physical_volume_get_device_path,
+	  METH_NOARGS,
+	  "get_device_path() -> Unicode string or None\n"
+	  "\n"
+	  "Retrieves the device path." },
+
+	{ "get_size",
+	  (PyCFunction) pyvslvm_physical_volume_get_size,
+	  METH_NOARGS,
+	  "get_size() -> Integer\n"
+	  "\n"
+	  "Retrieves the size of the volume." },
+
 	/* Sentinel */
 	{ NULL, NULL, 0, NULL }
 };
 
 PyGetSetDef pyvslvm_physical_volume_object_get_set_definitions[] = {
+
+	{ "name",
+	  (getter) pyvslvm_physical_volume_get_name,
+	  (setter) 0,
+	  "The name.",
+	  NULL },
+
+	{ "identifier",
+	  (getter) pyvslvm_physical_volume_get_identifier,
+	  (setter) 0,
+	  "The identifier.",
+	  NULL },
+
+	{ "device_path",
+	  (getter) pyvslvm_physical_volume_get_device_path,
+	  (setter) 0,
+	  "The device path.",
+	  NULL },
+
+	{ "size",
+	  (getter) pyvslvm_physical_volume_get_size,
+	  (setter) 0,
+	  "The volume size.",
+	  NULL },
 
 	/* Sentinel */
 	{ NULL, NULL, NULL, NULL, NULL }
@@ -294,5 +348,399 @@ void pyvslvm_physical_volume_free(
 	}
 	ob_type->tp_free(
 	 (PyObject*) pyvslvm_physical_volume );
+}
+
+/* Retrieves the name
+ * Returns a Python object if successful or NULL on error
+ */
+PyObject *pyvslvm_physical_volume_get_name(
+           pyvslvm_physical_volume_t *pyvslvm_physical_volume,
+           PyObject *arguments PYVSLVM_ATTRIBUTE_UNUSED )
+{
+	libcerror_error_t *error = NULL;
+	PyObject *string_object  = NULL;
+	char *name               = NULL;
+	const char *errors       = NULL;
+	static char *function    = "pyvslvm_physical_volume_get_name";
+	size_t name_size         = 0;
+	int result               = 0;
+
+	PYVSLVM_UNREFERENCED_PARAMETER( arguments )
+
+	if( pyvslvm_physical_volume == NULL )
+	{
+		PyErr_Format(
+		 PyExc_TypeError,
+		 "%s: invalid physical volume.",
+		 function );
+
+		return( NULL );
+	}
+	Py_BEGIN_ALLOW_THREADS
+
+	result = libvslvm_physical_volume_get_name_size(
+	          pyvslvm_physical_volume->physical_volume,
+	          &name_size,
+	          &error );
+
+	Py_END_ALLOW_THREADS
+
+	if( result == -1 )
+	{
+		pyvslvm_error_raise(
+		 error,
+		 PyExc_IOError,
+		 "%s: unable to retrieve name size.",
+		 function );
+
+		libcerror_error_free(
+		 &error );
+
+		goto on_error;
+	}
+	else if( ( result == 0 )
+	      || ( name_size == 0 ) )
+	{
+		Py_IncRef(
+		 Py_None );
+
+		return( Py_None );
+	}
+	name = (char *) PyMem_Malloc(
+	                 sizeof( char ) * name_size );
+
+	if( name == NULL )
+	{
+		PyErr_Format(
+		 PyExc_IOError,
+		 "%s: unable to create name.",
+		 function );
+
+		goto on_error;
+	}
+	Py_BEGIN_ALLOW_THREADS
+
+	result = libvslvm_physical_volume_get_name(
+		  pyvslvm_physical_volume->physical_volume,
+		  name,
+		  name_size,
+		  &error );
+
+	Py_END_ALLOW_THREADS
+
+	if( result != 1 )
+	{
+		pyvslvm_error_raise(
+		 error,
+		 PyExc_IOError,
+		 "%s: unable to retrieve name.",
+		 function );
+
+		libcerror_error_free(
+		 &error );
+
+		goto on_error;
+	}
+	/* Pass the string length to PyUnicode_DecodeUTF8
+	 * otherwise it makes the end of string character is part
+	 * of the string
+	 */
+	string_object = PyUnicode_DecodeUTF8(
+			 name,
+			 (Py_ssize_t) name_size - 1,
+			 errors );
+
+	PyMem_Free(
+	 name );
+
+	return( string_object );
+
+on_error:
+	if( name != NULL )
+	{
+		PyMem_Free(
+		 name );
+	}
+	return( NULL );
+}
+
+/* Retrieves the identifier
+ * Returns a Python object if successful or NULL on error
+ */
+PyObject *pyvslvm_physical_volume_get_identifier(
+           pyvslvm_physical_volume_t *pyvslvm_physical_volume,
+           PyObject *arguments PYVSLVM_ATTRIBUTE_UNUSED )
+{
+	libcerror_error_t *error = NULL;
+	PyObject *string_object  = NULL;
+	char *identifier         = NULL;
+	const char *errors       = NULL;
+	static char *function    = "pyvslvm_physical_volume_get_identifier";
+	size_t identifier_size   = 0;
+	int result               = 0;
+
+	PYVSLVM_UNREFERENCED_PARAMETER( arguments )
+
+	if( pyvslvm_physical_volume == NULL )
+	{
+		PyErr_Format(
+		 PyExc_TypeError,
+		 "%s: invalid physical volume.",
+		 function );
+
+		return( NULL );
+	}
+	Py_BEGIN_ALLOW_THREADS
+
+	result = libvslvm_physical_volume_get_identifier_size(
+	          pyvslvm_physical_volume->physical_volume,
+	          &identifier_size,
+	          &error );
+
+	Py_END_ALLOW_THREADS
+
+	if( result == -1 )
+	{
+		pyvslvm_error_raise(
+		 error,
+		 PyExc_IOError,
+		 "%s: unable to retrieve identifier size.",
+		 function );
+
+		libcerror_error_free(
+		 &error );
+
+		goto on_error;
+	}
+	else if( ( result == 0 )
+	      || ( identifier_size == 0 ) )
+	{
+		Py_IncRef(
+		 Py_None );
+
+		return( Py_None );
+	}
+	identifier = (char *) PyMem_Malloc(
+	                       sizeof( char ) * identifier_size );
+
+	if( identifier == NULL )
+	{
+		PyErr_Format(
+		 PyExc_IOError,
+		 "%s: unable to create identifier.",
+		 function );
+
+		goto on_error;
+	}
+	Py_BEGIN_ALLOW_THREADS
+
+	result = libvslvm_physical_volume_get_identifier(
+		  pyvslvm_physical_volume->physical_volume,
+		  identifier,
+		  identifier_size,
+		  &error );
+
+	Py_END_ALLOW_THREADS
+
+	if( result != 1 )
+	{
+		pyvslvm_error_raise(
+		 error,
+		 PyExc_IOError,
+		 "%s: unable to retrieve identifier.",
+		 function );
+
+		libcerror_error_free(
+		 &error );
+
+		goto on_error;
+	}
+	/* Pass the string length to PyUnicode_DecodeUTF8
+	 * otherwise it makes the end of string character is part
+	 * of the string
+	 */
+	string_object = PyUnicode_DecodeUTF8(
+			 identifier,
+			 (Py_ssize_t) identifier_size - 1,
+			 errors );
+
+	PyMem_Free(
+	 identifier );
+
+	return( string_object );
+
+on_error:
+	if( identifier != NULL )
+	{
+		PyMem_Free(
+		 identifier );
+	}
+	return( NULL );
+}
+
+/* Retrieves the device path
+ * Returns a Python object if successful or NULL on error
+ */
+PyObject *pyvslvm_physical_volume_get_device_path(
+           pyvslvm_physical_volume_t *pyvslvm_physical_volume,
+           PyObject *arguments PYVSLVM_ATTRIBUTE_UNUSED )
+{
+	libcerror_error_t *error = NULL;
+	PyObject *string_object  = NULL;
+	char *device_path        = NULL;
+	const char *errors       = NULL;
+	static char *function    = "pyvslvm_physical_volume_get_device_path";
+	size_t device_path_size  = 0;
+	int result               = 0;
+
+	PYVSLVM_UNREFERENCED_PARAMETER( arguments )
+
+	if( pyvslvm_physical_volume == NULL )
+	{
+		PyErr_Format(
+		 PyExc_TypeError,
+		 "%s: invalid physical volume.",
+		 function );
+
+		return( NULL );
+	}
+	Py_BEGIN_ALLOW_THREADS
+
+	result = libvslvm_physical_volume_get_device_path_size(
+	          pyvslvm_physical_volume->physical_volume,
+	          &device_path_size,
+	          &error );
+
+	Py_END_ALLOW_THREADS
+
+	if( result == -1 )
+	{
+		pyvslvm_error_raise(
+		 error,
+		 PyExc_IOError,
+		 "%s: unable to retrieve device path size.",
+		 function );
+
+		libcerror_error_free(
+		 &error );
+
+		goto on_error;
+	}
+	else if( ( result == 0 )
+	      || ( device_path_size == 0 ) )
+	{
+		Py_IncRef(
+		 Py_None );
+
+		return( Py_None );
+	}
+	device_path = (char *) PyMem_Malloc(
+	                        sizeof( char ) * device_path_size );
+
+	if( device_path == NULL )
+	{
+		PyErr_Format(
+		 PyExc_IOError,
+		 "%s: unable to create device path.",
+		 function );
+
+		goto on_error;
+	}
+	Py_BEGIN_ALLOW_THREADS
+
+	result = libvslvm_physical_volume_get_device_path(
+		  pyvslvm_physical_volume->physical_volume,
+		  device_path,
+		  device_path_size,
+		  &error );
+
+	Py_END_ALLOW_THREADS
+
+	if( result != 1 )
+	{
+		pyvslvm_error_raise(
+		 error,
+		 PyExc_IOError,
+		 "%s: unable to retrieve device path.",
+		 function );
+
+		libcerror_error_free(
+		 &error );
+
+		goto on_error;
+	}
+	/* Pass the string length to PyUnicode_DecodeUTF8
+	 * otherwise it makes the end of string character is part
+	 * of the string
+	 */
+	string_object = PyUnicode_DecodeUTF8(
+			 device_path,
+			 (Py_ssize_t) device_path_size - 1,
+			 errors );
+
+	PyMem_Free(
+	 device_path );
+
+	return( string_object );
+
+on_error:
+	if( device_path != NULL )
+	{
+		PyMem_Free(
+		 device_path );
+	}
+	return( NULL );
+}
+
+/* Retrieves the size
+ * Returns a Python object if successful or NULL on error
+ */
+PyObject *pyvslvm_physical_volume_get_size(
+           pyvslvm_physical_volume_t *pyvslvm_physical_volume,
+           PyObject *arguments PYVSLVM_ATTRIBUTE_UNUSED )
+{
+	libcerror_error_t *error = NULL;
+	PyObject *integer_object = NULL;
+	static char *function    = "pyvslvm_physical_volume_get_size";
+	size64_t size            = 0;
+	int result               = 0;
+
+	PYVSLVM_UNREFERENCED_PARAMETER( arguments )
+
+	if( pyvslvm_physical_volume == NULL )
+	{
+		PyErr_Format(
+		 PyExc_TypeError,
+		 "%s: invalid physical volume.",
+		 function );
+
+		return( NULL );
+	}
+	Py_BEGIN_ALLOW_THREADS
+
+	result = libvslvm_physical_volume_get_size(
+	          pyvslvm_physical_volume->physical_volume,
+	          &size,
+	          &error );
+
+	Py_END_ALLOW_THREADS
+
+	if( result != 1 )
+	{
+		pyvslvm_error_raise(
+		 error,
+		 PyExc_IOError,
+		 "%s: failed to retrieve size.",
+		 function );
+
+		libcerror_error_free(
+		 &error );
+
+		return( NULL );
+	}
+	integer_object = pyvslvm_integer_unsigned_new_from_64bit(
+	                  (uint64_t) size );
+
+	return( integer_object );
 }
 

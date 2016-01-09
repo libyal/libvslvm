@@ -202,6 +202,30 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\pyvslvm\pyvslvm_physical_volume.c"
+				>
+			</File>
+			<File
+				RelativePath="..\..\pyvslvm\pyvslvm_physical_volumes.c"
+				>
+			</File>
+			<File
+				RelativePath="..\..\pyvslvm\pyvslvm_segment.c"
+				>
+			</File>
+			<File
+				RelativePath="..\..\pyvslvm\pyvslvm_segments.c"
+				>
+			</File>
+			<File
+				RelativePath="..\..\pyvslvm\pyvslvm_stripe.c"
+				>
+			</File>
+			<File
+				RelativePath="..\..\pyvslvm\pyvslvm_stripes.c"
+				>
+			</File>
+			<File
 				RelativePath="..\..\pyvslvm\pyvslvm_volume_group.c"
 				>
 			</File>
@@ -264,7 +288,31 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\pyvslvm\pyvslvm_physical_volume.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\pyvslvm\pyvslvm_physical_volumes.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\pyvslvm\pyvslvm_python.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\pyvslvm\pyvslvm_segment.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\pyvslvm\pyvslvm_segments.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\pyvslvm\pyvslvm_stripe.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\pyvslvm\pyvslvm_stripes.h"
 				>
 			</File>
 			<File

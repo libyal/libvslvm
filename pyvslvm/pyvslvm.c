@@ -38,6 +38,10 @@
 #include "pyvslvm_physical_volume.h"
 #include "pyvslvm_physical_volumes.h"
 #include "pyvslvm_python.h"
+#include "pyvslvm_segment.h"
+#include "pyvslvm_segments.h"
+#include "pyvslvm_stripe.h"
+#include "pyvslvm_stripes.h"
 #include "pyvslvm_unused.h"
 #include "pyvslvm_volume_group.h"
 
@@ -453,6 +457,10 @@ PyMODINIT_FUNC initpyvslvm(
 	PyTypeObject *logical_volumes_type_object  = NULL;
 	PyTypeObject *physical_volume_type_object  = NULL;
 	PyTypeObject *physical_volumes_type_object = NULL;
+	PyTypeObject *segment_type_object          = NULL;
+	PyTypeObject *segments_type_object         = NULL;
+	PyTypeObject *stripe_type_object           = NULL;
+	PyTypeObject *stripes_type_object          = NULL;
 	PyTypeObject *volume_group_type_object     = NULL;
 	PyGILState_STATE gil_state                 = 0;
 
@@ -546,6 +554,44 @@ PyMODINIT_FUNC initpyvslvm(
 	 "physical_volume",
 	 (PyObject *) physical_volume_type_object );
 
+	/* Setup the segment type object
+	 */
+	pyvslvm_segment_type_object.tp_new = PyType_GenericNew;
+
+	if( PyType_Ready(
+	     &pyvslvm_segment_type_object ) < 0 )
+	{
+		goto on_error;
+	}
+	Py_IncRef(
+	 (PyObject * ) &pyvslvm_segment_type_object );
+
+	segment_type_object = &pyvslvm_segment_type_object;
+
+	PyModule_AddObject(
+	 module,
+	 "segment",
+	 (PyObject *) segment_type_object );
+
+	/* Setup the stripe type object
+	 */
+	pyvslvm_stripe_type_object.tp_new = PyType_GenericNew;
+
+	if( PyType_Ready(
+	     &pyvslvm_stripe_type_object ) < 0 )
+	{
+		goto on_error;
+	}
+	Py_IncRef(
+	 (PyObject * ) &pyvslvm_stripe_type_object );
+
+	stripe_type_object = &pyvslvm_stripe_type_object;
+
+	PyModule_AddObject(
+	 module,
+	 "stripe",
+	 (PyObject *) stripe_type_object );
+
 	/* Setup the volume group type object
 	 */
 	pyvslvm_volume_group_type_object.tp_new = PyType_GenericNew;
@@ -602,6 +648,44 @@ PyMODINIT_FUNC initpyvslvm(
 	 module,
 	 "_physical_volumes",
 	 (PyObject *) physical_volumes_type_object );
+
+	/* Setup the segments type object
+	 */
+	pyvslvm_segments_type_object.tp_new = PyType_GenericNew;
+
+	if( PyType_Ready(
+	     &pyvslvm_segments_type_object ) < 0 )
+	{
+		goto on_error;
+	}
+	Py_IncRef(
+	 (PyObject *) &pyvslvm_segments_type_object );
+
+	segments_type_object = &pyvslvm_segments_type_object;
+
+	PyModule_AddObject(
+	 module,
+	 "_segments",
+	 (PyObject *) segments_type_object );
+
+	/* Setup the stripes type object
+	 */
+	pyvslvm_stripes_type_object.tp_new = PyType_GenericNew;
+
+	if( PyType_Ready(
+	     &pyvslvm_stripes_type_object ) < 0 )
+	{
+		goto on_error;
+	}
+	Py_IncRef(
+	 (PyObject *) &pyvslvm_stripes_type_object );
+
+	stripes_type_object = &pyvslvm_stripes_type_object;
+
+	PyModule_AddObject(
+	 module,
+	 "_stripes",
+	 (PyObject *) stripes_type_object );
 
 	PyGILState_Release(
 	 gil_state );
