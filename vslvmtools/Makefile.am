@@ -25,6 +25,7 @@ vslvminfo_SOURCES = \
 	byte_size_string.c byte_size_string.h \
 	vslvminfo.c \
 	vslvmoutput.c vslvmoutput.h \
+	vslvmtools_libbfio.h \
 	vslvmtools_libcerror.h \
 	vslvmtools_libclocale.h \
 	vslvmtools_libcnotify.h \
@@ -36,7 +37,12 @@ vslvminfo_SOURCES = \
 
 vslvminfo_LDADD = \
 	@LIBCSYSTEM_LIBADD@ \
+	@LIBBFIO_LIBADD@ \
+	@LIBCPATH_LIBADD@ \
+	@LIBCFILE_LIBADD@ \
 	@LIBUNA_LIBADD@ \
+	@LIBCSPLIT_LIBADD@ \
+	@LIBCDATA_LIBADD@ \
 	../libvslvm/libvslvm.la \
 	@LIBCNOTIFY_LIBADD@ \
 	@LIBCLOCALE_LIBADD@ \

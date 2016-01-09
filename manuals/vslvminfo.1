@@ -1,0 +1,86 @@
+.Dd January 9, 2016
+.Dt vslvminfo
+.Os libvslvm
+.Sh NAME
+.Nm vslvminfo
+.Nd determines information about a Linux Logical Volume Manager (LVM) volume system
+.Sh SYNOPSIS
+.Nm vslvminfo
+.Op Fl o Ar offset
+.Op Fl hvV
+.Va Ar source
+.Sh DESCRIPTION
+.Nm vslvminfo
+is a utility to determine information about a Linux Logical Volume Manager (LVM) volume system
+.Pp
+.Nm vslvminfo
+is part of the
+.Nm libvslvm
+package.
+.Nm libvslvm
+is a library to access the Linux Logical Volume Manager (LVM) volume system format
+.Pp
+.Ar source
+is the source file.
+.Pp
+The options are as follows:
+.Bl -tag -width Ds
+.It Fl h
+shows this help
+.It Fl o Ar offset
+specify the volume offset in bytes
+.It Fl v
+verbose output to stderr
+.It Fl V
+print version
+.El
+.Sh ENVIRONMENT
+None
+.Sh FILES
+None
+.Sh EXAMPLES
+.Bd -literal
+# vslvminfo /dev/sda1
+vslvminfo 20160109
+
+Linux Logical Volume Manager (LVM) information:
+Volume Group (VG):
+	Name:					vg_test
+	Identifier:				5eR8zl-q5VX-Qtiw-FmDd-6yBE-I8qe-0sjQf9
+	Sequence number:			4
+	Extent size:				4194304 bytes
+	Number of physical volumes:		1
+	Number of logical volumes:		1
+
+Physical Volume (PV): 1
+	Name:					pv0
+	Identifier:				2TdWwb-R5um-UZnU-3Yb6-K2MF-bTtr-AgVQfp
+	Device path:				/dev/loop1
+	Volume size:				268435456 bytes
+
+Logical Volume (LV): 1
+	Name:					lv_test1
+	Identifier:				Lt5rVq-Ksgd-p8kx-XYP4-6uTq-Mlh4-yxOiL4
+	Number of segments:			1
+	Segment: 1
+		Offset:				0x00000000 (0)
+		Size:				76 MiB (79691776 bytes)
+		Number of stripes:		1
+		Stripe: 1
+			Physical volume:	pv0
+			Data area offset:	0x00000000 (0)
+
+.Ed
+.Sh DIAGNOSTICS
+Errors, verbose and debug output are printed to stderr when verbose output \-v is enabled.
+Verbose and debug output are only printed when enabled at compilation.
+.Sh BUGS
+Please report bugs of any kind to <joachim.metz@gmail.com> or on the project website:
+https://github.com/libyal/libvslvm/
+.Sh AUTHOR
+These man pages were written by Joachim Metz.
+.Sh COPYRIGHT
+Copyright (C) 2014-2016, Joachim Metz <joachim.metz@gmail.com>.
+This is free software; see the source for copying conditions. There is NO warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+.Sh SEE ALSO
+.Xr bdemount 1

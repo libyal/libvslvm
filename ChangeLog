@@ -2,6 +2,7 @@ TODO
 * pyvslvm
   - complete segment object methods
   - complete stripe object methods
+  - complete volume group object methods
 * finish:
   - libvslvm_internal_logical_volume_read_buffer_from_file_io_handle
   - make sure to set the right offset in internal_logical_volume->chunks_vector 

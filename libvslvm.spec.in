@@ -85,6 +85,7 @@ rm -rf %{buildroot}
 %defattr(644,root,root,755)
 %doc AUTHORS COPYING NEWS README
 %attr(755,root,root) %{_bindir}/vslvminfo
+%attr(755,root,root) %{_bindir}/vslvmmount
 %{_mandir}/man1/*
 
 %files python
