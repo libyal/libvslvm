@@ -61,12 +61,12 @@ extern PyTypeObject pyvslvm_handle_type_object;
 PyObject *pyvslvm_handle_new(
            void );
 
-PyObject *pyvslvmhandle_new_open(
+PyObject *pyvslvm_handle_new_open(
            PyObject *self,
            PyObject *arguments,
            PyObject *keywords );
 
-PyObject *pyvslvmhandle_new_open_file_object(
+PyObject *pyvslvm_handle_new_open_file_object(
            PyObject *self,
            PyObject *arguments,
            PyObject *keywords );
@@ -102,6 +102,10 @@ PyObject *pyvslvm_handle_open_physical_volume_files_as_file_objects(
            PyObject *keywords );
 
 PyObject *pyvslvm_handle_close(
+           pyvslvm_handle_t *pyvslvm_handle,
+           PyObject *arguments );
+
+PyObject *pyvslvm_handle_get_volume_group(
            pyvslvm_handle_t *pyvslvm_handle,
            PyObject *arguments );
 

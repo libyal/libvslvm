@@ -37,6 +37,7 @@
 #include "pyvslvm_libvslvm.h"
 #include "pyvslvm_python.h"
 #include "pyvslvm_unused.h"
+#include "pyvslvm_volume_group.h"
 
 #if !defined( LIBVSLVM_HAVE_BFIO )
 
@@ -100,6 +101,15 @@ PyMethodDef pyvslvm_handle_object_methods[] = {
 	  "close() -> None\n"
 	  "\n"
 	  "Closes a handle." },
+
+	/* Functions to access the volume group */
+
+	{ "get_volume_group",
+	  (PyCFunction) pyvslvm_handle_get_volume_group,
+	  METH_NOARGS,
+	  "get_volume_group() -> Object\n"
+	  "\n"
+	  "Retrieves the volume group." },
 
 	/* Sentinel */
 	{ NULL, NULL, 0, NULL }
@@ -1282,5 +1292,76 @@ PyObject *pyvslvm_handle_close(
 	 Py_None );
 
 	return( Py_None );
+}
+
+/* Retrieves the volume group
+ * Returns a Python object if successful or NULL on error
+ */
+PyObject *pyvslvm_handle_get_volume_group(
+           pyvslvm_handle_t *pyvslvm_handle,
+           PyObject *arguments PYVSLVM_ATTRIBUTE_UNUSED )
+{
+	libcerror_error_t *error              = NULL;
+	libvslvm_volume_group_t *volume_group = NULL;
+	PyObject *volume_group_object         = NULL;
+	static char *function                 = "pyvslvm_handle_get_volume_group";
+	int result                            = 0;
+
+	PYVSLVM_UNREFERENCED_PARAMETER( arguments )
+
+	if( pyvslvm_handle == NULL )
+	{
+		PyErr_Format(
+		 PyExc_TypeError,
+		 "%s: invalid handle.",
+		 function );
+
+		return( NULL );
+	}
+	Py_BEGIN_ALLOW_THREADS
+
+	result = libvslvm_handle_get_volume_group(
+	          pyvslvm_handle->handle,
+	          &volume_group,
+	          &error );
+
+	Py_END_ALLOW_THREADS
+
+	if( result != 1 )
+	{
+		pyvslvm_error_raise(
+		 error,
+		 PyExc_IOError,
+		 "%s: unable to retrieve volume group.",
+		 function );
+
+		libcerror_error_free(
+		 &error );
+
+		goto on_error;
+	}
+	volume_group_object = pyvslvm_volume_group_new(
+	                       volume_group,
+	                       pyvslvm_handle );
+
+	if( volume_group_object == NULL )
+	{
+		PyErr_Format(
+		 PyExc_MemoryError,
+		 "%s: unable to create volume group object.",
+		 function );
+
+		goto on_error;
+	}
+	return( volume_group_object );
+
+on_error:
+	if( volume_group != NULL )
+	{
+		libvslvm_volume_group_free(
+		 &volume_group,
+		 NULL );
+	}
+	return( NULL );
 }
 

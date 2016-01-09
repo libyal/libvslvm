@@ -33,15 +33,22 @@
 #include "pyvslvm_libcerror.h"
 #include "pyvslvm_libcstring.h"
 #include "pyvslvm_libvslvm.h"
+#include "pyvslvm_logical_volume.h"
+#include "pyvslvm_logical_volumes.h"
+#include "pyvslvm_physical_volume.h"
+#include "pyvslvm_physical_volumes.h"
 #include "pyvslvm_python.h"
 #include "pyvslvm_unused.h"
+#include "pyvslvm_volume_group.h"
 
 #if !defined( LIBVSLVM_HAVE_BFIO )
+
 LIBVSLVM_EXTERN \
 int libvslvm_check_volume_signature_file_io_handle(
      libbfio_handle_t *file_io_handle,
      libvslvm_error_t **error );
-#endif
+
+#endif /* !defined( LIBVSLVM_HAVE_BFIO ) */
 
 /* The pyvslvm module methods
  */
@@ -440,9 +447,14 @@ PyMODINIT_FUNC initpyvslvm(
                 void )
 #endif
 {
-	PyObject *module                 = NULL;
-	PyTypeObject *handle_type_object = NULL;
-	PyGILState_STATE gil_state       = 0;
+	PyObject *module                           = NULL;
+	PyTypeObject *handle_type_object           = NULL;
+	PyTypeObject *logical_volume_type_object   = NULL;
+	PyTypeObject *logical_volumes_type_object  = NULL;
+	PyTypeObject *physical_volume_type_object  = NULL;
+	PyTypeObject *physical_volumes_type_object = NULL;
+	PyTypeObject *volume_group_type_object     = NULL;
+	PyGILState_STATE gil_state                 = 0;
 
 #if defined( HAVE_DEBUG_OUTPUT )
 	libvslvm_notify_set_stream(
@@ -495,6 +507,101 @@ PyMODINIT_FUNC initpyvslvm(
 	 module,
 	 "handle",
 	 (PyObject *) handle_type_object );
+
+	/* Setup the logical volume type object
+	 */
+	pyvslvm_logical_volume_type_object.tp_new = PyType_GenericNew;
+
+	if( PyType_Ready(
+	     &pyvslvm_logical_volume_type_object ) < 0 )
+	{
+		goto on_error;
+	}
+	Py_IncRef(
+	 (PyObject * ) &pyvslvm_logical_volume_type_object );
+
+	logical_volume_type_object = &pyvslvm_logical_volume_type_object;
+
+	PyModule_AddObject(
+	 module,
+	 "logical_volume",
+	 (PyObject *) logical_volume_type_object );
+
+	/* Setup the physical volume type object
+	 */
+	pyvslvm_physical_volume_type_object.tp_new = PyType_GenericNew;
+
+	if( PyType_Ready(
+	     &pyvslvm_physical_volume_type_object ) < 0 )
+	{
+		goto on_error;
+	}
+	Py_IncRef(
+	 (PyObject * ) &pyvslvm_physical_volume_type_object );
+
+	physical_volume_type_object = &pyvslvm_physical_volume_type_object;
+
+	PyModule_AddObject(
+	 module,
+	 "physical_volume",
+	 (PyObject *) physical_volume_type_object );
+
+	/* Setup the volume group type object
+	 */
+	pyvslvm_volume_group_type_object.tp_new = PyType_GenericNew;
+
+	if( PyType_Ready(
+	     &pyvslvm_volume_group_type_object ) < 0 )
+	{
+		goto on_error;
+	}
+	Py_IncRef(
+	 (PyObject * ) &pyvslvm_volume_group_type_object );
+
+	volume_group_type_object = &pyvslvm_volume_group_type_object;
+
+	PyModule_AddObject(
+	 module,
+	 "volume_group",
+	 (PyObject *) volume_group_type_object );
+
+	/* Setup the logical volumes type object
+	 */
+	pyvslvm_logical_volumes_type_object.tp_new = PyType_GenericNew;
+
+	if( PyType_Ready(
+	     &pyvslvm_logical_volumes_type_object ) < 0 )
+	{
+		goto on_error;
+	}
+	Py_IncRef(
+	 (PyObject *) &pyvslvm_logical_volumes_type_object );
+
+	logical_volumes_type_object = &pyvslvm_logical_volumes_type_object;
+
+	PyModule_AddObject(
+	 module,
+	 "_logical_volumes",
+	 (PyObject *) logical_volumes_type_object );
+
+	/* Setup the physical volumes type object
+	 */
+	pyvslvm_physical_volumes_type_object.tp_new = PyType_GenericNew;
+
+	if( PyType_Ready(
+	     &pyvslvm_physical_volumes_type_object ) < 0 )
+	{
+		goto on_error;
+	}
+	Py_IncRef(
+	 (PyObject *) &pyvslvm_physical_volumes_type_object );
+
+	physical_volumes_type_object = &pyvslvm_physical_volumes_type_object;
+
+	PyModule_AddObject(
+	 module,
+	 "_physical_volumes",
+	 (PyObject *) physical_volumes_type_object );
 
 	PyGILState_Release(
 	 gil_state );

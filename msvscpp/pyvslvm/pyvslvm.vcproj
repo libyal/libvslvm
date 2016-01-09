@@ -193,6 +193,18 @@
 				RelativePath="..\..\pyvslvm\pyvslvm_integer.c"
 				>
 			</File>
+			<File
+				RelativePath="..\..\pyvslvm\pyvslvm_logical_volume.c"
+				>
+			</File>
+			<File
+				RelativePath="..\..\pyvslvm\pyvslvm_logical_volumes.c"
+				>
+			</File>
+			<File
+				RelativePath="..\..\pyvslvm\pyvslvm_volume_group.c"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -244,11 +256,23 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\pyvslvm\pyvslvm_logical_volume.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\pyvslvm\pyvslvm_logical_volumes.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\pyvslvm\pyvslvm_python.h"
 				>
 			</File>
 			<File
 				RelativePath="..\..\pyvslvm\pyvslvm_unused.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\pyvslvm\pyvslvm_volume_group.h"
 				>
 			</File>
 		</Filter>
