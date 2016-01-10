@@ -85,7 +85,7 @@ An Physical volume consist of:
 |===
 | Characteristics | Description
 | Byte order | little-endian
-| Date and time values |
+| Date and time values | POSIX timestamp in local timezone and/or ctime date and time string
 | Character strings | ASCII string with an end-of-string character
 |===
 
@@ -525,11 +525,13 @@ http://www.tldp.org/HOWTO/LVM-HOWTO/mapmode.html
 http://www.tldp.org/HOWTO/LVM-HOWTO/snapshotintro.html
 
 === Metadata
+....
 1 sector: metadata area header – pointer to metadata 
 circular buffer, text format (at least 2 versions of metadata) 
 atomic update – 1) write new version 2) update pointer 
 SEQNO – sequential number 
 checksum, redundancy, autorepair
+....
 
 === Metadata sample
 ....
