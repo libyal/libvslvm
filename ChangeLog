@@ -8,16 +8,17 @@ TODO
   - make sure to set the right offset in internal_logical_volume->chunks_vector 
 
 Library:
+* add support to specify metadata in external configuration file
+* implement multi physical volume files support
+  - map pv names to file IO pool?
+* logical volume
+  - expose creation_host
+  - expose creation_time
+  - implement multi stripe support
 * metadata
   - parse and expose global values
   - make sure metadata is cleaned on close - also if no data files were set!
   - metadata: handle trailing comment in more places?
-* implement read logical volume functionality
-  - stripes fill fdata stream
-* implement multi stripe support
-* implement multi physical volume files support
-  - map pv names to file IO pool?
-* add support to specify metadata in external configuration file
 * API
   - allow for multiple input images (physical volumes)
   - allow open to read a text file with the metadata
@@ -35,6 +36,9 @@ Tests:
 
 Deployment:
 * update manuals
+
+20160110
+* Changelog cleanup
 
 20160109
 * worked on Python bindings
