@@ -321,8 +321,9 @@ int pyvslvm_handle_init(
 
 		return( -1 );
 	}
-	pyvslvm_handle->handle       = NULL;
-	pyvslvm_handle->file_io_pool = NULL;
+	pyvslvm_handle->handle         = NULL;
+	pyvslvm_handle->file_io_handle = NULL;
+	pyvslvm_handle->file_io_pool   = NULL;
 
 	if( libvslvm_handle_initialize(
 	     &( pyvslvm_handle->handle ),
@@ -1263,6 +1264,30 @@ PyObject *pyvslvm_handle_close(
 		 &error );
 
 		return( NULL );
+	}
+	if( pyvslvm_handle->file_io_handle != NULL )
+	{
+		Py_BEGIN_ALLOW_THREADS
+
+		result = libbfio_handle_free(
+		          &( pyvslvm_handle->file_io_handle ),
+		          &error );
+
+		Py_END_ALLOW_THREADS
+
+		if( result != 1 )
+		{
+			pyvslvm_error_raise(
+			 error,
+			 PyExc_IOError,
+			 "%s: unable to free libbfio file IO handle.",
+			 function );
+
+			libcerror_error_free(
+			 &error );
+
+			return( NULL );
+		}
 	}
 	if( pyvslvm_handle->file_io_pool != NULL )
 	{
