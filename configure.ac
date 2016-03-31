@@ -2,7 +2,7 @@ AC_PREREQ( 2.59 )
 
 AC_INIT(
  [libvslvm],
- [20160110],
+ [20160331],
  [joachim.metz@gmail.com])
 
 AC_CONFIG_SRCDIR(
@@ -219,8 +219,8 @@ AC_CONFIG_FILES([libvslvm/Makefile])
 AC_CONFIG_FILES([libcsystem/Makefile])
 AC_CONFIG_FILES([vslvmtools/Makefile])
 AC_CONFIG_FILES([pyvslvm/Makefile])
-AC_CONFIG_FILES([pyvslvm2/Makefile])
-AC_CONFIG_FILES([pyvslvm3/Makefile])
+AC_CONFIG_FILES([python2-pyvslvm/Makefile])
+AC_CONFIG_FILES([python3-pyvslvm/Makefile])
 AC_CONFIG_FILES([po/Makefile.in])
 AC_CONFIG_FILES([po/Makevars])
 AC_CONFIG_FILES([manuals/Makefile])
