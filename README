@@ -5,6 +5,13 @@ Project information:
 * Status: experimental
 * Licence: LGPLv3+
 
+Currently unsupported:
+
+* multiple physical volumes
+* multiple segments
+* non-linear stripes
+* snapshots
+
 For more information see:
 
 * Project documentation: https://github.com/libyal/libvslvm/wiki/Home
