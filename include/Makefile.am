@@ -1,13 +1,13 @@
 include_HEADERS = \
-        libvslvm.h
+	libvslvm.h
 
 pkginclude_HEADERS = \
-        libvslvm/codepage.h \
-        libvslvm/definitions.h \
-        libvslvm/error.h \
-        libvslvm/extern.h \
-        libvslvm/features.h \
-        libvslvm/types.h
+	libvslvm/codepage.h \
+	libvslvm/definitions.h \
+	libvslvm/error.h \
+	libvslvm/extern.h \
+	libvslvm/features.h \
+	libvslvm/types.h
 
 EXTRA_DIST = \
 	libvslvm.h.in \

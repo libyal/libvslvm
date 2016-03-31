@@ -1,4 +1,7 @@
 TODO
+* check signature
+  - check the first 4 sectors
+  - update documentation regarding PV signature
 * pyvslvm
   - complete segment object methods
   - complete stripe object methods

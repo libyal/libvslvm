@@ -491,6 +491,8 @@ int info_handle_volume_group_fprint(
      libvslvm_volume_group_t *volume_group,
      libcerror_error_t **error )
 {
+	libcstring_system_character_t extent_size_string[ 16 ];
+
 	libvslvm_logical_volume_t *logical_volume   = NULL;
 	libvslvm_physical_volume_t *physical_volume = NULL;
 	static char *function                       = "info_handle_volume_group_fprint";
@@ -500,6 +502,7 @@ int info_handle_volume_group_fprint(
 	uint32_t value_32bit                        = 0;
 	int number_of_logical_volumes               = 0;
 	int number_of_physical_volumes              = 0;
+	int result                                  = 0;
 	int volume_index                            = 0;
 
 	if( info_handle == NULL )
@@ -682,11 +685,28 @@ int info_handle_volume_group_fprint(
 
 		goto on_error;
 	}
-	fprintf(
-	 info_handle->notify_stream,
-	 "\tExtent size:\t\t\t\t%" PRIu64 " bytes\n",
-	 extent_size );
+	result = byte_size_string_create(
+	          extent_size_string,
+	          16,
+	          extent_size,
+	          BYTE_SIZE_STRING_UNIT_MEBIBYTE,
+	          NULL );
 
+	if( result == 1 )
+	{
+		fprintf(
+		 info_handle->notify_stream,
+		 "\tExtent size:\t\t\t\t%" PRIs_LIBCSTRING_SYSTEM " (%" PRIu64 " bytes)\n",
+		 extent_size_string,
+		 extent_size );
+	}
+	else
+	{
+		fprintf(
+		 info_handle->notify_stream,
+		 "\tExtent size:\t\t\t\t%" PRIu64 " bytes\n",
+		 extent_size );
+	}
 	if( libvslvm_volume_group_get_number_of_physical_volumes(
 	     volume_group,
 	     &number_of_physical_volumes,
@@ -863,10 +883,13 @@ int info_handle_physical_volume_fprint(
      libvslvm_physical_volume_t *physical_volume,
      libcerror_error_t **error )
 {
+	libcstring_system_character_t volume_size_string[ 16 ];
+
 	static char *function    = "info_handle_physical_volume_fprint";
 	char *value_string       = NULL;
 	size64_t volume_size     = 0;
 	size_t value_string_size = 0;
+	int result               = 0;
 
 	if( info_handle == NULL )
 	{
@@ -1096,11 +1119,28 @@ int info_handle_physical_volume_fprint(
 
 		goto on_error;
 	}
-	fprintf(
-	 info_handle->notify_stream,
-	 "\tVolume size:\t\t\t\t%" PRIu64 " bytes\n",
-	 volume_size );
+	result = byte_size_string_create(
+	          volume_size_string,
+	          16,
+	          volume_size,
+	          BYTE_SIZE_STRING_UNIT_MEBIBYTE,
+	          NULL );
 
+	if( result == 1 )
+	{
+		fprintf(
+		 info_handle->notify_stream,
+		 "\tVolume size:\t\t\t\t%" PRIs_LIBCSTRING_SYSTEM " (%" PRIu64 " bytes)\n",
+		 volume_size_string,
+		 volume_size );
+	}
+	else
+	{
+		fprintf(
+		 info_handle->notify_stream,
+		 "\tVolume size:\t\t\t\t%" PRIu64 " bytes\n",
+		 volume_size );
+	}
 	fprintf(
 	 info_handle->notify_stream,
 	 "\n" );
