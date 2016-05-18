@@ -64,7 +64,7 @@ struct mount_handle
 	 */
 	libcdata_array_t *logical_volumes_array;
 
-	/* The nofication output stream
+	/* The notification output stream
 	 */
 	FILE *notify_stream;
 

@@ -25,6 +25,10 @@
 #include <common.h>
 
 #if defined( HAVE_MULTI_THREAD_SUPPORT ) && !defined( HAVE_LOCAL_LIBVSLVM )
+#define HAVE_LIBVSLVM_MULTI_THREAD_SUPPORT
+#endif
+
+#if defined( HAVE_LIBVSLVM_MULTI_THREAD_SUPPORT )
 
 /* Define HAVE_LOCAL_LIBCTHREADS for local use of libcthreads
  */
@@ -52,9 +56,9 @@
 
 #include <libcthreads.h>
 
-#endif
+#endif /* defined( HAVE_LOCAL_LIBCTHREADS ) */
 
-#endif /* defined( HAVE_MULTI_THREAD_SUPPORT ) && !defined( HAVE_LOCAL_LIBVSLVM ) */
+#endif /* defined( HAVE_LIBVSLVM_MULTI_THREAD_SUPPORT ) */
 
-#endif
+#endif /* !defined( _LIBVSLVM_LIBCTHREADS_H ) */
 

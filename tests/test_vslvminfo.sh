@@ -1,172 +1,62 @@
 #!/bin/bash
+# Info tool testing script
 #
-# vslvminfo tool testing script
-#
-# Copyright (C) 2014-2016, Joachim Metz <joachim.metz@gmail.com>
-#
-# Refer to AUTHORS for acknowledgements.
-#
-# This software is free software: you can redistribute it and/or modify
-# it under the terms of the GNU Lesser General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# This software is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU Lesser General Public License
-# along with this software.  If not, see <http://www.gnu.org/licenses/>.
-#
+# Version: 20160328
 
 EXIT_SUCCESS=0;
 EXIT_FAILURE=1;
 EXIT_IGNORE=77;
 
-list_contains()
-{
-	LIST=$1;
-	SEARCH=$2;
+TEST_PREFIX=`dirname ${PWD}`;
+TEST_PREFIX=`basename ${TEST_PREFIX} | sed 's/^lib\([^-]*\).*$/\1/'`;
+TEST_SUFFIX="info";
 
-	for LINE in $LIST;
-	do
-		if test $LINE = $SEARCH;
-		then
-			return ${EXIT_SUCCESS};
-		fi
-	done
+TEST_PROFILE="${TEST_PREFIX}${TEST_SUFFIX}";
+TEST_DESCRIPTION="${TEST_PREFIX}${TEST_SUFFIX}";
+OPTION_SETS="";
 
-	return ${EXIT_FAILURE};
-}
+TEST_TOOL_DIRECTORY="../${TEST_PREFIX}tools";
+TEST_TOOL="${TEST_PREFIX}${TEST_SUFFIX}";
+INPUT_DIRECTORY="input";
+INPUT_GLOB="*";
 
-test_info()
-{ 
-	DIRNAME=$1;
-	INPUT_FILE=$2;
-	BASENAME=`basename ${INPUT_FILE}`;
-
-	rm -rf tmp;
-	mkdir tmp;
-
-	${TEST_RUNNER} ${VSLVMINFO} ${INPUT_FILE} | sed '1,2d' > tmp/${BASENAME}.log;
-
-	RESULT=$?;
-
-	if test -f "input/.vslvminfo/${DIRNAME}/${BASENAME}.log.gz";
-	then
-		zdiff "input/.vslvminfo/${DIRNAME}/${BASENAME}.log.gz" "tmp/${BASENAME}.log";
-
-		RESULT=$?;
-	else
-		mv "tmp/${BASENAME}.log" "input/.vslvminfo/${DIRNAME}";
-
-		gzip "input/.vslvminfo/${DIRNAME}/${BASENAME}.log";
-	fi
-
-	rm -rf tmp;
-
-	echo -n "Testing vslvminfo of input: ${INPUT_FILE} ";
-
-	if test ${RESULT} -ne ${EXIT_SUCCESS};
-	then
-		echo " (FAIL)";
-	else
-		echo " (PASS)";
-	fi
-	return ${RESULT};
-}
-
-VSLVMINFO="../vslvmtools/vslvminfo";
-
-if ! test -x ${VSLVMINFO};
+if ! test -z ${SKIP_TOOLS_TESTS};
 then
-	VSLVMINFO="../vslvmtools/vslvminfo.exe";
+	exit ${EXIT_IGNORE};
 fi
 
-if ! test -x ${VSLVMINFO};
+TEST_EXECUTABLE="${TEST_TOOL_DIRECTORY}/${TEST_TOOL}";
+
+if ! test -x "${TEST_EXECUTABLE}";
 then
-	echo "Missing executable: ${VSLVMINFO}";
+	TEST_EXECUTABLE="${TEST_TOOL_DIRECTORY}/${TEST_TOOL}.exe";
+fi
+
+if ! test -x "${TEST_EXECUTABLE}";
+then
+	echo "Missing test executable: ${TEST_EXECUTABLE}";
 
 	exit ${EXIT_FAILURE};
 fi
 
 TEST_RUNNER="tests/test_runner.sh";
 
-if ! test -x ${TEST_RUNNER};
+if ! test -f "${TEST_RUNNER}";
 then
 	TEST_RUNNER="./test_runner.sh";
 fi
 
-if ! test -x ${TEST_RUNNER};
+if ! test -f "${TEST_RUNNER}";
 then
 	echo "Missing test runner: ${TEST_RUNNER}";
 
 	exit ${EXIT_FAILURE};
 fi
 
-if ! test -d "input";
-then
-	echo "No input directory found.";
+source ${TEST_RUNNER};
 
-	exit ${EXIT_IGNORE};
-fi
+run_test_on_input_directory "${TEST_PROFILE}" "${TEST_DESCRIPTION}" "with_stdout_reference" "${OPTION_SETS}" "${TEST_EXECUTABLE}" "${INPUT_DIRECTORY}" "${INPUT_GLOB}";
+RESULT=$?;
 
-OLDIFS=${IFS};
-IFS="
-";
-
-RESULT=`ls input/* | tr ' ' '\n' | wc -l`;
-
-if test ${RESULT} -eq 0;
-then
-	echo "No files or directories found in the input directory.";
-
-	EXIT_RESULT=${EXIT_IGNORE};
-else
-	IGNORELIST="";
-
-	if ! test -d "input/.vslvminfo";
-	then
-		mkdir "input/.vslvminfo";
-	fi
-	if test -f "input/.vslvminfo/ignore";
-	then
-		IGNORELIST=`cat input/.vslvminfo/ignore | sed '/^#/d'`;
-	fi
-	for TESTDIR in input/*;
-	do
-		if test -d "${TESTDIR}";
-		then
-			DIRNAME=`basename ${TESTDIR}`;
-
-			if ! list_contains "${IGNORELIST}" "${DIRNAME}";
-			then
-				if ! test -d "input/.vslvminfo/${DIRNAME}";
-				then
-					mkdir "input/.vslvminfo/${DIRNAME}";
-				fi
-				if test -f "input/.vslvminfo/${DIRNAME}/files";
-				then
-					TESTFILES=`cat input/.vslvminfo/${DIRNAME}/files | sed "s?^?${TESTDIR}/?"`;
-				else
-					TESTFILES=`ls ${TESTDIR}/*`;
-				fi
-				for TESTFILE in ${TESTFILES};
-				do
-					if ! test_info "${DIRNAME}" "${TESTFILE}";
-					then
-						exit ${EXIT_FAILURE};
-					fi
-				done
-			fi
-		fi
-	done
-
-	EXIT_RESULT=${EXIT_SUCCESS};
-fi
-
-IFS=${OLDIFS};
-
-exit ${EXIT_RESULT};
+exit ${RESULT};
 

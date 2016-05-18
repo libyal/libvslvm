@@ -52,5 +52,5 @@ int pyvslvm_integer_unsigned_copy_to_64bit(
 }
 #endif
 
-#endif
+#endif /* !defined( _PYVSLVM_INTEGER_H ) */
 

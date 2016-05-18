@@ -23,9 +23,8 @@
 #define _LIBVSLVM_NOTIFY_H
 
 #include <common.h>
+#include <file_stream.h>
 #include <types.h>
-
-#include <stdio.h>
 
 #include "libvslvm_extern.h"
 #include "libvslvm_libcerror.h"
@@ -54,11 +53,11 @@ LIBVSLVM_EXTERN \
 int libvslvm_notify_stream_close(
      libcerror_error_t **error );
 
-#endif
+#endif /* !defined( HAVE_LOCAL_LIBVSLVM ) */
 
 #if defined( __cplusplus )
 }
 #endif
 
-#endif
+#endif /* !defined( _LIBVSLVM_NOTIFY_H ) */
 

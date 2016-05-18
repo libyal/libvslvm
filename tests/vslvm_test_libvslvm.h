@@ -24,14 +24,14 @@
 
 #include <common.h>
 
-/* If Cygwin libtool DLL support is enabled set LIBVSLVM_DLL_IMPORT
- * before including libvslvm.h
+/* If Cygwin libtool DLL support is enabled and do not want to create static
+ * executables set LIBVSLVM_DLL_IMPORT before including libvslvm.h
  */
-#if defined( _WIN32 ) && defined( DLL_EXPORT )
+#if defined( _WIN32 ) && defined( DLL_EXPORT ) && !defined( HAVE_STATIC_EXECUTABLES )
 #define LIBVSLVM_DLL_IMPORT
 #endif
 
 #include <libvslvm.h>
 
-#endif
+#endif /* !defined( _VSLVM_TEST_LIBVSLVM_H ) */
 

@@ -28,7 +28,7 @@
 #include "pyvslvm_libcerror.h"
 #include "pyvslvm_python.h"
 
-#define PYVSLVM_ERROR_STRING_SIZE		2048
+#define PYVSLVM_ERROR_STRING_SIZE	2048
 
 #if defined( __cplusplus )
 extern "C" {
@@ -56,5 +56,5 @@ void pyvslvm_error_raise(
 }
 #endif
 
-#endif
+#endif /* !defined( _PYVSLVM_ERROR_H ) */
 

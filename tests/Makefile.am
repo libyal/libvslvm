@@ -18,26 +18,32 @@ TESTS_PYVSLVM =
 endif
 
 TESTS = \
-	test_open_close.sh \
-	test_seek.sh \
-	test_read.sh \
+	test_api_functions.sh \
 	test_vslvminfo.sh \
 	$(TESTS_PYVSLVM)
 
 check_SCRIPTS = \
-	test_open_close.sh \
 	test_vslvminfo.sh \
-	test_read.sh \
-	test_runner.sh \
-	test_seek.sh
+	test_runner.sh
 
 EXTRA_DIST = \
 	$(check_SCRIPTS)
 
 check_PROGRAMS = \
+	vslvm_test_get_version \
 	vslvm_test_open_close \
 	vslvm_test_read \
 	vslvm_test_seek
+
+vslvm_test_get_version_SOURCES = \
+	vslvm_test_get_version.c \
+	vslvm_test_libcstring.h \
+	vslvm_test_libvslvm.h \
+	vslvm_test_unused.h
+
+vslvm_test_get_version_LDADD = \
+	../libvslvm/libvslvm.la \
+	@LIBCSTRING_LIBADD@
 
 vslvm_test_open_close_SOURCES = \
 	vslvm_test_libcerror.h \

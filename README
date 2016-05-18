@@ -5,7 +5,7 @@ Project information:
 * Status: experimental
 * Licence: LGPLv3+
 
-Currently unsupported:
+Not supported:
 
 * multiple physical volumes
 * multiple segments
