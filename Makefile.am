@@ -21,8 +21,8 @@ SUBDIRS = \
 	libcsystem \
 	vslvmtools \
 	pyvslvm \
-	python2-pyvslvm \
-	python3-pyvslvm \
+	pyvslvm-python2 \
+	pyvslvm-python3 \
 	po \
 	manuals \
 	tests \

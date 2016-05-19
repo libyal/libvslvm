@@ -119,7 +119,7 @@ stamp-h[1-9]
 /include/libvslvm/types.h
 /libvslvm/libvslvm.rc
 /libvslvm/libvslvm_definitions.h
-/python[23]-pyvslvm/*.[ch]
+/pyvslvm-python[23]/*.[ch]
 /vslvmtools/vslvminfo
 /vslvmtools/vslvmmount
 /tests/input

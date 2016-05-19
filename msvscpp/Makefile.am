@@ -16,8 +16,6 @@ MSVSCPP_FILES = \
 	libfvalue/libfvalue.vcproj \
 	libuna/libuna.vcproj \
 	libvslvm/libvslvm.vcproj \
-	python2-pyvslvm/python2-pyvslvm.vcproj \
-	python3-pyvslvm/python3-pyvslvm.vcproj \
 	pyvslvm/pyvslvm.vcproj \
 	vslvm_test_get_version/vslvm_test_get_version.vcproj \
 	vslvm_test_open_close/vslvm_test_open_close.vcproj \
