@@ -2,9 +2,9 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="9,00"
-	Name="vslvm_test_get_version"
-	ProjectGUID="{0FD78CCC-7EAE-4D0D-8282-7EAB0362986B}"
-	RootNamespace="vslvm_test_get_version"
+	Name="vslvm_test_error"
+	ProjectGUID="{BA8E164A-9A0A-44FF-BDA0-DAD6EAB0BF37}"
+	RootNamespace="vslvm_test_error"
 	Keyword="Win32Proj"
 	TargetFrameworkVersion="131072"
 	>
@@ -176,7 +176,7 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
-				RelativePath="..\..\tests\vslvm_test_get_version.c"
+				RelativePath="..\..\tests\vslvm_test_error.c"
 				>
 			</File>
 		</Filter>

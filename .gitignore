@@ -124,6 +124,7 @@ stamp-h[1-9]
 /vslvmtools/vslvmmount
 /tests/input
 /tests/tmp*
+/tests/vslvm_test_error
 /tests/vslvm_test_get_version
 /tests/vslvm_test_open_close
 /tests/vslvm_test_read

@@ -17,6 +17,7 @@ MSVSCPP_FILES = \
 	libuna/libuna.vcproj \
 	libvslvm/libvslvm.vcproj \
 	pyvslvm/pyvslvm.vcproj \
+	vslvm_test_error/vslvm_test_error.vcproj \
 	vslvm_test_get_version/vslvm_test_get_version.vcproj \
 	vslvm_test_open_close/vslvm_test_open_close.vcproj \
 	vslvm_test_read/vslvm_test_read.vcproj \
@@ -25,17 +26,8 @@ MSVSCPP_FILES = \
 	vslvmmount/vslvmmount.vcproj \
 	libvslvm.sln
 
-SCRIPT_FILES = \
-	scripts/vs2008_x64.sh \
-	scripts/vs2008_x64_sln.sed \
-	scripts/vs2008_x64_vcproj.sed \
-	scripts/vs2010_x64.sh \
-	scripts/vs2010_x64_sln.sed \
-	scripts/vs2010_x64_vcxproj.sed
-
 EXTRA_DIST = \
-	$(MSVSCPP_FILES) \
-	$(SCRIPT_FILES)
+	$(MSVSCPP_FILES)
 
 MAINTAINERCLEANFILES = \
 	Makefile.in

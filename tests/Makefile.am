@@ -30,15 +30,28 @@ EXTRA_DIST = \
 	$(check_SCRIPTS)
 
 check_PROGRAMS = \
+	vslvm_test_error \
 	vslvm_test_get_version \
 	vslvm_test_open_close \
 	vslvm_test_read \
 	vslvm_test_seek
 
+vslvm_test_error_SOURCES = \
+	vslvm_test_error.c \
+	vslvm_test_libcstring.h \
+	vslvm_test_libvslvm.h \
+	vslvm_test_macros.h \
+	vslvm_test_unused.h
+
+vslvm_test_error_LDADD = \
+	../libvslvm/libvslvm.la \
+	@LIBCSTRING_LIBADD@
+
 vslvm_test_get_version_SOURCES = \
 	vslvm_test_get_version.c \
 	vslvm_test_libcstring.h \
 	vslvm_test_libvslvm.h \
+	vslvm_test_macros.h \
 	vslvm_test_unused.h
 
 vslvm_test_get_version_LDADD = \
