@@ -1887,23 +1887,23 @@ int __stdcall vslvmmount_dokan_GetFileInformation(
 		}
 		string_index = (int) vslvmmount_dokan_path_prefix_length;
 
-		input_handle_index = path[ string_index++ ] - (wchar_t) '0';
+		logical_volume_index = path[ string_index++ ] - (wchar_t) '0';
 
 		if( string_index < (int) path_length )
 		{
-			input_handle_index *= 10;
-			input_handle_index += path[ string_index++ ] - (wchar_t) '0';
+			logical_volume_index *= 10;
+			logical_volume_index += path[ string_index++ ] - (wchar_t) '0';
 		}
 		if( string_index < (int) path_length )
 		{
-			input_handle_index *= 10;
-			input_handle_index += path[ string_index++ ] - (wchar_t) '0';
+			logical_volume_index *= 10;
+			logical_volume_index += path[ string_index++ ] - (wchar_t) '0';
 		}
-		input_handle_index -= 1;
+		logical_volume_index -= 1;
 
 		if( mount_handle_get_volume_size(
 		     vslvmmount_mount_handle,
-		     input_handle_index,
+		     logical_volume_index,
 		     &volume_size,
 		     &error ) != 1 )
 		{
