@@ -969,7 +969,7 @@ on_error:
 
 #elif defined( HAVE_LIBDOKAN )
 
-static wchar_t *vslvmmount_dokan_prefix_path      = L"\\LVM";
+static wchar_t *vslvmmount_dokan_path_prefix      = L"\\LVM";
 static size_t vslvmmount_dokan_path_prefix_length = 4;
 
 /* Opens a file or directory
@@ -1580,6 +1580,7 @@ int __stdcall vslvmmount_dokan_FindFiles(
 	int logical_volume_index      = 0;
 	int number_of_logical_volumes = 0;
 	int result                    = 0;
+	int string_index              = 0;
 
 	if( path == NULL )
 	{
@@ -1665,6 +1666,7 @@ int __stdcall vslvmmount_dokan_FindFiles(
 	     2,
 	     &find_data,
 	     NULL,
+	     0,
 	     1,
 	     &error ) != 1 )
 	{
@@ -1686,6 +1688,7 @@ int __stdcall vslvmmount_dokan_FindFiles(
 	     3,
 	     &find_data,
 	     NULL,
+	     0,
 	     0,
 	     &error ) != 1 )
 	{
@@ -1810,6 +1813,7 @@ int __stdcall vslvmmount_dokan_GetFileInformation(
 	int logical_volume_index = 0;
 	int number_of_sub_items  = 0;
 	int result               = 0;
+	int string_index         = 0;
 	uint8_t use_mount_time   = 0;
 
 	if( path == NULL )
