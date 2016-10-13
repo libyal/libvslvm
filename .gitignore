@@ -125,10 +125,10 @@ stamp-h[1-9]
 /tests/input
 /tests/tmp*
 /tests/vslvm_test_error
-/tests/vslvm_test_get_version
 /tests/vslvm_test_open_close
 /tests/vslvm_test_read
 /tests/vslvm_test_seek
+/tests/vslvm_test_support
 
 # Local library dependencies specific files
 /libbfio

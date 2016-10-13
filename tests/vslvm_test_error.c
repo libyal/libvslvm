@@ -123,23 +123,23 @@ int main(
 
 	VSLVM_TEST_RUN(
 	 "libvslvm_error_free",
-	 vslvm_test_error_free() )
+	 vslvm_test_error_free );
 
 	VSLVM_TEST_RUN(
 	 "libvslvm_error_fprint",
-	 vslvm_test_error_fprint() )
+	 vslvm_test_error_fprint );
 
 	VSLVM_TEST_RUN(
 	 "libvslvm_error_sprint",
-	 vslvm_test_error_sprint() )
+	 vslvm_test_error_sprint );
 
 	VSLVM_TEST_RUN(
 	 "libvslvm_error_backtrace_fprint",
-	 vslvm_test_error_backtrace_fprint() )
+	 vslvm_test_error_backtrace_fprint );
 
 	VSLVM_TEST_RUN(
 	 "libvslvm_error_backtrace_sprint",
-	 vslvm_test_error_backtrace_sprint() )
+	 vslvm_test_error_backtrace_sprint );
 
 	return( EXIT_SUCCESS );
 

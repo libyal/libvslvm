@@ -18,10 +18,10 @@ MSVSCPP_FILES = \
 	libvslvm/libvslvm.vcproj \
 	pyvslvm/pyvslvm.vcproj \
 	vslvm_test_error/vslvm_test_error.vcproj \
-	vslvm_test_get_version/vslvm_test_get_version.vcproj \
 	vslvm_test_open_close/vslvm_test_open_close.vcproj \
 	vslvm_test_read/vslvm_test_read.vcproj \
 	vslvm_test_seek/vslvm_test_seek.vcproj \
+	vslvm_test_support/vslvm_test_support.vcproj \
 	vslvminfo/vslvminfo.vcproj \
 	vslvmmount/vslvmmount.vcproj \
 	libvslvm.sln
