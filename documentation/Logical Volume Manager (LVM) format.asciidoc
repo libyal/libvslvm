@@ -45,6 +45,7 @@ in the section entitled "GNU Free Documentation License".
 | 0.0.3 | J.B. Metz | July 2014 | Additional information.
 | 0.0.4 | J.B. Metz | November 2014 | Switched to asccidoc format.
 | 0.0.5 | J.B. Metz | January 2016 | Additional information.
+| 0.0.6 | B. Veigel | November 2016 | Additional information.
 |===
 
 :numbered:
@@ -87,6 +88,7 @@ An Physical volume consist of:
 | Byte order | little-endian
 | Date and time values | POSIX timestamp in local timezone and/or ctime date and time string
 | Character strings | ASCII string with an end-of-string character
+| Sector size | 512 bytes (according to `[REDHAT]`)
 |===
 
 === Test version
@@ -203,7 +205,7 @@ The offset, in bytes, relative from the start of the metadata area
 | 8 | 8 | | Data area size +
 Value in bytes
 | 16 | 4 | | Checksum +
-CRC-32 of [yellow-background]*TODO (metadata?)*
+CRC-32 for the data area
 | 20 | 4 | | Flags +
 See section: <<raw_location_descriptor_flags,Raw location descriptor flags>>
 |===
@@ -291,8 +293,7 @@ Contains a list of strings. See section: <<status_flags,Status flags>>
 | flags | The flags +
 Contains a list of strings. See section: <<flags,Flags>>
 | extent_size | The size of an extent +
-The value contains the number of sectors +
-[yellow-background]*Note that the sector size is currently assumed to be 512 bytes.*
+The value contains the number of sectors
 | max_lv | Maximum number of logical volumes
 | max_pv | Maximum number of physical volumes
 | metadata_copies | [yellow-background]*The number of metadata copies?*
@@ -349,10 +350,10 @@ Contains an ASCII string e.g. /dev/dm-0
 | status | The status flags +
 Contains a list of strings. See section: <<status_flags,Status flags>>
 | dev_size | The physical volume size including non-usable space +
-The value contains the number of sectors +
-[yellow-background]*Note that the sector size is currently assumed to be 512 bytes.*
+The value contains the number of sectors
 | pe_start | The start extent +
-[yellow-background]*TODO: what is this value used for?*
+The offset, in sectors, of the first extent relative from the start of the physical volume. +
+It is identical to the one in the <<data_area_descriptor,Data area descriptor>>
 | pe_count | The number of (allocated) extents in the physical volume
 |===
 
@@ -444,10 +445,31 @@ See section: <<segment_types,Segment types>>
 
 === [[segment_types]]Segment types
 
+This list can be retrieved from `lvm segtypes`
+
 [cols="1,3",options="header"]
 |===
 | Value | Description
 | striped | Is striped
+| zero | 
+| error | 
+| free | 
+| snapshot | 
+| mirror | 
+| raid1 | 
+| raid10 | 
+| raid4 | 
+| raid5 | 
+| raid5_la | 
+| raid5_ra | 
+| raid5_ls | 
+| raid5_rs | 
+| raid6 | 
+| raid6_zr | 
+| raid6_nr | 
+| raid6_nc | 
+| thin-pool | 
+| thin | 
 |===
 
 === Stripes list
@@ -683,6 +705,14 @@ sudo losetup -d /dev/loop1
 | Title: | Appendix D. LVM Volume Group Metadata
 | Date: | January 31, 2013
 | URL: | https://access.redhat.com/documentation/en-US/Red_Hat_Enterprise_Linux/5/html/Logical_Volume_Manager_Administration/lvm_metadata.html
+|===
+
+`[pvdissect]`
+
+[cols="1,5",options="header"]
+|===
+| Title: | pvdissect
+| URL: | http://www.syslinux.org/wiki/index.php?title=Development/LVM_support/pvdissect
 |===
 
 [appendix]
