@@ -8,7 +8,6 @@ if HAVE_PYTHON2
 AM_CFLAGS = \
 	-I$(top_srcdir)/include \
 	-I$(top_srcdir)/common \
-	@LIBCSTRING_CPPFLAGS@ \
 	@LIBCERROR_CPPFLAGS@ \
 	@LIBCDATA_CPPFLAGS@ \
 	@LIBCLOCALE_CPPFLAGS@ \
@@ -30,7 +29,6 @@ BUILT_SOURCES = \
 	pyvslvm_libbfio.h \
 	pyvslvm_libcerror.h \
 	pyvslvm_libclocale.h \
-	pyvslvm_libcstring.h \
 	pyvslvm_libvslvm.h \
 	pyvslvm_logical_volume.c pyvslvm_logical_volume.h \
 	pyvslvm_logical_volumes.c pyvslvm_logical_volumes.h \
@@ -49,7 +47,6 @@ pyexec_LTLIBRARIES = pyvslvm.la
 nodist_pyvslvm_la_SOURCES = $(BUILT_SOURCES)
 
 pyvslvm_la_LIBADD = \
-	@LIBCSTRING_LIBADD@ \
 	@LIBCERROR_LIBADD@ \
 	../libvslvm/libvslvm.la \
 	@LIBCDATA_LIBADD@ \

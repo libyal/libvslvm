@@ -29,7 +29,6 @@
 
 #include "pyvslvm_error.h"
 #include "pyvslvm_libcerror.h"
-#include "pyvslvm_libcstring.h"
 #include "pyvslvm_libvslvm.h"
 #include "pyvslvm_logical_volume.h"
 #include "pyvslvm_logical_volumes.h"

@@ -1,8 +1,8 @@
 AM_CPPFLAGS = \
 	-I$(top_srcdir)/include \
 	-I$(top_srcdir)/common \
-	@LIBCSTRING_CPPFLAGS@ \
 	@LIBCERROR_CPPFLAGS@ \
+	@LIBCTHREADS_CPPFLAGS@ \
 	@LIBCDATA_CPPFLAGS@ \
 	@LIBCLOCALE_CPPFLAGS@ \
 	@LIBCNOTIFY_CPPFLAGS@ \
@@ -11,6 +11,7 @@ AM_CPPFLAGS = \
 	@LIBCFILE_CPPFLAGS@ \
 	@LIBCPATH_CPPFLAGS@ \
 	@LIBBFIO_CPPFLAGS@ \
+	@LIBCSYSTEM_CPPFLAGS@ \
 	@LIBVSLVM_DLL_IMPORT@
 
 if HAVE_PYTHON_TESTS
@@ -38,53 +39,45 @@ check_PROGRAMS = \
 
 vslvm_test_error_SOURCES = \
 	vslvm_test_error.c \
-	vslvm_test_libcstring.h \
 	vslvm_test_libvslvm.h \
 	vslvm_test_macros.h \
 	vslvm_test_unused.h
 
 vslvm_test_error_LDADD = \
-	../libvslvm/libvslvm.la \
-	@LIBCSTRING_LIBADD@
+	../libvslvm/libvslvm.la
 
 vslvm_test_open_close_SOURCES = \
 	vslvm_test_libcerror.h \
-	vslvm_test_libcstring.h \
 	vslvm_test_libvslvm.h \
 	vslvm_test_open_close.c \
 	vslvm_test_unused.h
 
 vslvm_test_open_close_LDADD = \
 	../libvslvm/libvslvm.la \
-	@LIBCERROR_LIBADD@ \
-	@LIBCSTRING_LIBADD@
+	@LIBCERROR_LIBADD@
 
 vslvm_test_read_SOURCES = \
 	vslvm_test_libcerror.h \
-	vslvm_test_libcstring.h \
 	vslvm_test_libvslvm.h \
 	vslvm_test_read.c \
 	vslvm_test_unused.h
 
 vslvm_test_read_LDADD = \
 	../libvslvm/libvslvm.la \
-	@LIBCERROR_LIBADD@ \
-	@LIBCSTRING_LIBADD@
+	@LIBCERROR_LIBADD@
 
 vslvm_test_seek_SOURCES = \
 	vslvm_test_libcerror.h \
-	vslvm_test_libcstring.h \
 	vslvm_test_libvslvm.h \
 	vslvm_test_seek.c \
 	vslvm_test_unused.h
 
 vslvm_test_seek_LDADD = \
 	../libvslvm/libvslvm.la \
-	@LIBCERROR_LIBADD@ \
-	@LIBCSTRING_LIBADD@
+	@LIBCERROR_LIBADD@
 
 vslvm_test_support_SOURCES = \
-	vslvm_test_libcstring.h \
+	vslvm_test_libcerror.h \
 	vslvm_test_libvslvm.h \
 	vslvm_test_macros.h \
 	vslvm_test_support.c \
@@ -92,7 +85,7 @@ vslvm_test_support_SOURCES = \
 
 vslvm_test_support_LDADD = \
 	../libvslvm/libvslvm.la \
-	@LIBCSTRING_LIBADD@
+	@LIBCERROR_LIBADD@
 
 MAINTAINERCLEANFILES = \
 	Makefile.in

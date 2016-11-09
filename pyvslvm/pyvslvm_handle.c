@@ -21,7 +21,9 @@
 
 #include <common.h>
 #include <memory.h>
+#include <narrow_string.h>
 #include <types.h>
+#include <wide_string.h>
 
 #if defined( HAVE_STDLIB_H )
 #include <stdlib.h>
@@ -33,7 +35,6 @@
 #include "pyvslvm_handle.h"
 #include "pyvslvm_libbfio.h"
 #include "pyvslvm_libcerror.h"
-#include "pyvslvm_libcstring.h"
 #include "pyvslvm_libvslvm.h"
 #include "pyvslvm_python.h"
 #include "pyvslvm_unused.h"
@@ -480,7 +481,7 @@ PyObject *pyvslvm_handle_open(
 	char *mode                   = NULL;
 	int result                   = 0;
 
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 	const wchar_t *filename_wide = NULL;
 #else
 	PyObject *utf8_string_object = NULL;
@@ -540,7 +541,7 @@ PyObject *pyvslvm_handle_open(
 	{
 		PyErr_Clear();
 
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 		filename_wide = (wchar_t *) PyUnicode_AsUnicode(
 		                             string_object );
 		Py_BEGIN_ALLOW_THREADS
@@ -777,7 +778,7 @@ PyObject *pyvslvm_handle_open_physical_volume_files(
            PyObject *arguments,
            PyObject *keywords )
 {
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 	wchar_t **filenames              = NULL;
 	wchar_t *filename                = NULL;
 	const char *errors               = NULL;
@@ -852,7 +853,7 @@ PyObject *pyvslvm_handle_open_physical_volume_files(
 
 		goto on_error;
 	}
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 	filenames = (wchar_t **) PyMem_Malloc(
 	                          sizeof( wchar_t * ) * number_of_filenames );
 #else
@@ -868,7 +869,7 @@ PyObject *pyvslvm_handle_open_physical_volume_files(
 
 		goto on_error;
 	}
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 	if( memory_set(
 	     filenames,
 	     0,
@@ -945,20 +946,20 @@ PyObject *pyvslvm_handle_open_physical_volume_files(
 
 				goto on_error;
 			}
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 			else
 			{
 				is_unicode_string = 0;
 			}
 #endif
 		}
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 		else
 		{
 			is_unicode_string = 1;
 		}
 #endif
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 		if( is_unicode_string != 0 )
 		{
 			filename = (wchar_t *) PyUnicode_AsUnicode(
@@ -998,7 +999,7 @@ PyObject *pyvslvm_handle_open_physical_volume_files(
 			filename = (wchar_t *) PyUnicode_AsUnicode(
 			                        filename_string_object );
 		}
-		filename_length = libcstring_wide_string_length(
+		filename_length = wide_string_length(
 		                   filename );
 #else
 		/* A Unicode string object can be converted into UFT-8 formatted narrow string
@@ -1010,11 +1011,11 @@ PyObject *pyvslvm_handle_open_physical_volume_files(
 		filename = PyString_AsString(
 		            string_object );
 #endif
-		filename_length = libcstring_narrow_string_length(
+		filename_length = narrow_string_length(
 		                   filename );
 #endif
 
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 		filenames[ filename_index ] = (wchar_t *) PyMem_Malloc(
 		                                           sizeof( wchar_t ) * ( filename_length + 1 ) );
 #else
@@ -1031,13 +1032,13 @@ PyObject *pyvslvm_handle_open_physical_volume_files(
 
 			goto on_error;
 		}
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
-		if( libcstring_wide_string_copy(
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
+		if( wide_string_copy(
 		     filenames[ filename_index ],
 		     filename,
 		     filename_length ) == NULL )
 #else
-		if( libcstring_narrow_string_copy(
+		if( narrow_string_copy(
 		     filenames[ filename_index ],
 		     filename,
 		     filename_length ) == NULL )
@@ -1069,7 +1070,7 @@ PyObject *pyvslvm_handle_open_physical_volume_files(
 	}
 	Py_BEGIN_ALLOW_THREADS
 
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 	result = libvslvm_handle_open_physical_volume_files_wide(
 	          pyvslvm_handle->handle,
 	          filenames,

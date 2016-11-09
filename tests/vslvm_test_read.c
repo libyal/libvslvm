@@ -20,6 +20,7 @@
  */
 
 #include <common.h>
+#include <types.h>
 
 #if defined( HAVE_STDLIB_H ) || defined( WINAPI )
 #include <stdlib.h>
@@ -27,7 +28,6 @@
 
 #include <stdio.h>
 
-#include "vslvm_test_libcstring.h"
 #include "vslvm_test_libcerror.h"
 #include "vslvm_test_libvslvm.h"
 #include "vslvm_test_unused.h"
@@ -585,7 +585,7 @@ int vslvm_test_read_from_logical_volume(
 
 /* The main program
  */
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 int wmain( int argc, wchar_t * const argv[] )
 #else
 int main( int argc, char * const argv[] )
@@ -626,7 +626,7 @@ int main( int argc, char * const argv[] )
 
 		goto on_error;
 	}
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 	if( libvslvm_handle_open_wide(
 	     handle,
 	     argv[ 1 ],
@@ -648,7 +648,7 @@ int main( int argc, char * const argv[] )
 	}
 /* TODO determine if the first file is a metadata only file and change argv/argc accordingly
  */
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 	if( libvslvm_handle_open_physical_volume_files_wide(
 	     handle,
 	     &( argv[ 1 ] ),

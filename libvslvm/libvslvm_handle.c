@@ -21,7 +21,10 @@
 
 #include <common.h>
 #include <memory.h>
+#include <narrow_string.h>
+#include <system_string.h>
 #include <types.h>
+#include <wide_string.h>
 
 #include "libvslvm_data_area_descriptor.h"
 #include "libvslvm_debug.h"
@@ -324,7 +327,7 @@ int libvslvm_handle_open(
 	if( libbfio_file_set_name(
 	     file_io_handle,
 	     filename,
-	     libcstring_narrow_string_length(
+	     narrow_string_length(
 	      filename ) + 1,
 	     error ) != 1 )
 	{
@@ -469,7 +472,7 @@ int libvslvm_handle_open_wide(
 	if( libbfio_file_set_name_wide(
 	     file_io_handle,
 	     filename,
-	     libcstring_wide_string_length(
+	     wide_string_length(
 	      filename ) + 1,
 	     error ) != 1 )
 	{
@@ -809,7 +812,7 @@ int libvslvm_handle_open_physical_volume_files(
 			 error,
 			 LIBCERROR_ERROR_DOMAIN_IO,
 			 LIBCERROR_IO_ERROR_OPEN_FAILED,
-			 "%s: unable to open physical volume file: %" PRIs_LIBCSTRING_SYSTEM ".",
+			 "%s: unable to open physical volume file: %" PRIs_SYSTEM ".",
 			 function,
 			 filenames[ physical_volume_index ] );
 
@@ -1001,7 +1004,7 @@ int libvslvm_handle_open_physical_volume_files_wide(
 			 error,
 			 LIBCERROR_ERROR_DOMAIN_IO,
 			 LIBCERROR_IO_ERROR_OPEN_FAILED,
-			 "%s: unable to open physical volume file: %" PRIs_LIBCSTRING_SYSTEM ".",
+			 "%s: unable to open physical volume file: %" PRIs_SYSTEM ".",
 			 function,
 			 filenames[ physical_volume_index ] );
 
@@ -1247,7 +1250,7 @@ int libvslvm_handle_open_physical_volume_file(
                 goto on_error;
 	}
 #endif
-	filename_length = libcstring_narrow_string_length(
+	filename_length = narrow_string_length(
 	                   filename );
 
 	if( libbfio_file_set_name(
@@ -1361,7 +1364,7 @@ int libvslvm_handle_open_physical_volume_file_wide(
                 goto on_error;
 	}
 #endif
-	filename_length = libcstring_wide_string_length(
+	filename_length = wide_string_length(
 	                   filename );
 
 	if( libbfio_file_set_name_wide(

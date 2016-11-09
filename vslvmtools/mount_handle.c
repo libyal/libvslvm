@@ -21,12 +21,14 @@
 
 #include <common.h>
 #include <memory.h>
+#include <narrow_string.h>
+#include <system_string.h>
 #include <types.h>
+#include <wide_string.h>
 
 #include "vslvmtools_libbfio.h"
 #include "vslvmtools_libcdata.h"
 #include "vslvmtools_libcerror.h"
-#include "vslvmtools_libcstring.h"
 #include "vslvmtools_libcsystem.h"
 #include "vslvmtools_libuna.h"
 #include "vslvmtools_libvslvm.h"
@@ -345,7 +347,7 @@ int mount_handle_signal_abort(
  */
 int mount_handle_set_volume_offset(
      mount_handle_t *mount_handle,
-     const libcstring_system_character_t *string,
+     const system_character_t *string,
      libcerror_error_t **error )
 {
 	static char *function = "mount_handle_set_volume_offset";
@@ -363,7 +365,7 @@ int mount_handle_set_volume_offset(
 
 		return( -1 );
 	}
-	string_length = libcstring_system_string_length(
+	string_length = system_string_length(
 	                 string );
 
 	if( libcsystem_string_decimal_copy_to_64_bit(
@@ -391,7 +393,7 @@ int mount_handle_set_volume_offset(
  */
 int mount_handle_open_input(
      mount_handle_t *mount_handle,
-     const libcstring_system_character_t *filename,
+     const system_character_t *filename,
      libcerror_error_t **error )
 {
 	libbfio_handle_t *file_io_handle          = NULL;
@@ -427,10 +429,10 @@ int mount_handle_open_input(
 
 		goto on_error;
 	}
-	filename_length = libcstring_system_string_length(
+	filename_length = system_string_length(
 	                   filename );
 
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 	if( libbfio_file_range_set_name_wide(
 	     file_io_handle,
 	     filename,

@@ -27,7 +27,6 @@
 #include "pyvslvm_integer.h"
 #include "pyvslvm_libbfio.h"
 #include "pyvslvm_libcerror.h"
-#include "pyvslvm_libcstring.h"
 #include "pyvslvm_python.h"
 
 /* Initializes the file objects IO pool

@@ -22,6 +22,7 @@
 #include <common.h>
 #include <byte_stream.h>
 #include <memory.h>
+#include <narrow_string.h>
 #include <types.h>
 
 #include "libvslvm_checksum.h"
@@ -31,7 +32,6 @@
 #include "libvslvm_libcerror.h"
 #include "libvslvm_libcnotify.h"
 #include "libvslvm_libcsplit.h"
-#include "libvslvm_libcstring.h"
 #include "libvslvm_libfvalue.h"
 #include "libvslvm_logical_volume_values.h"
 #include "libvslvm_metadata.h"
@@ -668,7 +668,7 @@ int libvslvm_metadata_read_volume_group(
 		 */
 		if( ( line_string_segment_size - line_string_segment_index ) == 18 )
 		{
-			if( libcstring_narrow_string_compare(
+			if( narrow_string_compare(
 			     &( line_string_segment[ line_string_segment_index ] ),
 			     "logical_volumes {",
 			     17 ) == 0 )
@@ -695,7 +695,7 @@ int libvslvm_metadata_read_volume_group(
 		}
 		else if( ( line_string_segment_size - line_string_segment_index ) == 19 )
 		{
-			if( libcstring_narrow_string_compare(
+			if( narrow_string_compare(
 			     &( line_string_segment[ line_string_segment_index ] ),
 			     "physical_volumes {",
 			     18 ) == 0 )
@@ -827,7 +827,7 @@ int libvslvm_metadata_read_volume_group(
 
 		if( value_identifier_length == 2 )
 		{
-			if( libcstring_narrow_string_compare(
+			if( narrow_string_compare(
 			     value_identifier,
 			     "id",
 			     2 ) == 0 )
@@ -860,7 +860,7 @@ int libvslvm_metadata_read_volume_group(
 		}
 		else if( value_identifier_length == 5 )
 		{
-			if( libcstring_narrow_string_compare(
+			if( narrow_string_compare(
 			     value_identifier,
 			     "flags",
 			     5 ) == 0 )
@@ -876,7 +876,7 @@ int libvslvm_metadata_read_volume_group(
 #endif
 /* TODO */
 			}
-			else if( libcstring_narrow_string_compare(
+			else if( narrow_string_compare(
 			          value_identifier,
 			          "seqno",
 			          5 ) == 0 )
@@ -923,7 +923,7 @@ int libvslvm_metadata_read_volume_group(
 		}
 		else if( value_identifier_length == 6 )
 		{
-			if( libcstring_narrow_string_compare(
+			if( narrow_string_compare(
 			     value_identifier,
 			     "max_lv",
 			     6 ) == 0 )
@@ -939,7 +939,7 @@ int libvslvm_metadata_read_volume_group(
 #endif
 /* TODO */
 			}
-			else if( libcstring_narrow_string_compare(
+			else if( narrow_string_compare(
 			          value_identifier,
 			          "max_pv",
 			          6 ) == 0 )
@@ -955,7 +955,7 @@ int libvslvm_metadata_read_volume_group(
 #endif
 /* TODO */
 			}
-			else if( libcstring_narrow_string_compare(
+			else if( narrow_string_compare(
 			          value_identifier,
 			          "status",
 			          6 ) == 0 )
@@ -974,7 +974,7 @@ int libvslvm_metadata_read_volume_group(
 		}
 		else if( value_identifier_length == 11 )
 		{
-			if( libcstring_narrow_string_compare(
+			if( narrow_string_compare(
 			     value_identifier,
 			     "extent_size",
 			     11 ) == 0 )
@@ -1023,7 +1023,7 @@ int libvslvm_metadata_read_volume_group(
 		}
 		else if( value_identifier_length == 15 )
 		{
-			if( libcstring_narrow_string_compare(
+			if( narrow_string_compare(
 			     value_identifier,
 			     "metadata_copies",
 			     15 ) == 0 )
@@ -1198,7 +1198,7 @@ int libvslvm_metadata_read_physical_volumes(
 		line_string_segment_index++;
 	}
 	if( ( ( line_string_segment_size - line_string_segment_index ) != 19 )
-	 || ( libcstring_narrow_string_compare(
+	 || ( narrow_string_compare(
 	       &( line_string_segment[ line_string_segment_index ] ),
 	       "physical_volumes {",
 	       18 ) != 0 ) )
@@ -1719,7 +1719,7 @@ int libvslvm_metadata_read_physical_volume(
 
 		if( value_identifier_length == 2 )
 		{
-			if( libcstring_narrow_string_compare(
+			if( narrow_string_compare(
 			     value_identifier,
 			     "id",
 			     2 ) == 0 )
@@ -1752,7 +1752,7 @@ int libvslvm_metadata_read_physical_volume(
 		}
 		else if( value_identifier_length == 5 )
 		{
-			if( libcstring_narrow_string_compare(
+			if( narrow_string_compare(
 			     value_identifier,
 			     "flags",
 			     5 ) == 0 )
@@ -1771,7 +1771,7 @@ int libvslvm_metadata_read_physical_volume(
 		}
 		else if( value_identifier_length == 6 )
 		{
-			if( libcstring_narrow_string_compare(
+			if( narrow_string_compare(
 			     value_identifier,
 			     "device",
 			     6 ) == 0 )
@@ -1801,7 +1801,7 @@ int libvslvm_metadata_read_physical_volume(
 				}
 #endif
 			}
-			else if( libcstring_narrow_string_compare(
+			else if( narrow_string_compare(
 			          value_identifier,
 			          "status",
 			          6 ) == 0 )
@@ -1821,7 +1821,7 @@ int libvslvm_metadata_read_physical_volume(
 		}
 		else if( value_identifier_length == 8 )
 		{
-			if( libcstring_narrow_string_compare(
+			if( narrow_string_compare(
 			     value_identifier,
 			     "dev_size",
 			     8 ) == 0 )
@@ -1867,7 +1867,7 @@ int libvslvm_metadata_read_physical_volume(
 
 				( (libvslvm_internal_physical_volume_t *) physical_volume )->size = value_64bit;
 			}
-			else if( libcstring_narrow_string_compare(
+			else if( narrow_string_compare(
 			          value_identifier,
 			          "pe_count",
 			          8 ) == 0 )
@@ -1883,7 +1883,7 @@ int libvslvm_metadata_read_physical_volume(
 #endif
 /* TODO */
 			}
-			else if( libcstring_narrow_string_compare(
+			else if( narrow_string_compare(
 			          value_identifier,
 			          "pe_start",
 			          8 ) == 0 )
@@ -2067,7 +2067,7 @@ int libvslvm_metadata_read_logical_volumes(
 		line_string_segment_index++;
 	}
 	if( ( ( line_string_segment_size - line_string_segment_index ) != 18 )
-	 || ( libcstring_narrow_string_compare(
+	 || ( narrow_string_compare(
 	       &( line_string_segment[ line_string_segment_index ] ),
 	       "logical_volumes {",
 	       17 ) != 0 ) )
@@ -2485,7 +2485,7 @@ int libvslvm_metadata_read_logical_volume(
 		if( ( line_string_segment_size >= ( 7 + 3 ) )
 		 && ( line_string_segment[ line_string_segment_size - 3 ] == ' ' )
 		 && ( line_string_segment[ line_string_segment_size - 2 ] == '{' )
-		 && ( libcstring_narrow_string_compare(
+		 && ( narrow_string_compare(
 		       &( line_string_segment[ line_string_segment_index ] ),
 		       "segment",
 		       7 ) == 0 ) )
@@ -2616,7 +2616,7 @@ int libvslvm_metadata_read_logical_volume(
 
 		if( value_identifier_length == 2 )
 		{
-			if( libcstring_narrow_string_compare(
+			if( narrow_string_compare(
 			     value_identifier,
 			     "id",
 			     2 ) == 0 )
@@ -2649,7 +2649,7 @@ int libvslvm_metadata_read_logical_volume(
 		}
 		else if( value_identifier_length == 5 )
 		{
-			if( libcstring_narrow_string_compare(
+			if( narrow_string_compare(
 			     value_identifier,
 			     "flags",
 			     5 ) == 0 )
@@ -2668,7 +2668,7 @@ int libvslvm_metadata_read_logical_volume(
 		}
 		else if( value_identifier_length == 6 )
 		{
-			if( libcstring_narrow_string_compare(
+			if( narrow_string_compare(
 			     value_identifier,
 			     "status",
 			     6 ) == 0 )
@@ -2688,7 +2688,7 @@ int libvslvm_metadata_read_logical_volume(
 		}
 		else if( value_identifier_length == 13 )
 		{
-			if( libcstring_narrow_string_compare(
+			if( narrow_string_compare(
 			     value_identifier,
 			     "segment_count",
 			     13 ) == 0 )
@@ -2906,7 +2906,7 @@ int libvslvm_metadata_read_segment(
 	if( ( line_string_segment_size < ( 7 + 3 ) )
 	 || ( line_string_segment[ line_string_segment_size - 3 ] != ' ' )
 	 || ( line_string_segment[ line_string_segment_size - 2 ] != '{' )
-	 || ( libcstring_narrow_string_compare(
+	 || ( narrow_string_compare(
 	       &( line_string_segment[ line_string_segment_index ] ),
 	       "segment",
 	       7 ) != 0 ) )
@@ -3165,7 +3165,7 @@ int libvslvm_metadata_read_segment(
 
 		if( value_identifier_length == 4 )
 		{
-			if( libcstring_narrow_string_compare(
+			if( narrow_string_compare(
 			     value_identifier,
 			     "type",
 			     4 ) == 0 )
@@ -3184,7 +3184,7 @@ int libvslvm_metadata_read_segment(
 		}
 		else if( value_identifier_length == 7 )
 		{
-			if( libcstring_narrow_string_compare(
+			if( narrow_string_compare(
 			     value_identifier,
 			     "stripes",
 			     7 ) == 0 )
@@ -3221,7 +3221,7 @@ int libvslvm_metadata_read_segment(
 		}
 		else if( value_identifier_length == 12 )
 		{
-			if( libcstring_narrow_string_compare(
+			if( narrow_string_compare(
 			     value_identifier,
 			     "extent_count",
 			     12 ) == 0 )
@@ -3267,7 +3267,7 @@ int libvslvm_metadata_read_segment(
 
 				( (libvslvm_internal_segment_t *) segment )->size = value_64bit;
 			}
-			else if( libcstring_narrow_string_compare(
+			else if( narrow_string_compare(
 			          value_identifier,
 			          "start_extent",
 			          12 ) == 0 )
@@ -3313,7 +3313,7 @@ int libvslvm_metadata_read_segment(
 
 				( (libvslvm_internal_segment_t *) segment )->offset = value_64bit;
 			}
-			else if( libcstring_narrow_string_compare(
+			else if( narrow_string_compare(
 			          value_identifier,
 			          "stripe_count",
 			          12 ) == 0 )

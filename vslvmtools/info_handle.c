@@ -22,14 +22,16 @@
 #include <common.h>
 #include <file_stream.h>
 #include <memory.h>
+#include <narrow_string.h>
+#include <system_string.h>
 #include <types.h>
+#include <wide_string.h>
 
 #include "byte_size_string.h"
 #include "info_handle.h"
 #include "vslvmtools_libbfio.h"
 #include "vslvmtools_libcerror.h"
 #include "vslvmtools_libclocale.h"
-#include "vslvmtools_libcstring.h"
 #include "vslvmtools_libcsystem.h"
 #include "vslvmtools_libvslvm.h"
 
@@ -265,7 +267,7 @@ int info_handle_signal_abort(
  */
 int info_handle_set_volume_offset(
      info_handle_t *info_handle,
-     const libcstring_system_character_t *string,
+     const system_character_t *string,
      libcerror_error_t **error )
 {
 	static char *function = "info_handle_set_volume_offset";
@@ -283,7 +285,7 @@ int info_handle_set_volume_offset(
 
 		return( -1 );
 	}
-	string_length = libcstring_system_string_length(
+	string_length = system_string_length(
 	                 string );
 
 	if( libcsystem_string_decimal_copy_to_64_bit(
@@ -311,7 +313,7 @@ int info_handle_set_volume_offset(
  */
 int info_handle_open_input(
      info_handle_t *info_handle,
-     const libcstring_system_character_t *filename,
+     const system_character_t *filename,
      libcerror_error_t **error )
 {
 	libbfio_handle_t *file_io_handle = NULL;
@@ -343,10 +345,10 @@ int info_handle_open_input(
 
 		goto on_error;
 	}
-	filename_length = libcstring_system_string_length(
+	filename_length = system_string_length(
 	                   filename );
 
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 	if( libbfio_file_range_set_name_wide(
 	     file_io_handle,
 	     filename,
@@ -491,7 +493,7 @@ int info_handle_volume_group_fprint(
      libvslvm_volume_group_t *volume_group,
      libcerror_error_t **error )
 {
-	libcstring_system_character_t extent_size_string[ 16 ];
+	system_character_t extent_size_string[ 16 ];
 
 	libvslvm_logical_volume_t *logical_volume   = NULL;
 	libvslvm_physical_volume_t *physical_volume = NULL;
@@ -547,7 +549,7 @@ int info_handle_volume_group_fprint(
 
 			goto on_error;
 		}
-		value_string = libcstring_narrow_string_allocate(
+		value_string = narrow_string_allocate(
 		                value_string_size );
 
 		if( value_string == NULL )
@@ -578,7 +580,7 @@ int info_handle_volume_group_fprint(
 		}
 		fprintf(
 		 info_handle->notify_stream,
-		 "\tName:\t\t\t\t\t%" PRIs_LIBCSTRING_SYSTEM "\n",
+		 "\tName:\t\t\t\t\t%" PRIs_SYSTEM "\n",
 		 value_string );
 
 		memory_free(
@@ -613,7 +615,7 @@ int info_handle_volume_group_fprint(
 
 			goto on_error;
 		}
-		value_string = libcstring_narrow_string_allocate(
+		value_string = narrow_string_allocate(
 		                value_string_size );
 
 		if( value_string == NULL )
@@ -644,7 +646,7 @@ int info_handle_volume_group_fprint(
 		}
 		fprintf(
 		 info_handle->notify_stream,
-		 "\tIdentifier:\t\t\t\t%" PRIs_LIBCSTRING_SYSTEM "\n",
+		 "\tIdentifier:\t\t\t\t%" PRIs_SYSTEM "\n",
 		 value_string );
 
 		memory_free(
@@ -696,7 +698,7 @@ int info_handle_volume_group_fprint(
 	{
 		fprintf(
 		 info_handle->notify_stream,
-		 "\tExtent size:\t\t\t\t%" PRIs_LIBCSTRING_SYSTEM " (%" PRIu64 " bytes)\n",
+		 "\tExtent size:\t\t\t\t%" PRIs_SYSTEM " (%" PRIu64 " bytes)\n",
 		 extent_size_string,
 		 extent_size );
 	}
@@ -883,7 +885,7 @@ int info_handle_physical_volume_fprint(
      libvslvm_physical_volume_t *physical_volume,
      libcerror_error_t **error )
 {
-	libcstring_system_character_t volume_size_string[ 16 ];
+	system_character_t volume_size_string[ 16 ];
 
 	static char *function    = "info_handle_physical_volume_fprint";
 	char *value_string       = NULL;
@@ -934,7 +936,7 @@ int info_handle_physical_volume_fprint(
 
 			goto on_error;
 		}
-		value_string = libcstring_narrow_string_allocate(
+		value_string = narrow_string_allocate(
 		                value_string_size );
 
 		if( value_string == NULL )
@@ -965,7 +967,7 @@ int info_handle_physical_volume_fprint(
 		}
 		fprintf(
 		 info_handle->notify_stream,
-		 "\tName:\t\t\t\t\t%" PRIs_LIBCSTRING_SYSTEM "\n",
+		 "\tName:\t\t\t\t\t%" PRIs_SYSTEM "\n",
 		 value_string );
 
 		memory_free(
@@ -1000,7 +1002,7 @@ int info_handle_physical_volume_fprint(
 
 			goto on_error;
 		}
-		value_string = libcstring_narrow_string_allocate(
+		value_string = narrow_string_allocate(
 		                value_string_size );
 
 		if( value_string == NULL )
@@ -1031,7 +1033,7 @@ int info_handle_physical_volume_fprint(
 		}
 		fprintf(
 		 info_handle->notify_stream,
-		 "\tIdentifier:\t\t\t\t%" PRIs_LIBCSTRING_SYSTEM "\n",
+		 "\tIdentifier:\t\t\t\t%" PRIs_SYSTEM "\n",
 		 value_string );
 
 		memory_free(
@@ -1066,7 +1068,7 @@ int info_handle_physical_volume_fprint(
 
 			goto on_error;
 		}
-		value_string = libcstring_narrow_string_allocate(
+		value_string = narrow_string_allocate(
 		                value_string_size );
 
 		if( value_string == NULL )
@@ -1097,7 +1099,7 @@ int info_handle_physical_volume_fprint(
 		}
 		fprintf(
 		 info_handle->notify_stream,
-		 "\tDevice path:\t\t\t\t%" PRIs_LIBCSTRING_SYSTEM "\n",
+		 "\tDevice path:\t\t\t\t%" PRIs_SYSTEM "\n",
 		 value_string );
 
 		memory_free(
@@ -1130,7 +1132,7 @@ int info_handle_physical_volume_fprint(
 	{
 		fprintf(
 		 info_handle->notify_stream,
-		 "\tVolume size:\t\t\t\t%" PRIs_LIBCSTRING_SYSTEM " (%" PRIu64 " bytes)\n",
+		 "\tVolume size:\t\t\t\t%" PRIs_SYSTEM " (%" PRIu64 " bytes)\n",
 		 volume_size_string,
 		 volume_size );
 	}
@@ -1215,7 +1217,7 @@ int info_handle_logical_volume_fprint(
 
 			goto on_error;
 		}
-		value_string = libcstring_narrow_string_allocate(
+		value_string = narrow_string_allocate(
 		                value_string_size );
 
 		if( value_string == NULL )
@@ -1246,7 +1248,7 @@ int info_handle_logical_volume_fprint(
 		}
 		fprintf(
 		 info_handle->notify_stream,
-		 "\tName:\t\t\t\t\t%" PRIs_LIBCSTRING_SYSTEM "\n",
+		 "\tName:\t\t\t\t\t%" PRIs_SYSTEM "\n",
 		 value_string );
 
 		memory_free(
@@ -1281,7 +1283,7 @@ int info_handle_logical_volume_fprint(
 
 			goto on_error;
 		}
-		value_string = libcstring_narrow_string_allocate(
+		value_string = narrow_string_allocate(
 		                value_string_size );
 
 		if( value_string == NULL )
@@ -1312,7 +1314,7 @@ int info_handle_logical_volume_fprint(
 		}
 		fprintf(
 		 info_handle->notify_stream,
-		 "\tIdentifier:\t\t\t\t%" PRIs_LIBCSTRING_SYSTEM "\n",
+		 "\tIdentifier:\t\t\t\t%" PRIs_SYSTEM "\n",
 		 value_string );
 
 		memory_free(
@@ -1421,7 +1423,7 @@ int info_handle_segment_fprint(
      libvslvm_segment_t *segment,
      libcerror_error_t **error )
 {
-	libcstring_system_character_t segment_size_string[ 16 ];
+	system_character_t segment_size_string[ 16 ];
 
 	libvslvm_stripe_t *stripe = NULL;
 	static char *function     = "info_handle_segment_fprint";
@@ -1492,7 +1494,7 @@ int info_handle_segment_fprint(
 	{
 		fprintf(
 		 info_handle->notify_stream,
-		 "\t\tSize:\t\t\t\t%" PRIs_LIBCSTRING_SYSTEM " (%" PRIu64 " bytes)\n",
+		 "\t\tSize:\t\t\t\t%" PRIs_SYSTEM " (%" PRIu64 " bytes)\n",
 		 segment_size_string,
 		 segment_size );
 	}
@@ -1642,7 +1644,7 @@ int info_handle_stripe_fprint(
 
 			goto on_error;
 		}
-		value_string = libcstring_narrow_string_allocate(
+		value_string = narrow_string_allocate(
 		                value_string_size );
 
 		if( value_string == NULL )
@@ -1673,7 +1675,7 @@ int info_handle_stripe_fprint(
 		}
 		fprintf(
 		 info_handle->notify_stream,
-		 "\t\t\tPhysical volume:\t%" PRIs_LIBCSTRING_SYSTEM "\n",
+		 "\t\t\tPhysical volume:\t%" PRIs_SYSTEM "\n",
 		 value_string );
 
 		memory_free(

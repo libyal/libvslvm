@@ -30,7 +30,6 @@
 #include "libvslvm_libcerror.h"
 #include "libvslvm_libcnotify.h"
 #include "libvslvm_libcsplit.h"
-#include "libvslvm_libcstring.h"
 #include "libvslvm_libfvalue.h"
 #include "libvslvm_metadata.h"
 #include "libvslvm_metadata_area.h"

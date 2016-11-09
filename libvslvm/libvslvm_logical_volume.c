@@ -21,6 +21,7 @@
 
 #include <common.h>
 #include <memory.h>
+#include <narrow_string.h>
 #include <types.h>
 
 #include "libvslvm_chunk_data.h"
@@ -29,7 +30,6 @@
 #include "libvslvm_io_handle.h"
 #include "libvslvm_libbfio.h"
 #include "libvslvm_libcerror.h"
-#include "libvslvm_libcstring.h"
 #include "libvslvm_libcthreads.h"
 #include "libvslvm_libfcache.h"
 #include "libvslvm_libfdata.h"
@@ -299,7 +299,7 @@ int libvslvm_logical_volume_initialize(
 
 				goto on_error;
 			}
-			physical_volume_name_length = libcstring_narrow_string_length(
+			physical_volume_name_length = narrow_string_length(
 			                               physical_volume_name );
 
 			if( libvslvm_volume_group_get_physical_volume_by_name(

@@ -20,6 +20,7 @@
  */
 
 #include <common.h>
+#include <types.h>
 
 #if defined( HAVE_STDLIB_H ) || defined( WINAPI )
 #include <stdlib.h>
@@ -28,14 +29,13 @@
 #include <stdio.h>
 
 #include "vslvm_test_libcerror.h"
-#include "vslvm_test_libcstring.h"
 #include "vslvm_test_libvslvm.h"
 
 /* Tests single open and close of a handle
  * Returns 1 if successful, 0 if not or -1 on error
  */
 int vslvm_test_single_open_close_handle(
-     libcstring_system_character_t *filename,
+     system_character_t *filename,
      int access_flags,
      int expected_result )
 {
@@ -57,7 +57,7 @@ int vslvm_test_single_open_close_handle(
 
 		return( -1 );
 	}
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 	result = libvslvm_handle_open_wide(
 	          handle,
 	          filename,
@@ -135,7 +135,7 @@ int vslvm_test_single_open_close_handle(
  * Returns 1 if successful, 0 if not or -1 on error
  */
 int vslvm_test_multi_open_close_handle(
-     libcstring_system_character_t *filename,
+     system_character_t *filename,
      int access_flags,
      int expected_result )
 {
@@ -157,7 +157,7 @@ int vslvm_test_multi_open_close_handle(
 
 		return( -1 );
 	}
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 	result = libvslvm_handle_open_wide(
 	          handle,
 	          filename,
@@ -185,7 +185,7 @@ int vslvm_test_multi_open_close_handle(
 
 			result = -1;
 		}
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 		result = libvslvm_handle_open_wide(
 		          handle,
 		          filename,
@@ -262,7 +262,7 @@ int vslvm_test_multi_open_close_handle(
 
 /* The main program
  */
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 int wmain( int argc, wchar_t * const argv[] )
 #else
 int main( int argc, char * const argv[] )

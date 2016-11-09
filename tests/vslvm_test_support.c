@@ -20,12 +20,15 @@
  */
 
 #include <common.h>
+#include <file_stream.h>
+#include <narrow_string.h>
+#include <types.h>
 
 #if defined( HAVE_STDLIB_H ) || defined( WINAPI )
 #include <stdlib.h>
 #endif
 
-#include "vslvm_test_libcstring.h"
+#include "vslvm_test_libcerror.h"
 #include "vslvm_test_libvslvm.h"
 #include "vslvm_test_macros.h"
 #include "vslvm_test_unused.h"
@@ -41,7 +44,7 @@ int vslvm_test_get_version(
 
 	version_string = libvslvm_get_version();
 
-	result = libcstring_narrow_string_compare(
+	result = narrow_string_compare(
 	          version_string,
 	          LIBVSLVM_VERSION_STRING,
 	          9 );
@@ -57,9 +60,112 @@ on_error:
 	return( 0 );
 }
 
+/* Tests the libvslvm_get_codepage function
+ * Returns 1 if successful or 0 if not
+ */
+int vslvm_test_get_codepage(
+     void )
+{
+	libcerror_error_t *error = NULL;
+	int codepage             = 0;
+	int result               = 0;
+
+	result = libvslvm_get_codepage(
+	          &codepage,
+	          &error );
+
+	VSLVM_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+        VSLVM_TEST_ASSERT_IS_NULL(
+         "error",
+         error );
+
+	/* Test error cases
+	 */
+	result = libvslvm_get_codepage(
+	          NULL,
+	          &error );
+
+	VSLVM_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+        VSLVM_TEST_ASSERT_IS_NOT_NULL(
+         "error",
+         error );
+
+	libcerror_error_free(
+	 &error );
+
+	return( 1 );
+
+on_error:
+	if( error != NULL )
+	{
+		libcerror_error_free(
+		 &error );
+	}
+	return( 0 );
+}
+
+/* Tests the libvslvm_set_codepage function
+ * Returns 1 if successful or 0 if not
+ */
+int vslvm_test_set_codepage(
+     void )
+{
+	libcerror_error_t *error = NULL;
+	int result               = 0;
+
+	result = libvslvm_set_codepage(
+	          0,
+	          &error );
+
+	VSLVM_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+        VSLVM_TEST_ASSERT_IS_NULL(
+         "error",
+         error );
+
+	/* Test error cases
+	 */
+	result = libvslvm_set_codepage(
+	          -1,
+	          &error );
+
+	VSLVM_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+        VSLVM_TEST_ASSERT_IS_NOT_NULL(
+         "error",
+         error );
+
+	libcerror_error_free(
+	 &error );
+
+	return( 1 );
+
+on_error:
+	if( error != NULL )
+	{
+		libcerror_error_free(
+		 &error );
+	}
+	return( 0 );
+}
+
 /* The main program
  */
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 int wmain(
      int argc VSLVM_TEST_ATTRIBUTE_UNUSED,
      wchar_t * const argv[] VSLVM_TEST_ATTRIBUTE_UNUSED )

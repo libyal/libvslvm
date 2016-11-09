@@ -1,7 +1,6 @@
 AM_CPPFLAGS = \
 	-I$(top_srcdir)/include \
 	-I$(top_srcdir)/common \
-	@LIBCSTRING_CPPFLAGS@ \
 	@LIBCERROR_CPPFLAGS@ \
 	@LIBCDATA_CPPFLAGS@ \
 	@LIBCLOCALE_CPPFLAGS@ \
@@ -29,7 +28,6 @@ vslvminfo_SOURCES = \
 	vslvmtools_libcerror.h \
 	vslvmtools_libclocale.h \
 	vslvmtools_libcnotify.h \
-	vslvmtools_libcstring.h \
 	vslvmtools_libcsystem.h \
 	vslvmtools_libvslvm.h \
 	vslvmtools_libuna.h \
@@ -47,7 +45,6 @@ vslvminfo_LDADD = \
 	@LIBCNOTIFY_LIBADD@ \
 	@LIBCLOCALE_LIBADD@ \
 	@LIBCERROR_LIBADD@ \
-	@LIBCSTRING_LIBADD@ \
 	@LIBINTL@
 
 vslvmmount_SOURCES = \
@@ -59,7 +56,6 @@ vslvmmount_SOURCES = \
 	vslvmtools_libcerror.h \
 	vslvmtools_libclocale.h \
 	vslvmtools_libcnotify.h \
-	vslvmtools_libcstring.h \
 	vslvmtools_libcsystem.h \
 	vslvmtools_libvslvm.h \
 	vslvmtools_libuna.h
@@ -77,7 +73,6 @@ vslvmmount_LDADD = \
 	@LIBCNOTIFY_LIBADD@ \
 	@LIBCLOCALE_LIBADD@ \
 	@LIBCERROR_LIBADD@ \
-	@LIBCSTRING_LIBADD@ \
 	@LIBINTL@
 
 MAINTAINERCLEANFILES = \

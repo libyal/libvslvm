@@ -1,7 +1,6 @@
 AM_CPPFLAGS = \
 	-I$(top_srcdir)/include \
 	-I$(top_srcdir)/common \
-	@LIBCSTRING_CPPFLAGS@ \
 	@LIBCERROR_CPPFLAGS@ \
 	@LIBCTHREADS_CPPFLAGS@ \
 	@LIBCDATA_CPPFLAGS@ \
@@ -36,7 +35,6 @@ libvslvm_la_SOURCES = \
 	libvslvm_libclocale.h \
 	libvslvm_libcnotify.h \
 	libvslvm_libcsplit.h \
-	libvslvm_libcstring.h \
 	libvslvm_libcthreads.h \
 	libvslvm_libfcache.h \
 	libvslvm_libfdata.h \
@@ -58,7 +56,6 @@ libvslvm_la_SOURCES = \
 	vslvm_physical_volume_label.h
 
 libvslvm_la_LIBADD = \
-	@LIBCSTRING_LIBADD@ \
 	@LIBCERROR_LIBADD@ \
 	@LIBCTHREADS_LIBADD@ \
 	@LIBCDATA_LIBADD@ \

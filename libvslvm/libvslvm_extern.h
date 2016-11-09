@@ -38,10 +38,9 @@
 #include <libvslvm/extern.h>
 
 #else
-
 #define LIBVSLVM_EXTERN	extern
 
 #endif
 
-#endif
+#endif /* !defined( _LIBVSLVM_INTERNAL_EXTERN_H ) */
 
