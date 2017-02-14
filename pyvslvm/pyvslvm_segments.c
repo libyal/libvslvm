@@ -1,7 +1,7 @@
 /*
- * Python object definition of the segments sequence and iterator
+ * Python object definition of the sequence and iterator object of segments
  *
- * Copyright (C) 2011-2017, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (C) 2014-2017, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -28,7 +28,6 @@
 
 #include "pyvslvm_libcerror.h"
 #include "pyvslvm_libvslvm.h"
-#include "pyvslvm_logical_volume.h"
 #include "pyvslvm_python.h"
 #include "pyvslvm_segment.h"
 #include "pyvslvm_segments.h"
@@ -98,7 +97,7 @@ PyTypeObject pyvslvm_segments_type_object = {
 	/* tp_flags */
 	Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_ITER,
 	/* tp_doc */
-	"internal pyvslvm segments sequence and iterator object",
+	"pyvslvm internal sequence and iterator object of segments",
 	/* tp_traverse */
 	0,
 	/* tp_clear */
@@ -155,72 +154,72 @@ PyTypeObject pyvslvm_segments_type_object = {
  * Returns a Python object if successful or NULL on error
  */
 PyObject *pyvslvm_segments_new(
-           pyvslvm_logical_volume_t *logical_volume_object,
-           PyObject* (*get_segment_by_index)(
-                        pyvslvm_logical_volume_t *logical_volume_object,
-                        int segment_index ),
-           int number_of_segments )
+           PyObject *parent_object,
+           PyObject* (*get_item_by_index)(
+                        PyObject *parent_object,
+                        int index ),
+           int number_of_items )
 {
-	pyvslvm_segments_t *pyvslvm_segments = NULL;
-	static char *function                = "pyvslvm_segments_new";
+	pyvslvm_segments_t *segments_object = NULL;
+	static char *function               = "pyvslvm_segments_new";
 
-	if( logical_volume_object == NULL )
+	if( parent_object == NULL )
 	{
 		PyErr_Format(
 		 PyExc_ValueError,
-		 "%s: invalid logical volume object.",
+		 "%s: invalid parent object.",
 		 function );
 
 		return( NULL );
 	}
-	if( get_segment_by_index == NULL )
+	if( get_item_by_index == NULL )
 	{
 		PyErr_Format(
 		 PyExc_ValueError,
-		 "%s: invalid get segment by index function.",
+		 "%s: invalid get item by index function.",
 		 function );
 
 		return( NULL );
 	}
 	/* Make sure the segments values are initialized
 	 */
-	pyvslvm_segments = PyObject_New(
-	                    struct pyvslvm_segments,
-	                    &pyvslvm_segments_type_object );
+	segments_object = PyObject_New(
+	                   struct pyvslvm_segments,
+	                   &pyvslvm_segments_type_object );
 
-	if( pyvslvm_segments == NULL )
+	if( segments_object == NULL )
 	{
 		PyErr_Format(
 		 PyExc_MemoryError,
-		 "%s: unable to initialize segments.",
+		 "%s: unable to create segments object.",
 		 function );
 
 		goto on_error;
 	}
 	if( pyvslvm_segments_init(
-	     pyvslvm_segments ) != 0 )
+	     segments_object ) != 0 )
 	{
 		PyErr_Format(
 		 PyExc_MemoryError,
-		 "%s: unable to initialize segments.",
+		 "%s: unable to initialize segments object.",
 		 function );
 
 		goto on_error;
 	}
-	pyvslvm_segments->logical_volume_object = logical_volume_object;
-	pyvslvm_segments->get_segment_by_index  = get_segment_by_index;
-	pyvslvm_segments->number_of_segments    = number_of_segments;
+	segments_object->parent_object     = parent_object;
+	segments_object->get_item_by_index = get_item_by_index;
+	segments_object->number_of_items   = number_of_items;
 
 	Py_IncRef(
-	 (PyObject *) pyvslvm_segments->logical_volume_object );
+	 (PyObject *) segments_object->parent_object );
 
-	return( (PyObject *) pyvslvm_segments );
+	return( (PyObject *) segments_object );
 
 on_error:
-	if( pyvslvm_segments != NULL )
+	if( segments_object != NULL )
 	{
 		Py_DecRef(
-		 (PyObject *) pyvslvm_segments );
+		 (PyObject *) segments_object );
 	}
 	return( NULL );
 }
@@ -229,25 +228,25 @@ on_error:
  * Returns 0 if successful or -1 on error
  */
 int pyvslvm_segments_init(
-     pyvslvm_segments_t *pyvslvm_segments )
+     pyvslvm_segments_t *segments_object )
 {
 	static char *function = "pyvslvm_segments_init";
 
-	if( pyvslvm_segments == NULL )
+	if( segments_object == NULL )
 	{
 		PyErr_Format(
 		 PyExc_ValueError,
-		 "%s: invalid segments.",
+		 "%s: invalid segments object.",
 		 function );
 
 		return( -1 );
 	}
 	/* Make sure the segments values are initialized
 	 */
-	pyvslvm_segments->logical_volume_object = NULL;
-	pyvslvm_segments->get_segment_by_index  = NULL;
-	pyvslvm_segments->segment_index         = 0;
-	pyvslvm_segments->number_of_segments    = 0;
+	segments_object->parent_object     = NULL;
+	segments_object->get_item_by_index = NULL;
+	segments_object->current_index     = 0;
+	segments_object->number_of_items   = 0;
 
 	return( 0 );
 }
@@ -255,22 +254,22 @@ int pyvslvm_segments_init(
 /* Frees a segments object
  */
 void pyvslvm_segments_free(
-      pyvslvm_segments_t *pyvslvm_segments )
+      pyvslvm_segments_t *segments_object )
 {
 	struct _typeobject *ob_type = NULL;
 	static char *function       = "pyvslvm_segments_free";
 
-	if( pyvslvm_segments == NULL )
+	if( segments_object == NULL )
 	{
 		PyErr_Format(
 		 PyExc_ValueError,
-		 "%s: invalid segments.",
+		 "%s: invalid segments object.",
 		 function );
 
 		return;
 	}
 	ob_type = Py_TYPE(
-	           pyvslvm_segments );
+	           segments_object );
 
 	if( ob_type == NULL )
 	{
@@ -290,72 +289,72 @@ void pyvslvm_segments_free(
 
 		return;
 	}
-	if( pyvslvm_segments->logical_volume_object != NULL )
+	if( segments_object->parent_object != NULL )
 	{
 		Py_DecRef(
-		 (PyObject *) pyvslvm_segments->logical_volume_object );
+		 (PyObject *) segments_object->parent_object );
 	}
 	ob_type->tp_free(
-	 (PyObject*) pyvslvm_segments );
+	 (PyObject*) segments_object );
 }
 
 /* The segments len() function
  */
 Py_ssize_t pyvslvm_segments_len(
-            pyvslvm_segments_t *pyvslvm_segments )
+            pyvslvm_segments_t *segments_object )
 {
 	static char *function = "pyvslvm_segments_len";
 
-	if( pyvslvm_segments == NULL )
+	if( segments_object == NULL )
 	{
 		PyErr_Format(
 		 PyExc_ValueError,
-		 "%s: invalid segments.",
+		 "%s: invalid segments object.",
 		 function );
 
 		return( -1 );
 	}
-	return( (Py_ssize_t) pyvslvm_segments->number_of_segments );
+	return( (Py_ssize_t) segments_object->number_of_items );
 }
 
 /* The segments getitem() function
  */
 PyObject *pyvslvm_segments_getitem(
-           pyvslvm_segments_t *pyvslvm_segments,
+           pyvslvm_segments_t *segments_object,
            Py_ssize_t item_index )
 {
 	PyObject *segment_object = NULL;
 	static char *function    = "pyvslvm_segments_getitem";
 
-	if( pyvslvm_segments == NULL )
+	if( segments_object == NULL )
 	{
 		PyErr_Format(
 		 PyExc_ValueError,
-		 "%s: invalid segments.",
+		 "%s: invalid segments object.",
 		 function );
 
 		return( NULL );
 	}
-	if( pyvslvm_segments->get_segment_by_index == NULL )
+	if( segments_object->get_item_by_index == NULL )
 	{
 		PyErr_Format(
 		 PyExc_ValueError,
-		 "%s: invalid segments - missing get segment by index function.",
+		 "%s: invalid segments object - missing get item by index function.",
 		 function );
 
 		return( NULL );
 	}
-	if( pyvslvm_segments->number_of_segments < 0 )
+	if( segments_object->number_of_items < 0 )
 	{
 		PyErr_Format(
 		 PyExc_ValueError,
-		 "%s: invalid segments - invalid number of segments.",
+		 "%s: invalid segments object - invalid number of items.",
 		 function );
 
 		return( NULL );
 	}
 	if( ( item_index < 0 )
-	 || ( item_index >= (Py_ssize_t) pyvslvm_segments->number_of_segments ) )
+	 || ( item_index >= (Py_ssize_t) segments_object->number_of_items ) )
 	{
 		PyErr_Format(
 		 PyExc_ValueError,
@@ -364,8 +363,8 @@ PyObject *pyvslvm_segments_getitem(
 
 		return( NULL );
 	}
-	segment_object = pyvslvm_segments->get_segment_by_index(
-	                  pyvslvm_segments->logical_volume_object,
+	segment_object = segments_object->get_item_by_index(
+	                  segments_object->parent_object,
 	                  (int) item_index );
 
 	return( segment_object );
@@ -374,83 +373,83 @@ PyObject *pyvslvm_segments_getitem(
 /* The segments iter() function
  */
 PyObject *pyvslvm_segments_iter(
-           pyvslvm_segments_t *pyvslvm_segments )
+           pyvslvm_segments_t *segments_object )
 {
 	static char *function = "pyvslvm_segments_iter";
 
-	if( pyvslvm_segments == NULL )
+	if( segments_object == NULL )
 	{
 		PyErr_Format(
 		 PyExc_ValueError,
-		 "%s: invalid segments.",
+		 "%s: invalid segments object.",
 		 function );
 
 		return( NULL );
 	}
 	Py_IncRef(
-	 (PyObject *) pyvslvm_segments );
+	 (PyObject *) segments_object );
 
-	return( (PyObject *) pyvslvm_segments );
+	return( (PyObject *) segments_object );
 }
 
 /* The segments iternext() function
  */
 PyObject *pyvslvm_segments_iternext(
-           pyvslvm_segments_t *pyvslvm_segments )
+           pyvslvm_segments_t *segments_object )
 {
 	PyObject *segment_object = NULL;
 	static char *function    = "pyvslvm_segments_iternext";
 
-	if( pyvslvm_segments == NULL )
+	if( segments_object == NULL )
 	{
 		PyErr_Format(
 		 PyExc_ValueError,
-		 "%s: invalid segments.",
+		 "%s: invalid segments object.",
 		 function );
 
 		return( NULL );
 	}
-	if( pyvslvm_segments->get_segment_by_index == NULL )
+	if( segments_object->get_item_by_index == NULL )
 	{
 		PyErr_Format(
 		 PyExc_ValueError,
-		 "%s: invalid segments - missing get segment by index function.",
+		 "%s: invalid segments object - missing get item by index function.",
 		 function );
 
 		return( NULL );
 	}
-	if( pyvslvm_segments->segment_index < 0 )
+	if( segments_object->current_index < 0 )
 	{
 		PyErr_Format(
 		 PyExc_ValueError,
-		 "%s: invalid segments - invalid segment index.",
+		 "%s: invalid segments object - invalid current index.",
 		 function );
 
 		return( NULL );
 	}
-	if( pyvslvm_segments->number_of_segments < 0 )
+	if( segments_object->number_of_items < 0 )
 	{
 		PyErr_Format(
 		 PyExc_ValueError,
-		 "%s: invalid segments - invalid number of segments.",
+		 "%s: invalid segments object - invalid number of items.",
 		 function );
 
 		return( NULL );
 	}
-	if( pyvslvm_segments->segment_index >= pyvslvm_segments->number_of_segments )
+	if( segments_object->current_index >= segments_object->number_of_items )
 	{
 		PyErr_SetNone(
 		 PyExc_StopIteration );
 
 		return( NULL );
 	}
-	segment_object = pyvslvm_segments->get_segment_by_index(
-	                  pyvslvm_segments->logical_volume_object,
-	                  pyvslvm_segments->segment_index );
+	segment_object = segments_object->get_item_by_index(
+	                  segments_object->parent_object,
+	                  segments_object->current_index );
 
 	if( segment_object != NULL )
 	{
-		pyvslvm_segments->segment_index++;
+		segments_object->current_index++;
 	}
 	return( segment_object );
 }

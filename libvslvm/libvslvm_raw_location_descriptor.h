@@ -80,5 +80,5 @@ int libvslvm_raw_location_descriptor_set(
 }
 #endif
 
-#endif
+#endif /* !defined( _LIBVSLVM_RAW_LOCATION_DESCRIPTOR_H ) */
 

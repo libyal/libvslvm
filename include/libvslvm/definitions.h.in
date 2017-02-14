@@ -24,18 +24,18 @@
 
 #include <libvslvm/types.h>
 
-#define LIBVSLVM_VERSION					@VERSION@
+#define LIBVSLVM_VERSION		@VERSION@
 
 /* The version string
  */
-#define LIBVSLVM_VERSION_STRING					"@VERSION@"
+#define LIBVSLVM_VERSION_STRING		"@VERSION@"
 
 /* The byte order definitions
  */
 enum LIBVSLVM_ENDIAN
 {
-	LIBVSLVM_ENDIAN_BIG					= (int) 'b',
-	LIBVSLVM_ENDIAN_LITTLE					= (int) 'l',
+	LIBVSLVM_ENDIAN_BIG		= (int) 'b',
+	LIBVSLVM_ENDIAN_LITTLE		= (int) 'l',
 };
 
 /* The access flags definitions
@@ -45,18 +45,18 @@ enum LIBVSLVM_ENDIAN
  */
 enum LIBVSLVM_ACCESS_FLAGS
 {
-	LIBVSLVM_ACCESS_FLAG_READ				= 0x01,
+	LIBVSLVM_ACCESS_FLAG_READ	= 0x01,
 /* Reserved: not supported yet */
-	LIBVSLVM_ACCESS_FLAG_WRITE				= 0x02
+	LIBVSLVM_ACCESS_FLAG_WRITE	= 0x02
 };
 
 /* The file access macros
  */
-#define LIBVSLVM_OPEN_READ					( LIBVSLVM_ACCESS_FLAG_READ )
+#define LIBVSLVM_OPEN_READ		( LIBVSLVM_ACCESS_FLAG_READ )
 /* Reserved: not supported yet */
-#define LIBVSLVM_OPEN_WRITE					( LIBVSLVM_ACCESS_FLAG_WRITE )
+#define LIBVSLVM_OPEN_WRITE		( LIBVSLVM_ACCESS_FLAG_WRITE )
 /* Reserved: not supported yet */
-#define LIBVSLVM_OPEN_READ_WRITE				( LIBVSLVM_ACCESS_FLAG_READ | LIBVSLVM_ACCESS_FLAG_WRITE )
+#define LIBVSLVM_OPEN_READ_WRITE	( LIBVSLVM_ACCESS_FLAG_READ | LIBVSLVM_ACCESS_FLAG_WRITE )
 
 #endif /* !defined( _LIBVSLVM_DEFINITIONS_H ) */
 

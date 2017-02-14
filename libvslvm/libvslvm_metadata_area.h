@@ -60,5 +60,5 @@ int libvslvm_metadata_area_read(
 }
 #endif
 
-#endif
+#endif /* !defined( _LIBVSLVM_METADATA_AREA_H ) */
 

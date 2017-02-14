@@ -2,7 +2,7 @@ AC_PREREQ( 2.59 )
 
 AC_INIT(
  [libvslvm],
- [20161109],
+ [20170213],
  [joachim.metz@gmail.com])
 
 AC_CONFIG_SRCDIR(
@@ -93,8 +93,8 @@ AX_LIBFDATA_CHECK_ENABLE
 dnl Check for enabling libfvalue for file value support
 AX_LIBFVALUE_CHECK_ENABLE
 
-dnl Check for enabling libcsystem for cross-platform C generic system functions
-AX_LIBCSYSTEM_CHECK_ENABLE
+dnl Check for vslvmtools function support
+AX_VSLVMTOOLS_CHECK_LOCAL
 
 dnl Check for libfuse Filesystem in Userspace (FUSE) support
 AX_LIBFUSE_CHECK_ENABLE
@@ -105,15 +105,6 @@ AS_IF(
  [AC_HEADER_TIME
  AC_CHECK_FUNCS([getegid geteuid time])
  ])
-
-dnl Check if vslvmtools should be build as static executables
-AX_COMMON_CHECK_ENABLE_STATIC_EXECUTABLES
-
-dnl Check if libvslvm should be build with verbose output
-AX_COMMON_CHECK_ENABLE_VERBOSE_OUTPUT
-
-dnl Check if libvslvm should be build with debug output
-AX_COMMON_CHECK_ENABLE_DEBUG_OUTPUT
 
 dnl Check if libvslvm python bindings (pyvslvm) should be build
 AX_PYTHON_CHECK_PYPREFIX
@@ -141,29 +132,6 @@ AS_IF(
 dnl Check for test function support
 AX_TESTS_CHECK_LOCAL
 
-dnl Check if DLL support is needed
-AS_IF(
- [test "x$enable_shared" = xyes],
- [AS_CASE(
-  [$host],
-  [*cygwin* | *mingw*],
-  [AC_DEFINE(
-   [HAVE_DLLMAIN],
-   [1],
-   [Define to 1 to enable the DllMain function.])
-  AC_SUBST(
-   [HAVE_DLLMAIN],
-   [1])
-
-  AS_IF(
-   [test "x$ac_cv_enable_static_executables" = xno],
-   [AC_SUBST(
-    [LIBVSLVM_DLL_IMPORT],
-    ["-DLIBVSLVM_DLL_IMPORT"])
-   ])
-  ])
- ])
-
 dnl Check if requires and build requires should be set in spec file
 AS_IF(
  [test "x$ac_cv_libcerror" = xyes || test "x$ac_cv_libcthreads" = xyes || test "x$ac_cv_libcdata" = xyes || test "x$ac_cv_libclocale" = xyes || test "x$ac_cv_libcnotify" = xyes || test "x$ac_cv_libcsplit" = xyes || test "x$ac_cv_libuna" = xyes || test "x$ac_cv_libcfile" = xyes || test "x$ac_cv_libcpath" = xyes || test "x$ac_cv_libbfio" = xyes || test "x$ac_cv_libfcache" = xyes || test "x$ac_cv_libfdata" = xyes || test "x$ac_cv_libfvalue" = xyes],
@@ -172,13 +140,6 @@ AS_IF(
   [Requires:])
  AC_SUBST(
   [libvslvm_spec_build_requires],
-  [BuildRequires:])
- ])
-
-AS_IF(
- [test "x$ac_cv_libcsystem" = xyes],
- [AC_SUBST(
-  [libvslvm_spec_tools_build_requires],
   [BuildRequires:])
  ])
 
@@ -215,7 +176,6 @@ AC_CONFIG_FILES([libfcache/Makefile])
 AC_CONFIG_FILES([libfdata/Makefile])
 AC_CONFIG_FILES([libfvalue/Makefile])
 AC_CONFIG_FILES([libvslvm/Makefile])
-AC_CONFIG_FILES([libcsystem/Makefile])
 AC_CONFIG_FILES([vslvmtools/Makefile])
 AC_CONFIG_FILES([pyvslvm/Makefile])
 AC_CONFIG_FILES([pyvslvm-python2/Makefile])
@@ -259,7 +219,6 @@ Building:
    libfcache support:                          $ac_cv_libfcache
    libfdata support:                           $ac_cv_libfdata
    libfvalue support:                          $ac_cv_libfvalue
-   libcsystem support:                         $ac_cv_libcsystem
    FUSE support:                               $ac_cv_libfuse
 
 Features:

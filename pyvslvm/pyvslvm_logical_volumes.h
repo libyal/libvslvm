@@ -1,7 +1,7 @@
 /*
- * Python object definition of the logical volumes sequence and iterator
+ * Python object definition of the sequence and iterator object of logical volumes
  *
- * Copyright (C) 2011-2017, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (C) 2014-2017, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -27,7 +27,6 @@
 
 #include "pyvslvm_libvslvm.h"
 #include "pyvslvm_python.h"
-#include "pyvslvm_volume_group.h"
 
 #if defined( __cplusplus )
 extern "C" {
@@ -41,56 +40,56 @@ struct pyvslvm_logical_volumes
 	 */
 	PyObject_HEAD
 
-	/* The pyvslvm volume group object
+	/* The parent object
 	 */
-	pyvslvm_volume_group_t *volume_group_object;
+	PyObject *parent_object;
 
-	/* The get logical volume by index callback function
+	/* The get item by index callback function
 	 */
-	PyObject* (*get_logical_volume_by_index)(
-	             pyvslvm_volume_group_t *volume_group_object,
-	             int logical_volume_index );
+	PyObject* (*get_item_by_index)(
+	             PyObject *parent_object,
+	             int index );
 
-	/* The (current) logical volume index
+	/* The current index
 	 */
-	int logical_volume_index;
+	int current_index;
 
-	/* The number of logical volumes
+	/* The number of items
 	 */
-	int number_of_logical_volumes;
+	int number_of_items;
 };
 
 extern PyTypeObject pyvslvm_logical_volumes_type_object;
 
 PyObject *pyvslvm_logical_volumes_new(
-           pyvslvm_volume_group_t *volume_group_object,
-           PyObject* (*get_logical_volume_by_index)(
-                        pyvslvm_volume_group_t *volume_group_object,
-                        int logical_volume_index ),
-           int number_of_logical_volumes );
+           PyObject *parent_object,
+           PyObject* (*get_item_by_index)(
+                        PyObject *parent_object,
+                        int index ),
+           int number_of_items );
 
 int pyvslvm_logical_volumes_init(
-     pyvslvm_logical_volumes_t *pyvslvm_logical_volumes );
+     pyvslvm_logical_volumes_t *logical_volumes_object );
 
 void pyvslvm_logical_volumes_free(
-      pyvslvm_logical_volumes_t *pyvslvm_logical_volumes );
+      pyvslvm_logical_volumes_t *logical_volumes_object );
 
 Py_ssize_t pyvslvm_logical_volumes_len(
-            pyvslvm_logical_volumes_t *pyvslvm_logical_volumes );
+            pyvslvm_logical_volumes_t *logical_volumes_object );
 
 PyObject *pyvslvm_logical_volumes_getitem(
-           pyvslvm_logical_volumes_t *pyvslvm_logical_volumes,
+           pyvslvm_logical_volumes_t *logical_volumes_object,
            Py_ssize_t item_index );
 
 PyObject *pyvslvm_logical_volumes_iter(
-           pyvslvm_logical_volumes_t *pyvslvm_logical_volumes );
+           pyvslvm_logical_volumes_t *logical_volumes_object );
 
 PyObject *pyvslvm_logical_volumes_iternext(
-           pyvslvm_logical_volumes_t *pyvslvm_logical_volumes );
+           pyvslvm_logical_volumes_t *logical_volumes_object );
 
 #if defined( __cplusplus )
 }
 #endif
 
-#endif
+#endif /* !defined( _PYVSLVM_LOGICAL_VOLUMES_H ) */
 

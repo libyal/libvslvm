@@ -68,5 +68,5 @@ int libvslvm_data_area_descriptor_set(
 }
 #endif
 
-#endif
+#endif /* !defined( _LIBVSLVM_DATA_AREA_DESCRIPTOR_H ) */
 

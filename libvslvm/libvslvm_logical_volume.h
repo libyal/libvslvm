@@ -181,5 +181,5 @@ int libvslvm_logical_volume_get_segment(
 }
 #endif
 
-#endif
+#endif /* !defined( _LIBVSLVM_INTERNAL_LOGICAL_VOLUME_H ) */
 

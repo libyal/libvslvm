@@ -1,7 +1,7 @@
 /*
- * Python object definition of the logical volumes sequence and iterator
+ * Python object definition of the sequence and iterator object of logical volumes
  *
- * Copyright (C) 2011-2017, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (C) 2014-2017, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -31,7 +31,6 @@
 #include "pyvslvm_logical_volume.h"
 #include "pyvslvm_logical_volumes.h"
 #include "pyvslvm_python.h"
-#include "pyvslvm_volume_group.h"
 
 PySequenceMethods pyvslvm_logical_volumes_sequence_methods = {
 	/* sq_length */
@@ -98,7 +97,7 @@ PyTypeObject pyvslvm_logical_volumes_type_object = {
 	/* tp_flags */
 	Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_ITER,
 	/* tp_doc */
-	"internal pyvslvm logical volumes sequence and iterator object",
+	"pyvslvm internal sequence and iterator object of logical volumes",
 	/* tp_traverse */
 	0,
 	/* tp_clear */
@@ -155,72 +154,72 @@ PyTypeObject pyvslvm_logical_volumes_type_object = {
  * Returns a Python object if successful or NULL on error
  */
 PyObject *pyvslvm_logical_volumes_new(
-           pyvslvm_volume_group_t *volume_group_object,
-           PyObject* (*get_logical_volume_by_index)(
-                        pyvslvm_volume_group_t *volume_group_object,
-                        int logical_volume_index ),
-           int number_of_logical_volumes )
+           PyObject *parent_object,
+           PyObject* (*get_item_by_index)(
+                        PyObject *parent_object,
+                        int index ),
+           int number_of_items )
 {
-	pyvslvm_logical_volumes_t *pyvslvm_logical_volumes = NULL;
-	static char *function                              = "pyvslvm_logical_volumes_new";
+	pyvslvm_logical_volumes_t *logical_volumes_object = NULL;
+	static char *function                             = "pyvslvm_logical_volumes_new";
 
-	if( volume_group_object == NULL )
+	if( parent_object == NULL )
 	{
 		PyErr_Format(
 		 PyExc_ValueError,
-		 "%s: invalid volume group object.",
+		 "%s: invalid parent object.",
 		 function );
 
 		return( NULL );
 	}
-	if( get_logical_volume_by_index == NULL )
+	if( get_item_by_index == NULL )
 	{
 		PyErr_Format(
 		 PyExc_ValueError,
-		 "%s: invalid get logical volume by index function.",
+		 "%s: invalid get item by index function.",
 		 function );
 
 		return( NULL );
 	}
 	/* Make sure the logical volumes values are initialized
 	 */
-	pyvslvm_logical_volumes = PyObject_New(
-	                           struct pyvslvm_logical_volumes,
-	                           &pyvslvm_logical_volumes_type_object );
+	logical_volumes_object = PyObject_New(
+	                          struct pyvslvm_logical_volumes,
+	                          &pyvslvm_logical_volumes_type_object );
 
-	if( pyvslvm_logical_volumes == NULL )
+	if( logical_volumes_object == NULL )
 	{
 		PyErr_Format(
 		 PyExc_MemoryError,
-		 "%s: unable to initialize logical volumes.",
+		 "%s: unable to create logical volumes object.",
 		 function );
 
 		goto on_error;
 	}
 	if( pyvslvm_logical_volumes_init(
-	     pyvslvm_logical_volumes ) != 0 )
+	     logical_volumes_object ) != 0 )
 	{
 		PyErr_Format(
 		 PyExc_MemoryError,
-		 "%s: unable to initialize logical volumes.",
+		 "%s: unable to initialize logical volumes object.",
 		 function );
 
 		goto on_error;
 	}
-	pyvslvm_logical_volumes->volume_group_object         = volume_group_object;
-	pyvslvm_logical_volumes->get_logical_volume_by_index = get_logical_volume_by_index;
-	pyvslvm_logical_volumes->number_of_logical_volumes   = number_of_logical_volumes;
+	logical_volumes_object->parent_object     = parent_object;
+	logical_volumes_object->get_item_by_index = get_item_by_index;
+	logical_volumes_object->number_of_items   = number_of_items;
 
 	Py_IncRef(
-	 (PyObject *) pyvslvm_logical_volumes->volume_group_object );
+	 (PyObject *) logical_volumes_object->parent_object );
 
-	return( (PyObject *) pyvslvm_logical_volumes );
+	return( (PyObject *) logical_volumes_object );
 
 on_error:
-	if( pyvslvm_logical_volumes != NULL )
+	if( logical_volumes_object != NULL )
 	{
 		Py_DecRef(
-		 (PyObject *) pyvslvm_logical_volumes );
+		 (PyObject *) logical_volumes_object );
 	}
 	return( NULL );
 }
@@ -229,25 +228,25 @@ on_error:
  * Returns 0 if successful or -1 on error
  */
 int pyvslvm_logical_volumes_init(
-     pyvslvm_logical_volumes_t *pyvslvm_logical_volumes )
+     pyvslvm_logical_volumes_t *logical_volumes_object )
 {
 	static char *function = "pyvslvm_logical_volumes_init";
 
-	if( pyvslvm_logical_volumes == NULL )
+	if( logical_volumes_object == NULL )
 	{
 		PyErr_Format(
 		 PyExc_ValueError,
-		 "%s: invalid logical volumes.",
+		 "%s: invalid logical volumes object.",
 		 function );
 
 		return( -1 );
 	}
 	/* Make sure the logical volumes values are initialized
 	 */
-	pyvslvm_logical_volumes->volume_group_object         = NULL;
-	pyvslvm_logical_volumes->get_logical_volume_by_index = NULL;
-	pyvslvm_logical_volumes->logical_volume_index        = 0;
-	pyvslvm_logical_volumes->number_of_logical_volumes   = 0;
+	logical_volumes_object->parent_object     = NULL;
+	logical_volumes_object->get_item_by_index = NULL;
+	logical_volumes_object->current_index     = 0;
+	logical_volumes_object->number_of_items   = 0;
 
 	return( 0 );
 }
@@ -255,22 +254,22 @@ int pyvslvm_logical_volumes_init(
 /* Frees a logical volumes object
  */
 void pyvslvm_logical_volumes_free(
-      pyvslvm_logical_volumes_t *pyvslvm_logical_volumes )
+      pyvslvm_logical_volumes_t *logical_volumes_object )
 {
 	struct _typeobject *ob_type = NULL;
 	static char *function       = "pyvslvm_logical_volumes_free";
 
-	if( pyvslvm_logical_volumes == NULL )
+	if( logical_volumes_object == NULL )
 	{
 		PyErr_Format(
 		 PyExc_ValueError,
-		 "%s: invalid logical volumes.",
+		 "%s: invalid logical volumes object.",
 		 function );
 
 		return;
 	}
 	ob_type = Py_TYPE(
-	           pyvslvm_logical_volumes );
+	           logical_volumes_object );
 
 	if( ob_type == NULL )
 	{
@@ -290,72 +289,72 @@ void pyvslvm_logical_volumes_free(
 
 		return;
 	}
-	if( pyvslvm_logical_volumes->volume_group_object != NULL )
+	if( logical_volumes_object->parent_object != NULL )
 	{
 		Py_DecRef(
-		 (PyObject *) pyvslvm_logical_volumes->volume_group_object );
+		 (PyObject *) logical_volumes_object->parent_object );
 	}
 	ob_type->tp_free(
-	 (PyObject*) pyvslvm_logical_volumes );
+	 (PyObject*) logical_volumes_object );
 }
 
 /* The logical volumes len() function
  */
 Py_ssize_t pyvslvm_logical_volumes_len(
-            pyvslvm_logical_volumes_t *pyvslvm_logical_volumes )
+            pyvslvm_logical_volumes_t *logical_volumes_object )
 {
 	static char *function = "pyvslvm_logical_volumes_len";
 
-	if( pyvslvm_logical_volumes == NULL )
+	if( logical_volumes_object == NULL )
 	{
 		PyErr_Format(
 		 PyExc_ValueError,
-		 "%s: invalid logical volumes.",
+		 "%s: invalid logical volumes object.",
 		 function );
 
 		return( -1 );
 	}
-	return( (Py_ssize_t) pyvslvm_logical_volumes->number_of_logical_volumes );
+	return( (Py_ssize_t) logical_volumes_object->number_of_items );
 }
 
 /* The logical volumes getitem() function
  */
 PyObject *pyvslvm_logical_volumes_getitem(
-           pyvslvm_logical_volumes_t *pyvslvm_logical_volumes,
+           pyvslvm_logical_volumes_t *logical_volumes_object,
            Py_ssize_t item_index )
 {
 	PyObject *logical_volume_object = NULL;
 	static char *function           = "pyvslvm_logical_volumes_getitem";
 
-	if( pyvslvm_logical_volumes == NULL )
+	if( logical_volumes_object == NULL )
 	{
 		PyErr_Format(
 		 PyExc_ValueError,
-		 "%s: invalid logical volumes.",
+		 "%s: invalid logical volumes object.",
 		 function );
 
 		return( NULL );
 	}
-	if( pyvslvm_logical_volumes->get_logical_volume_by_index == NULL )
+	if( logical_volumes_object->get_item_by_index == NULL )
 	{
 		PyErr_Format(
 		 PyExc_ValueError,
-		 "%s: invalid logical volumes - missing get logical volume by index function.",
+		 "%s: invalid logical volumes object - missing get item by index function.",
 		 function );
 
 		return( NULL );
 	}
-	if( pyvslvm_logical_volumes->number_of_logical_volumes < 0 )
+	if( logical_volumes_object->number_of_items < 0 )
 	{
 		PyErr_Format(
 		 PyExc_ValueError,
-		 "%s: invalid logical volumes - invalid number of logical volumes.",
+		 "%s: invalid logical volumes object - invalid number of items.",
 		 function );
 
 		return( NULL );
 	}
 	if( ( item_index < 0 )
-	 || ( item_index >= (Py_ssize_t) pyvslvm_logical_volumes->number_of_logical_volumes ) )
+	 || ( item_index >= (Py_ssize_t) logical_volumes_object->number_of_items ) )
 	{
 		PyErr_Format(
 		 PyExc_ValueError,
@@ -364,8 +363,8 @@ PyObject *pyvslvm_logical_volumes_getitem(
 
 		return( NULL );
 	}
-	logical_volume_object = pyvslvm_logical_volumes->get_logical_volume_by_index(
-	                         pyvslvm_logical_volumes->volume_group_object,
+	logical_volume_object = logical_volumes_object->get_item_by_index(
+	                         logical_volumes_object->parent_object,
 	                         (int) item_index );
 
 	return( logical_volume_object );
@@ -374,83 +373,83 @@ PyObject *pyvslvm_logical_volumes_getitem(
 /* The logical volumes iter() function
  */
 PyObject *pyvslvm_logical_volumes_iter(
-           pyvslvm_logical_volumes_t *pyvslvm_logical_volumes )
+           pyvslvm_logical_volumes_t *logical_volumes_object )
 {
 	static char *function = "pyvslvm_logical_volumes_iter";
 
-	if( pyvslvm_logical_volumes == NULL )
+	if( logical_volumes_object == NULL )
 	{
 		PyErr_Format(
 		 PyExc_ValueError,
-		 "%s: invalid logical volumes.",
+		 "%s: invalid logical volumes object.",
 		 function );
 
 		return( NULL );
 	}
 	Py_IncRef(
-	 (PyObject *) pyvslvm_logical_volumes );
+	 (PyObject *) logical_volumes_object );
 
-	return( (PyObject *) pyvslvm_logical_volumes );
+	return( (PyObject *) logical_volumes_object );
 }
 
 /* The logical volumes iternext() function
  */
 PyObject *pyvslvm_logical_volumes_iternext(
-           pyvslvm_logical_volumes_t *pyvslvm_logical_volumes )
+           pyvslvm_logical_volumes_t *logical_volumes_object )
 {
 	PyObject *logical_volume_object = NULL;
 	static char *function           = "pyvslvm_logical_volumes_iternext";
 
-	if( pyvslvm_logical_volumes == NULL )
+	if( logical_volumes_object == NULL )
 	{
 		PyErr_Format(
 		 PyExc_ValueError,
-		 "%s: invalid logical volumes.",
+		 "%s: invalid logical volumes object.",
 		 function );
 
 		return( NULL );
 	}
-	if( pyvslvm_logical_volumes->get_logical_volume_by_index == NULL )
+	if( logical_volumes_object->get_item_by_index == NULL )
 	{
 		PyErr_Format(
 		 PyExc_ValueError,
-		 "%s: invalid logical volumes - missing get logical volume by index function.",
+		 "%s: invalid logical volumes object - missing get item by index function.",
 		 function );
 
 		return( NULL );
 	}
-	if( pyvslvm_logical_volumes->logical_volume_index < 0 )
+	if( logical_volumes_object->current_index < 0 )
 	{
 		PyErr_Format(
 		 PyExc_ValueError,
-		 "%s: invalid logical volumes - invalid logical volume index.",
+		 "%s: invalid logical volumes object - invalid current index.",
 		 function );
 
 		return( NULL );
 	}
-	if( pyvslvm_logical_volumes->number_of_logical_volumes < 0 )
+	if( logical_volumes_object->number_of_items < 0 )
 	{
 		PyErr_Format(
 		 PyExc_ValueError,
-		 "%s: invalid logical volumes - invalid number of logical volumes.",
+		 "%s: invalid logical volumes object - invalid number of items.",
 		 function );
 
 		return( NULL );
 	}
-	if( pyvslvm_logical_volumes->logical_volume_index >= pyvslvm_logical_volumes->number_of_logical_volumes )
+	if( logical_volumes_object->current_index >= logical_volumes_object->number_of_items )
 	{
 		PyErr_SetNone(
 		 PyExc_StopIteration );
 
 		return( NULL );
 	}
-	logical_volume_object = pyvslvm_logical_volumes->get_logical_volume_by_index(
-	                         pyvslvm_logical_volumes->volume_group_object,
-	                         pyvslvm_logical_volumes->logical_volume_index );
+	logical_volume_object = logical_volumes_object->get_item_by_index(
+	                         logical_volumes_object->parent_object,
+	                         logical_volumes_object->current_index );
 
 	if( logical_volume_object != NULL )
 	{
-		pyvslvm_logical_volumes->logical_volume_index++;
+		logical_volumes_object->current_index++;
 	}
 	return( logical_volume_object );
 }

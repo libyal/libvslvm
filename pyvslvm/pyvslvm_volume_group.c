@@ -1,5 +1,5 @@
 /*
- * Python object definition of the libvslvm volume group
+ * Python object wrapper of libvslvm_volume_group_t
  *
  * Copyright (C) 2014-2017, Joachim Metz <joachim.metz@gmail.com>
  *

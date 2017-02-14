@@ -65,5 +65,5 @@ int libvslvm_chunk_data_read(
 }
 #endif
 
-#endif
+#endif /* !defined( _LIBVSLVM_CHUNK_DATA_H ) */
 

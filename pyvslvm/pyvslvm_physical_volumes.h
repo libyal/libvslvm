@@ -1,7 +1,7 @@
 /*
- * Python object definition of the physical volumes sequence and iterator
+ * Python object definition of the sequence and iterator object of physical volumes
  *
- * Copyright (C) 2011-2017, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (C) 2014-2017, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -27,7 +27,6 @@
 
 #include "pyvslvm_libvslvm.h"
 #include "pyvslvm_python.h"
-#include "pyvslvm_volume_group.h"
 
 #if defined( __cplusplus )
 extern "C" {
@@ -41,56 +40,56 @@ struct pyvslvm_physical_volumes
 	 */
 	PyObject_HEAD
 
-	/* The pyvslvm volume group object
+	/* The parent object
 	 */
-	pyvslvm_volume_group_t *volume_group_object;
+	PyObject *parent_object;
 
-	/* The get physical volume by index callback function
+	/* The get item by index callback function
 	 */
-	PyObject* (*get_physical_volume_by_index)(
-	             pyvslvm_volume_group_t *volume_group_object,
-	             int physical_volume_index );
+	PyObject* (*get_item_by_index)(
+	             PyObject *parent_object,
+	             int index );
 
-	/* The (current) physical volume index
+	/* The current index
 	 */
-	int physical_volume_index;
+	int current_index;
 
-	/* The number of physical volumes
+	/* The number of items
 	 */
-	int number_of_physical_volumes;
+	int number_of_items;
 };
 
 extern PyTypeObject pyvslvm_physical_volumes_type_object;
 
 PyObject *pyvslvm_physical_volumes_new(
-           pyvslvm_volume_group_t *volume_group_object,
-           PyObject* (*get_physical_volume_by_index)(
-                        pyvslvm_volume_group_t *volume_group_object,
-                        int physical_volume_index ),
-           int number_of_physical_volumes );
+           PyObject *parent_object,
+           PyObject* (*get_item_by_index)(
+                        PyObject *parent_object,
+                        int index ),
+           int number_of_items );
 
 int pyvslvm_physical_volumes_init(
-     pyvslvm_physical_volumes_t *pyvslvm_physical_volumes );
+     pyvslvm_physical_volumes_t *physical_volumes_object );
 
 void pyvslvm_physical_volumes_free(
-      pyvslvm_physical_volumes_t *pyvslvm_physical_volumes );
+      pyvslvm_physical_volumes_t *physical_volumes_object );
 
 Py_ssize_t pyvslvm_physical_volumes_len(
-            pyvslvm_physical_volumes_t *pyvslvm_physical_volumes );
+            pyvslvm_physical_volumes_t *physical_volumes_object );
 
 PyObject *pyvslvm_physical_volumes_getitem(
-           pyvslvm_physical_volumes_t *pyvslvm_physical_volumes,
+           pyvslvm_physical_volumes_t *physical_volumes_object,
            Py_ssize_t item_index );
 
 PyObject *pyvslvm_physical_volumes_iter(
-           pyvslvm_physical_volumes_t *pyvslvm_physical_volumes );
+           pyvslvm_physical_volumes_t *physical_volumes_object );
 
 PyObject *pyvslvm_physical_volumes_iternext(
-           pyvslvm_physical_volumes_t *pyvslvm_physical_volumes );
+           pyvslvm_physical_volumes_t *physical_volumes_object );
 
 #if defined( __cplusplus )
 }
 #endif
 
-#endif
+#endif /* !defined( _PYVSLVM_PHYSICAL_VOLUMES_H ) */
 

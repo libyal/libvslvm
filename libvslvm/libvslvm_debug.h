@@ -44,5 +44,5 @@ int libvslvm_debug_print_read_offsets(
 }
 #endif
 
-#endif
+#endif /* !defined( _LIBVSLVM_DEBUG_H ) */
 

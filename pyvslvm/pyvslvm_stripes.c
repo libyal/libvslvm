@@ -1,7 +1,7 @@
 /*
- * Python object definition of the stripes sequence and iterator
+ * Python object definition of the sequence and iterator object of stripes
  *
- * Copyright (C) 2011-2017, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (C) 2014-2017, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -29,7 +29,6 @@
 #include "pyvslvm_libcerror.h"
 #include "pyvslvm_libvslvm.h"
 #include "pyvslvm_python.h"
-#include "pyvslvm_segment.h"
 #include "pyvslvm_stripe.h"
 #include "pyvslvm_stripes.h"
 
@@ -98,7 +97,7 @@ PyTypeObject pyvslvm_stripes_type_object = {
 	/* tp_flags */
 	Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_ITER,
 	/* tp_doc */
-	"internal pyvslvm stripes sequence and iterator object",
+	"pyvslvm internal sequence and iterator object of stripes",
 	/* tp_traverse */
 	0,
 	/* tp_clear */
@@ -155,72 +154,72 @@ PyTypeObject pyvslvm_stripes_type_object = {
  * Returns a Python object if successful or NULL on error
  */
 PyObject *pyvslvm_stripes_new(
-           pyvslvm_segment_t *segment_object,
-           PyObject* (*get_stripe_by_index)(
-                        pyvslvm_segment_t *segment_object,
-                        int stripe_index ),
-           int number_of_stripes )
+           PyObject *parent_object,
+           PyObject* (*get_item_by_index)(
+                        PyObject *parent_object,
+                        int index ),
+           int number_of_items )
 {
-	pyvslvm_stripes_t *pyvslvm_stripes = NULL;
-	static char *function              = "pyvslvm_stripes_new";
+	pyvslvm_stripes_t *stripes_object = NULL;
+	static char *function             = "pyvslvm_stripes_new";
 
-	if( segment_object == NULL )
+	if( parent_object == NULL )
 	{
 		PyErr_Format(
 		 PyExc_ValueError,
-		 "%s: invalid segment object.",
+		 "%s: invalid parent object.",
 		 function );
 
 		return( NULL );
 	}
-	if( get_stripe_by_index == NULL )
+	if( get_item_by_index == NULL )
 	{
 		PyErr_Format(
 		 PyExc_ValueError,
-		 "%s: invalid get stripe by index function.",
+		 "%s: invalid get item by index function.",
 		 function );
 
 		return( NULL );
 	}
 	/* Make sure the stripes values are initialized
 	 */
-	pyvslvm_stripes = PyObject_New(
-	                   struct pyvslvm_stripes,
-	                   &pyvslvm_stripes_type_object );
+	stripes_object = PyObject_New(
+	                  struct pyvslvm_stripes,
+	                  &pyvslvm_stripes_type_object );
 
-	if( pyvslvm_stripes == NULL )
+	if( stripes_object == NULL )
 	{
 		PyErr_Format(
 		 PyExc_MemoryError,
-		 "%s: unable to initialize stripes.",
+		 "%s: unable to create stripes object.",
 		 function );
 
 		goto on_error;
 	}
 	if( pyvslvm_stripes_init(
-	     pyvslvm_stripes ) != 0 )
+	     stripes_object ) != 0 )
 	{
 		PyErr_Format(
 		 PyExc_MemoryError,
-		 "%s: unable to initialize stripes.",
+		 "%s: unable to initialize stripes object.",
 		 function );
 
 		goto on_error;
 	}
-	pyvslvm_stripes->segment_object      = segment_object;
-	pyvslvm_stripes->get_stripe_by_index = get_stripe_by_index;
-	pyvslvm_stripes->number_of_stripes   = number_of_stripes;
+	stripes_object->parent_object     = parent_object;
+	stripes_object->get_item_by_index = get_item_by_index;
+	stripes_object->number_of_items   = number_of_items;
 
 	Py_IncRef(
-	 (PyObject *) pyvslvm_stripes->segment_object );
+	 (PyObject *) stripes_object->parent_object );
 
-	return( (PyObject *) pyvslvm_stripes );
+	return( (PyObject *) stripes_object );
 
 on_error:
-	if( pyvslvm_stripes != NULL )
+	if( stripes_object != NULL )
 	{
 		Py_DecRef(
-		 (PyObject *) pyvslvm_stripes );
+		 (PyObject *) stripes_object );
 	}
 	return( NULL );
 }
@@ -229,25 +228,25 @@ on_error:
  * Returns 0 if successful or -1 on error
  */
 int pyvslvm_stripes_init(
-     pyvslvm_stripes_t *pyvslvm_stripes )
+     pyvslvm_stripes_t *stripes_object )
 {
 	static char *function = "pyvslvm_stripes_init";
 
-	if( pyvslvm_stripes == NULL )
+	if( stripes_object == NULL )
 	{
 		PyErr_Format(
 		 PyExc_ValueError,
-		 "%s: invalid stripes.",
+		 "%s: invalid stripes object.",
 		 function );
 
 		return( -1 );
 	}
 	/* Make sure the stripes values are initialized
 	 */
-	pyvslvm_stripes->segment_object      = NULL;
-	pyvslvm_stripes->get_stripe_by_index = NULL;
-	pyvslvm_stripes->stripe_index        = 0;
-	pyvslvm_stripes->number_of_stripes   = 0;
+	stripes_object->parent_object     = NULL;
+	stripes_object->get_item_by_index = NULL;
+	stripes_object->current_index     = 0;
+	stripes_object->number_of_items   = 0;
 
 	return( 0 );
 }
@@ -255,22 +254,22 @@ int pyvslvm_stripes_init(
 /* Frees a stripes object
  */
 void pyvslvm_stripes_free(
-      pyvslvm_stripes_t *pyvslvm_stripes )
+      pyvslvm_stripes_t *stripes_object )
 {
 	struct _typeobject *ob_type = NULL;
 	static char *function       = "pyvslvm_stripes_free";
 
-	if( pyvslvm_stripes == NULL )
+	if( stripes_object == NULL )
 	{
 		PyErr_Format(
 		 PyExc_ValueError,
-		 "%s: invalid stripes.",
+		 "%s: invalid stripes object.",
 		 function );
 
 		return;
 	}
 	ob_type = Py_TYPE(
-	           pyvslvm_stripes );
+	           stripes_object );
 
 	if( ob_type == NULL )
 	{
@@ -290,72 +289,72 @@ void pyvslvm_stripes_free(
 
 		return;
 	}
-	if( pyvslvm_stripes->segment_object != NULL )
+	if( stripes_object->parent_object != NULL )
 	{
 		Py_DecRef(
-		 (PyObject *) pyvslvm_stripes->segment_object );
+		 (PyObject *) stripes_object->parent_object );
 	}
 	ob_type->tp_free(
-	 (PyObject*) pyvslvm_stripes );
+	 (PyObject*) stripes_object );
 }
 
 /* The stripes len() function
  */
 Py_ssize_t pyvslvm_stripes_len(
-            pyvslvm_stripes_t *pyvslvm_stripes )
+            pyvslvm_stripes_t *stripes_object )
 {
 	static char *function = "pyvslvm_stripes_len";
 
-	if( pyvslvm_stripes == NULL )
+	if( stripes_object == NULL )
 	{
 		PyErr_Format(
 		 PyExc_ValueError,
-		 "%s: invalid stripes.",
+		 "%s: invalid stripes object.",
 		 function );
 
 		return( -1 );
 	}
-	return( (Py_ssize_t) pyvslvm_stripes->number_of_stripes );
+	return( (Py_ssize_t) stripes_object->number_of_items );
 }
 
 /* The stripes getitem() function
  */
 PyObject *pyvslvm_stripes_getitem(
-           pyvslvm_stripes_t *pyvslvm_stripes,
+           pyvslvm_stripes_t *stripes_object,
            Py_ssize_t item_index )
 {
 	PyObject *stripe_object = NULL;
 	static char *function   = "pyvslvm_stripes_getitem";
 
-	if( pyvslvm_stripes == NULL )
+	if( stripes_object == NULL )
 	{
 		PyErr_Format(
 		 PyExc_ValueError,
-		 "%s: invalid stripes.",
+		 "%s: invalid stripes object.",
 		 function );
 
 		return( NULL );
 	}
-	if( pyvslvm_stripes->get_stripe_by_index == NULL )
+	if( stripes_object->get_item_by_index == NULL )
 	{
 		PyErr_Format(
 		 PyExc_ValueError,
-		 "%s: invalid stripes - missing get stripe by index function.",
+		 "%s: invalid stripes object - missing get item by index function.",
 		 function );
 
 		return( NULL );
 	}
-	if( pyvslvm_stripes->number_of_stripes < 0 )
+	if( stripes_object->number_of_items < 0 )
 	{
 		PyErr_Format(
 		 PyExc_ValueError,
-		 "%s: invalid stripes - invalid number of stripes.",
+		 "%s: invalid stripes object - invalid number of items.",
 		 function );
 
 		return( NULL );
 	}
 	if( ( item_index < 0 )
-	 || ( item_index >= (Py_ssize_t) pyvslvm_stripes->number_of_stripes ) )
+	 || ( item_index >= (Py_ssize_t) stripes_object->number_of_items ) )
 	{
 		PyErr_Format(
 		 PyExc_ValueError,
@@ -364,8 +363,8 @@ PyObject *pyvslvm_stripes_getitem(
 
 		return( NULL );
 	}
-	stripe_object = pyvslvm_stripes->get_stripe_by_index(
-	                 pyvslvm_stripes->segment_object,
+	stripe_object = stripes_object->get_item_by_index(
+	                 stripes_object->parent_object,
 	                 (int) item_index );
 
 	return( stripe_object );
@@ -374,83 +373,83 @@ PyObject *pyvslvm_stripes_getitem(
 /* The stripes iter() function
  */
 PyObject *pyvslvm_stripes_iter(
-           pyvslvm_stripes_t *pyvslvm_stripes )
+           pyvslvm_stripes_t *stripes_object )
 {
 	static char *function = "pyvslvm_stripes_iter";
 
-	if( pyvslvm_stripes == NULL )
+	if( stripes_object == NULL )
 	{
 		PyErr_Format(
 		 PyExc_ValueError,
-		 "%s: invalid stripes.",
+		 "%s: invalid stripes object.",
 		 function );
 
 		return( NULL );
 	}
 	Py_IncRef(
-	 (PyObject *) pyvslvm_stripes );
+	 (PyObject *) stripes_object );
 
-	return( (PyObject *) pyvslvm_stripes );
+	return( (PyObject *) stripes_object );
 }
 
 /* The stripes iternext() function
  */
 PyObject *pyvslvm_stripes_iternext(
-           pyvslvm_stripes_t *pyvslvm_stripes )
+           pyvslvm_stripes_t *stripes_object )
 {
 	PyObject *stripe_object = NULL;
 	static char *function   = "pyvslvm_stripes_iternext";
 
-	if( pyvslvm_stripes == NULL )
+	if( stripes_object == NULL )
 	{
 		PyErr_Format(
 		 PyExc_ValueError,
-		 "%s: invalid stripes.",
+		 "%s: invalid stripes object.",
 		 function );
 
 		return( NULL );
 	}
-	if( pyvslvm_stripes->get_stripe_by_index == NULL )
+	if( stripes_object->get_item_by_index == NULL )
 	{
 		PyErr_Format(
 		 PyExc_ValueError,
-		 "%s: invalid stripes - missing get stripe by index function.",
+		 "%s: invalid stripes object - missing get item by index function.",
 		 function );
 
 		return( NULL );
 	}
-	if( pyvslvm_stripes->stripe_index < 0 )
+	if( stripes_object->current_index < 0 )
 	{
 		PyErr_Format(
 		 PyExc_ValueError,
-		 "%s: invalid stripes - invalid stripe index.",
+		 "%s: invalid stripes object - invalid current index.",
 		 function );
 
 		return( NULL );
 	}
-	if( pyvslvm_stripes->number_of_stripes < 0 )
+	if( stripes_object->number_of_items < 0 )
 	{
 		PyErr_Format(
 		 PyExc_ValueError,
-		 "%s: invalid stripes - invalid number of stripes.",
+		 "%s: invalid stripes object - invalid number of items.",
 		 function );
 
 		return( NULL );
 	}
-	if( pyvslvm_stripes->stripe_index >= pyvslvm_stripes->number_of_stripes )
+	if( stripes_object->current_index >= stripes_object->number_of_items )
 	{
 		PyErr_SetNone(
 		 PyExc_StopIteration );
 
 		return( NULL );
 	}
-	stripe_object = pyvslvm_stripes->get_stripe_by_index(
-	                 pyvslvm_stripes->segment_object,
-	                 pyvslvm_stripes->stripe_index );
+	stripe_object = stripes_object->get_item_by_index(
+	                 stripes_object->parent_object,
+	                 stripes_object->current_index );
 
 	if( stripe_object != NULL )
 	{
-		pyvslvm_stripes->stripe_index++;
+		stripes_object->current_index++;
 	}
 	return( stripe_object );
 }

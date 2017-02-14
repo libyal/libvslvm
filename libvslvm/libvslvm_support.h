@@ -83,5 +83,5 @@ int libvslvm_check_volume_signature_file_io_handle(
 }
 #endif
 
-#endif
+#endif /* !defined( _LIBVSLVM_SUPPORT_H ) */
 

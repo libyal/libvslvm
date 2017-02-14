@@ -52,5 +52,5 @@ int libvslvm_checksum_calculate_weak_crc32(
 }
 #endif
 
-#endif
+#endif /* !defined( _LIBVSLVM_CHECKSUM_H ) */
 

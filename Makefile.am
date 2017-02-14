@@ -17,7 +17,6 @@ SUBDIRS = \
 	libfdata \
 	libfvalue \
 	libvslvm \
-	libcsystem \
 	vslvmtools \
 	pyvslvm \
 	pyvslvm-python2 \
@@ -121,7 +120,6 @@ splint:
 	(cd $(srcdir)/libfdata && $(MAKE) splint $(AM_MAKEFLAGS))
 	(cd $(srcdir)/libfvalue && $(MAKE) splint $(AM_MAKEFLAGS))
 	(cd $(srcdir)/libvslvm && $(MAKE) splint $(AM_MAKEFLAGS))
-	(cd $(srcdir)/libcsystem && $(MAKE) splint $(AM_MAKEFLAGS))
 	(cd $(srcdir)/vslvmtools && $(MAKE) splint $(AM_MAKEFLAGS))
 	(cd $(srcdir)/pyvslvm && $(MAKE) splint $(AM_MAKEFLAGS))
 	(cd $(srcdir)/po && $(MAKE) splint $(AM_MAKEFLAGS))

@@ -89,5 +89,5 @@ struct vslvm_raw_location_descriptor
 }
 #endif
 
-#endif
+#endif /* !defined( _VSLVM_METADATA_AREA_H ) */
 

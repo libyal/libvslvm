@@ -208,5 +208,5 @@ int libvslvm_volume_group_append_logical_volume(
 }
 #endif
 
-#endif
+#endif /* !defined( _LIBVSLVM_INTERNAL_VOLUME_GROUP_H ) */
 

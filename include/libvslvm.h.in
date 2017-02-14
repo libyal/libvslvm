@@ -721,5 +721,5 @@ int libvslvm_stripe_get_data_area_offset(
 }
 #endif
 
-#endif
+#endif /* !defined( _LIBVSLVM_H ) */
 

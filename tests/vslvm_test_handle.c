@@ -1,5 +1,5 @@
 /*
- * Library handle type testing program
+ * Library handle type test program
  *
  * Copyright (C) 2014-2017, Joachim Metz <joachim.metz@gmail.com>
  *
@@ -30,15 +30,15 @@
 #include <stdlib.h>
 #endif
 
+#include "vslvm_test_getopt.h"
 #include "vslvm_test_libcerror.h"
 #include "vslvm_test_libclocale.h"
-#include "vslvm_test_libcsystem.h"
 #include "vslvm_test_libuna.h"
 #include "vslvm_test_libvslvm.h"
 #include "vslvm_test_macros.h"
 #include "vslvm_test_memory.h"
 
-#if SIZEOF_WCHAR_T != 2 && SIZEOF_WCHAR_T != 4
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER ) && SIZEOF_WCHAR_T != 2 && SIZEOF_WCHAR_T != 4
 #error Unsupported size of wchar_t
 #endif
 
@@ -256,8 +256,8 @@ int vslvm_test_handle_get_wide_source(
      libcerror_error_t **error )
 {
 	static char *function   = "vslvm_test_handle_get_wide_source";
-	size_t wide_source_size = 0;
 	size_t source_length    = 0;
+	size_t wide_source_size = 0;
 
 #if !defined( HAVE_WIDE_SYSTEM_CHARACTER )
 	int result              = 0;
@@ -584,11 +584,17 @@ int vslvm_test_handle_close_source(
 int vslvm_test_handle_initialize(
      void )
 {
-	libcerror_error_t *error = NULL;
-	libvslvm_handle_t *handle      = NULL;
-	int result               = 0;
+	libcerror_error_t *error        = NULL;
+	libvslvm_handle_t *handle       = NULL;
+	int result                      = 0;
 
-	/* Test libvslvm_handle_initialize
+#if defined( HAVE_VSLVM_TEST_MEMORY )
+	int number_of_malloc_fail_tests = 1;
+	int number_of_memset_fail_tests = 1;
+	int test_number                 = 0;
+#endif
+
+	/* Test regular cases
 	 */
 	result = libvslvm_handle_initialize(
 	          &handle,
@@ -664,79 +670,89 @@ int vslvm_test_handle_initialize(
 
 #if defined( HAVE_VSLVM_TEST_MEMORY )
 
-	/* Test libvslvm_handle_initialize with malloc failing
-	 */
-	vslvm_test_malloc_attempts_before_fail = 0;
-
-	result = libvslvm_handle_initialize(
-	          &handle,
-	          &error );
-
-	if( vslvm_test_malloc_attempts_before_fail != -1 )
+	for( test_number = 0;
+	     test_number < number_of_malloc_fail_tests;
+	     test_number++ )
 	{
-		vslvm_test_malloc_attempts_before_fail = -1;
+		/* Test libvslvm_handle_initialize with malloc failing
+		 */
+		vslvm_test_malloc_attempts_before_fail = test_number;
 
-		if( handle != NULL )
+		result = libvslvm_handle_initialize(
+		          &handle,
+		          &error );
+
+		if( vslvm_test_malloc_attempts_before_fail != -1 )
 		{
-			libvslvm_handle_free(
-			 &handle,
-			 NULL );
+			vslvm_test_malloc_attempts_before_fail = -1;
+
+			if( handle != NULL )
+			{
+				libvslvm_handle_free(
+				 &handle,
+				 NULL );
+			}
+		}
+		else
+		{
+			VSLVM_TEST_ASSERT_EQUAL_INT(
+			 "result",
+			 result,
+			 -1 );
+
+			VSLVM_TEST_ASSERT_IS_NULL(
+			 "handle",
+			 handle );
+
+			VSLVM_TEST_ASSERT_IS_NOT_NULL(
+			 "error",
+			 error );
+
+			libcerror_error_free(
+			 &error );
 		}
 	}
-	else
+	for( test_number = 0;
+	     test_number < number_of_memset_fail_tests;
+	     test_number++ )
 	{
-		VSLVM_TEST_ASSERT_EQUAL_INT(
-		 "result",
-		 result,
-		 -1 );
+		/* Test libvslvm_handle_initialize with memset failing
+		 */
+		vslvm_test_memset_attempts_before_fail = test_number;
 
-		VSLVM_TEST_ASSERT_IS_NULL(
-		 "handle",
-		 handle );
+		result = libvslvm_handle_initialize(
+		          &handle,
+		          &error );
 
-		VSLVM_TEST_ASSERT_IS_NOT_NULL(
-		 "error",
-		 error );
-
-		libcerror_error_free(
-		 &error );
-	}
-	/* Test libvslvm_handle_initialize with memset failing
-	 */
-	vslvm_test_memset_attempts_before_fail = 0;
-
-	result = libvslvm_handle_initialize(
-	          &handle,
-	          &error );
-
-	if( vslvm_test_memset_attempts_before_fail != -1 )
-	{
-		vslvm_test_memset_attempts_before_fail = -1;
-
-		if( handle != NULL )
+		if( vslvm_test_memset_attempts_before_fail != -1 )
 		{
-			libvslvm_handle_free(
-			 &handle,
-			 NULL );
+			vslvm_test_memset_attempts_before_fail = -1;
+
+			if( handle != NULL )
+			{
+				libvslvm_handle_free(
+				 &handle,
+				 NULL );
+			}
 		}
-	}
-	else
-	{
-		VSLVM_TEST_ASSERT_EQUAL_INT(
-		 "result",
-		 result,
-		 -1 );
+		else
+		{
+			VSLVM_TEST_ASSERT_EQUAL_INT(
+			 "result",
+			 result,
+			 -1 );
 
-		VSLVM_TEST_ASSERT_IS_NULL(
-		 "handle",
-		 handle );
+			VSLVM_TEST_ASSERT_IS_NULL(
+			 "handle",
+			 handle );
 
-		VSLVM_TEST_ASSERT_IS_NOT_NULL(
-		 "error",
-		 error );
+			VSLVM_TEST_ASSERT_IS_NOT_NULL(
+			 "error",
+			 error );
 
-		libcerror_error_free(
-		 &error );
+			libcerror_error_free(
+			 &error );
+		}
 	}
 #endif /* defined( HAVE_VSLVM_TEST_MEMORY ) */
 
@@ -795,7 +811,7 @@ on_error:
 	return( 0 );
 }
 
-/* Tests the libvslvm_handle_open functions
+/* Tests the libvslvm_handle_open function
  * Returns 1 if successful or 0 if not
  */
 int vslvm_test_handle_open(
@@ -803,9 +819,9 @@ int vslvm_test_handle_open(
 {
 	char narrow_source[ 256 ];
 
-	libcerror_error_t *error = NULL;
-	libvslvm_handle_t *handle      = NULL;
-	int result               = 0;
+	libcerror_error_t *error  = NULL;
+	libvslvm_handle_t *handle = NULL;
+	int result                = 0;
 
 	/* Initialize test
 	 */
@@ -858,21 +874,28 @@ int vslvm_test_handle_open(
          "error",
          error );
 
-	/* Clean up
+	/* Test error cases
 	 */
-	result = libvslvm_handle_close(
+	result = libvslvm_handle_open(
 	          handle,
+	          narrow_source,
+	          LIBVSLVM_OPEN_READ,
 	          &error );
 
 	VSLVM_TEST_ASSERT_EQUAL_INT(
 	 "result",
 	 result,
-	 0 );
+	 -1 );
 
-        VSLVM_TEST_ASSERT_IS_NULL(
+        VSLVM_TEST_ASSERT_IS_NOT_NULL(
          "error",
          error );
 
+	libcerror_error_free(
+	 &error );
+
+	/* Clean up
+	 */
 	result = libvslvm_handle_free(
 	          &handle,
 	          &error );
@@ -909,7 +932,7 @@ on_error:
 
 #if defined( HAVE_WIDE_CHARACTER_TYPE )
 
-/* Tests the libvslvm_handle_open_wide functions
+/* Tests the libvslvm_handle_open_wide function
  * Returns 1 if successful or 0 if not
  */
 int vslvm_test_handle_open_wide(
@@ -917,9 +940,9 @@ int vslvm_test_handle_open_wide(
 {
 	wchar_t wide_source[ 256 ];
 
-	libcerror_error_t *error = NULL;
-	libvslvm_handle_t *handle      = NULL;
-	int result               = 0;
+	libcerror_error_t *error  = NULL;
+	libvslvm_handle_t *handle = NULL;
+	int result                = 0;
 
 	/* Initialize test
 	 */
@@ -972,21 +995,28 @@ int vslvm_test_handle_open_wide(
          "error",
          error );
 
-	/* Clean up
+	/* Test error cases
 	 */
-	result = libvslvm_handle_close(
+	result = libvslvm_handle_open_wide(
 	          handle,
+	          wide_source,
+	          LIBVSLVM_OPEN_READ,
 	          &error );
 
 	VSLVM_TEST_ASSERT_EQUAL_INT(
 	 "result",
 	 result,
-	 0 );
+	 -1 );
 
-        VSLVM_TEST_ASSERT_IS_NULL(
+        VSLVM_TEST_ASSERT_IS_NOT_NULL(
          "error",
          error );
 
+	libcerror_error_free(
+	 &error );
+
+	/* Clean up
+	 */
 	result = libvslvm_handle_free(
 	          &handle,
 	          &error );
@@ -1023,6 +1053,349 @@ on_error:
 
 #endif /* defined( HAVE_WIDE_CHARACTER_TYPE ) */
 
+/* Tests the libvslvm_handle_close function
+ * Returns 1 if successful or 0 if not
+ */
+int vslvm_test_handle_close(
+     void )
+{
+	libcerror_error_t *error = NULL;
+	int result               = 0;
+
+	/* Test error cases
+	 */
+	result = libvslvm_handle_close(
+	          NULL,
+	          &error );
+
+	VSLVM_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+        VSLVM_TEST_ASSERT_IS_NOT_NULL(
+         "error",
+         error );
+
+	libcerror_error_free(
+	 &error );
+
+	return( 1 );
+
+on_error:
+	if( error != NULL )
+	{
+		libcerror_error_free(
+		 &error );
+	}
+	return( 0 );
+}
+
+/* Tests the libvslvm_handle_open and libvslvm_handle_close functions
+ * Returns 1 if successful or 0 if not
+ */
+int vslvm_test_handle_open_close(
+     const system_character_t *source )
+{
+	libcerror_error_t *error  = NULL;
+	libvslvm_handle_t *handle = NULL;
+	int result                = 0;
+
+	/* Initialize test
+	 */
+	result = libvslvm_handle_initialize(
+	          &handle,
+	          &error );
+
+	VSLVM_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+        VSLVM_TEST_ASSERT_IS_NOT_NULL(
+         "handle",
+         handle );
+
+        VSLVM_TEST_ASSERT_IS_NULL(
+         "error",
+         error );
+
+	/* Test open and close
+	 */
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
+	result = libvslvm_handle_open_wide(
+	          handle,
+	          source,
+	          LIBVSLVM_OPEN_READ,
+	          &error );
+#else
+	result = libvslvm_handle_open(
+	          handle,
+	          source,
+	          LIBVSLVM_OPEN_READ,
+	          &error );
+#endif
+
+	VSLVM_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+        VSLVM_TEST_ASSERT_IS_NULL(
+         "error",
+         error );
+
+	result = libvslvm_handle_close(
+	          handle,
+	          &error );
+
+	VSLVM_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 0 );
+
+        VSLVM_TEST_ASSERT_IS_NULL(
+         "error",
+         error );
+
+	/* Test open and close a second time to validate clean up on close
+	 */
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
+	result = libvslvm_handle_open_wide(
+	          handle,
+	          source,
+	          LIBVSLVM_OPEN_READ,
+	          &error );
+#else
+	result = libvslvm_handle_open(
+	          handle,
+	          source,
+	          LIBVSLVM_OPEN_READ,
+	          &error );
+#endif
+
+	VSLVM_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+        VSLVM_TEST_ASSERT_IS_NULL(
+         "error",
+         error );
+
+	result = libvslvm_handle_close(
+	          handle,
+	          &error );
+
+	VSLVM_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 0 );
+
+        VSLVM_TEST_ASSERT_IS_NULL(
+         "error",
+         error );
+
+	/* Clean up
+	 */
+	result = libvslvm_handle_free(
+	          &handle,
+	          &error );
+
+	VSLVM_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+        VSLVM_TEST_ASSERT_IS_NULL(
+         "handle",
+         handle );
+
+        VSLVM_TEST_ASSERT_IS_NULL(
+         "error",
+         error );
+
+	return( 1 );
+
+on_error:
+	if( error != NULL )
+	{
+		libcerror_error_free(
+		 &error );
+	}
+	if( handle != NULL )
+	{
+		libvslvm_handle_free(
+		 &handle,
+		 NULL );
+	}
+	return( 0 );
+}
+
+/* Tests the libvslvm_handle_signal_abort function
+ * Returns 1 if successful or 0 if not
+ */
+int vslvm_test_handle_signal_abort(
+     libvslvm_handle_t *handle )
+{
+	libcerror_error_t *error = NULL;
+	int result               = 0;
+
+	/* Test regular cases
+	 */
+	result = libvslvm_handle_signal_abort(
+	          handle,
+	          &error );
+
+	VSLVM_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+        VSLVM_TEST_ASSERT_IS_NULL(
+         "error",
+         error );
+
+	/* Test error cases
+	 */
+	result = libvslvm_handle_signal_abort(
+	          NULL,
+	          &error );
+
+	VSLVM_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+        VSLVM_TEST_ASSERT_IS_NOT_NULL(
+         "error",
+         error );
+
+	libcerror_error_free(
+	 &error );
+
+	return( 1 );
+
+on_error:
+	if( error != NULL )
+	{
+		libcerror_error_free(
+		 &error );
+	}
+	return( 0 );
+}
+
+/* Tests the libvslvm_handle_get_volume_group function
+ * Returns 1 if successful or 0 if not
+ */
+int vslvm_test_handle_get_volume_group(
+     libvslvm_handle_t *handle )
+{
+	libcerror_error_t *error              = NULL;
+	libvslvm_volume_group_t *volume_group = 0;
+	int result                            = 0;
+	int volume_group_is_set               = 0;
+
+	/* Test regular cases
+	 */
+	result = libvslvm_handle_get_volume_group(
+	          handle,
+	          &volume_group,
+	          &error );
+
+	VSLVM_TEST_ASSERT_NOT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	VSLVM_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	volume_group_is_set = result;
+
+	if( volume_group_is_set != 0 )
+	{
+		VSLVM_TEST_ASSERT_IS_NOT_NULL(
+		 "volume_group",
+		 volume_group );
+
+		result = libvslvm_volume_group_free(
+		          &volume_group,
+		          &error );
+
+		VSLVM_TEST_ASSERT_EQUAL_INT(
+		 "result",
+		 result,
+		 1 );
+
+		VSLVM_TEST_ASSERT_IS_NULL(
+		 "error",
+		 error );
+	}
+	/* Test error cases
+	 */
+	result = libvslvm_handle_get_volume_group(
+	          NULL,
+	          &volume_group,
+	          &error );
+
+	VSLVM_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	VSLVM_TEST_ASSERT_IS_NULL(
+	 "volume_group",
+	 volume_group );
+
+	VSLVM_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	if( volume_group_is_set != 0 )
+	{
+		result = libvslvm_handle_get_volume_group(
+		          handle,
+		          NULL,
+		          &error );
+
+		VSLVM_TEST_ASSERT_EQUAL_INT(
+		 "result",
+		 result,
+		 -1 );
+
+		VSLVM_TEST_ASSERT_IS_NULL(
+		 "volume_group",
+		 volume_group );
+
+		VSLVM_TEST_ASSERT_IS_NOT_NULL(
+		 "error",
+		 error );
+
+		libcerror_error_free(
+		 &error );
+	}
+	return( 1 );
+
+on_error:
+	if( error != NULL )
+	{
+		libcerror_error_free(
+		 &error );
+	}
+	if( volume_group != NULL )
+	{
+		libvslvm_volume_group_free(
+		 &volume_group,
+		 NULL );
+	}
+	return( 0 );
+}
+
 /* The main program
  */
 #if defined( HAVE_WIDE_SYSTEM_CHARACTER )
@@ -1036,12 +1409,12 @@ int main(
 #endif
 {
 	libcerror_error_t *error   = NULL;
+	libvslvm_handle_t *handle  = NULL;
 	system_character_t *source = NULL;
-	libvslvm_handle_t *handle        = NULL;
 	system_integer_t option    = 0;
 	int result                 = 0;
 
-	while( ( option = libcsystem_getopt(
+	while( ( option = vslvm_test_getopt(
 	                   argc,
 	                   argv,
 	                   _SYSTEM_STRING( "" ) ) ) != (system_integer_t) -1 )
@@ -1101,7 +1474,14 @@ int main(
 
 #endif /* defined( LIBVSLVM_HAVE_BFIO ) */
 
-		/* TODO add test for libvslvm_handle_close */
+		VSLVM_TEST_RUN(
+		 "libvslvm_handle_close",
+		 vslvm_test_handle_close );
+
+		VSLVM_TEST_RUN_WITH_ARGS(
+		 "libvslvm_handle_open_close",
+		 vslvm_test_handle_open_close,
+		 source );
 
 		/* Initialize test
 		 */
@@ -1124,8 +1504,33 @@ int main(
 	         error );
 
 		VSLVM_TEST_RUN_WITH_ARGS(
-		 "libvslvm_handle_open",
-		 vslvm_test_handle_open,
+		 "libvslvm_handle_signal_abort",
+		 vslvm_test_handle_signal_abort,
+		 handle );
+
+		/* TODO: add tests for libvslvm_handle_open_physical_volume_files */
+
+		/* TODO: add tests for libvslvm_handle_open_physical_volume_files_wide */
+
+		/* TODO: add tests for libvslvm_handle_open_physical_volume_files_file_io_pool */
+
+#if defined( __GNUC__ )
+
+		/* TODO: add tests for libvslvm_handle_open_physical_volume_file */
+
+		/* TODO: add tests for libvslvm_handle_open_physical_volume_file_wide */
+
+		/* TODO: add tests for libvslvm_handle_open_physical_volume_file_io_handle */
+
+		/* TODO: add tests for libvslvm_handle_open_read_data_area_table */
+
+		/* TODO: add tests for libvslvm_handle_open_read */
+
+#endif /* defined( __GNUC__ ) */
+
+		VSLVM_TEST_RUN_WITH_ARGS(
+		 "libvslvm_handle_get_volume_group",
+		 vslvm_test_handle_get_volume_group,
 		 handle );
 
 		/* Clean up

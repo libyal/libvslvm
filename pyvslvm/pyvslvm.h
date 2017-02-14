@@ -57,5 +57,5 @@ PyMODINIT_FUNC initpyvslvm(
 }
 #endif
 
-#endif
+#endif /* !defined( _PYVSLVM_H ) */
 

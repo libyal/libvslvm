@@ -97,5 +97,5 @@ int libvslvm_stripe_set_data_area_offset(
 }
 #endif
 
-#endif
+#endif /* !defined( _LIBVSLVM_INTERNAL_STRIPE_H ) */
 

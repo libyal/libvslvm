@@ -120,5 +120,5 @@ int libvslvm_logical_volume_values_append_segment(
 }
 #endif
 
-#endif
+#endif /* !defined( _LIBVSLVM_LOGICAL_VOLUME_VALUES_H ) */
 

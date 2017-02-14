@@ -1,7 +1,7 @@
 /*
- * Python object definition of the stripes sequence and iterator
+ * Python object definition of the sequence and iterator object of stripes
  *
- * Copyright (C) 2011-2017, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (C) 2014-2017, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -27,7 +27,6 @@
 
 #include "pyvslvm_libvslvm.h"
 #include "pyvslvm_python.h"
-#include "pyvslvm_segment.h"
 
 #if defined( __cplusplus )
 extern "C" {
@@ -41,56 +40,56 @@ struct pyvslvm_stripes
 	 */
 	PyObject_HEAD
 
-	/* The pyvslvm segment object
+	/* The parent object
 	 */
-	pyvslvm_segment_t *segment_object;
+	PyObject *parent_object;
 
-	/* The get stripe by index callback function
+	/* The get item by index callback function
 	 */
-	PyObject* (*get_stripe_by_index)(
-	             pyvslvm_segment_t *segment_object,
-	             int stripe_index );
+	PyObject* (*get_item_by_index)(
+	             PyObject *parent_object,
+	             int index );
 
-	/* The (current) stripe index
+	/* The current index
 	 */
-	int stripe_index;
+	int current_index;
 
-	/* The number of stripes
+	/* The number of items
 	 */
-	int number_of_stripes;
+	int number_of_items;
 };
 
 extern PyTypeObject pyvslvm_stripes_type_object;
 
 PyObject *pyvslvm_stripes_new(
-           pyvslvm_segment_t *segment_object,
-           PyObject* (*get_stripe_by_index)(
-                        pyvslvm_segment_t *segment_object,
-                        int stripe_index ),
-           int number_of_stripes );
+           PyObject *parent_object,
+           PyObject* (*get_item_by_index)(
+                        PyObject *parent_object,
+                        int index ),
+           int number_of_items );
 
 int pyvslvm_stripes_init(
-     pyvslvm_stripes_t *pyvslvm_stripes );
+     pyvslvm_stripes_t *stripes_object );
 
 void pyvslvm_stripes_free(
-      pyvslvm_stripes_t *pyvslvm_stripes );
+      pyvslvm_stripes_t *stripes_object );
 
 Py_ssize_t pyvslvm_stripes_len(
-            pyvslvm_stripes_t *pyvslvm_stripes );
+            pyvslvm_stripes_t *stripes_object );
 
 PyObject *pyvslvm_stripes_getitem(
-           pyvslvm_stripes_t *pyvslvm_stripes,
+           pyvslvm_stripes_t *stripes_object,
            Py_ssize_t item_index );
 
 PyObject *pyvslvm_stripes_iter(
-           pyvslvm_stripes_t *pyvslvm_stripes );
+           pyvslvm_stripes_t *stripes_object );
 
 PyObject *pyvslvm_stripes_iternext(
-           pyvslvm_stripes_t *pyvslvm_stripes );
+           pyvslvm_stripes_t *stripes_object );
 
 #if defined( __cplusplus )
 }
 #endif
 
-#endif
+#endif /* !defined( _PYVSLVM_STRIPES_H ) */
 

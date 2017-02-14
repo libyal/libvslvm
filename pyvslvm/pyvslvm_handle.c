@@ -1,5 +1,5 @@
 /*
- * Python object definition of the libvslvm handle
+ * Python object wrapper of libvslvm_handle_t
  *
  * Copyright (C) 2014-2017, Joachim Metz <joachim.metz@gmail.com>
  *

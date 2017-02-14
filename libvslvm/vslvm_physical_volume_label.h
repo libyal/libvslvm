@@ -95,5 +95,5 @@ struct vslvm_data_area_descriptor
 }
 #endif
 
-#endif
+#endif /* !defined( _VSLVM_PHYSICAL_VOLUME_LABEL_H ) */
 

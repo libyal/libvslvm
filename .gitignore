@@ -125,11 +125,22 @@ stamp-h[1-9]
 /vslvmtools/vslvmmount
 /tests/input
 /tests/tmp*
+/tests/vslvm_test_chunk_data
+/tests/vslvm_test_data_area_descriptor
 /tests/vslvm_test_error
-/tests/vslvm_test_open_close
-/tests/vslvm_test_read
-/tests/vslvm_test_seek
+/tests/vslvm_test_handle
+/tests/vslvm_test_io_handle
+/tests/vslvm_test_logical_volume
+/tests/vslvm_test_logical_volume_values
+/tests/vslvm_test_metadata
+/tests/vslvm_test_metadata_area
+/tests/vslvm_test_notify
+/tests/vslvm_test_physical_volume
+/tests/vslvm_test_raw_location_descriptor
+/tests/vslvm_test_segment
+/tests/vslvm_test_stripe
 /tests/vslvm_test_support
+/tests/vslvm_test_volume_group
 
 # Local library dependencies specific files
 /libbfio
@@ -140,7 +151,6 @@ stamp-h[1-9]
 /libcnotify
 /libcpath
 /libcsplit
-/libcsystem
 /libcthreads
 /libfcache
 /libfdata

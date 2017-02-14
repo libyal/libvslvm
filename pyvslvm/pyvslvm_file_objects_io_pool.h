@@ -43,5 +43,5 @@ int pyvslvm_file_objects_pool_initialize(
 }
 #endif
 
-#endif
+#endif /* !defined( _PYVSLVM_FILE_OBJECTS_IO_POOL_H ) */
 

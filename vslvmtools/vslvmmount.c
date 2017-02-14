@@ -65,13 +65,15 @@
 #include <dokan.h>
 #endif
 
-#include "vslvmoutput.h"
-#include "vslvmtools_libvslvm.h"
+#include "mount_handle.h"
+#include "vslvmtools_getopt.h"
 #include "vslvmtools_libcerror.h"
 #include "vslvmtools_libclocale.h"
 #include "vslvmtools_libcnotify.h"
-#include "vslvmtools_libcsystem.h"
-#include "mount_handle.h"
+#include "vslvmtools_libvslvm.h"
+#include "vslvmtools_output.h"
+#include "vslvmtools_signal.h"
+#include "vslvmtools_unused.h"
 
 mount_handle_t *vslvmmount_mount_handle = NULL;
 int vslvmmount_abort                    = 0;
@@ -105,12 +107,12 @@ void usage_fprint(
 /* Signal handler for vslvmmount
  */
 void vslvmmount_signal_handler(
-      libcsystem_signal_t signal LIBCSYSTEM_ATTRIBUTE_UNUSED )
+      vslvmtools_signal_t signal VSLVMTOOLS_ATTRIBUTE_UNUSED )
 {
 	libcerror_error_t *error = NULL;
 	static char *function    = "vslvmmount_signal_handler";
 
-	LIBCSYSTEM_UNREFERENCED_PARAMETER( signal )
+	VSLVMTOOLS_UNREFERENCED_PARAMETER( signal )
 
 	vslvmmount_abort = 1;
 
@@ -132,8 +134,13 @@ void vslvmmount_signal_handler(
 	}
 	/* Force stdin to close otherwise any function reading it will remain blocked
 	 */
-	if( libcsystem_file_io_close(
+#if defined( WINAPI ) && !defined( __CYGWIN__ )
+	if( _close(
 	     0 ) != 0 )
+#else
+	if( close(
+	     0 ) != 0 )
+#endif
 	{
 		libcnotify_printf(
 		 "%s: unable to close stdin.\n",
@@ -566,8 +573,8 @@ int vslvmmount_fuse_readdir(
      const char *path,
      void *buffer,
      fuse_fill_dir_t filler,
-     off_t offset LIBCSYSTEM_ATTRIBUTE_UNUSED,
-     struct fuse_file_info *file_info LIBCSYSTEM_ATTRIBUTE_UNUSED )
+     off_t offset VSLVMTOOLS_ATTRIBUTE_UNUSED,
+     struct fuse_file_info *file_info VSLVMTOOLS_ATTRIBUTE_UNUSED )
 {
 	char vslvmmount_fuse_path[ 10 ];
 
@@ -580,8 +587,8 @@ int vslvmmount_fuse_readdir(
 	int result                    = 0;
 	int string_index              = 0;
 
-	LIBCSYSTEM_UNREFERENCED_PARAMETER( offset )
-	LIBCSYSTEM_UNREFERENCED_PARAMETER( file_info )
+	VSLVMTOOLS_UNREFERENCED_PARAMETER( offset )
+	VSLVMTOOLS_UNREFERENCED_PARAMETER( file_info )
 
 	if( path == NULL )
 	{
@@ -933,12 +940,12 @@ on_error:
 /* Cleans up when fuse is done
  */
 void vslvmmount_fuse_destroy(
-      void *private_data LIBCSYSTEM_ATTRIBUTE_UNUSED )
+      void *private_data VSLVMTOOLS_ATTRIBUTE_UNUSED )
 {
 	libcerror_error_t *error = NULL;
 	static char *function    = "vslvmmount_fuse_destroy";
 
-	LIBCSYSTEM_UNREFERENCED_PARAMETER( private_data )
+	VSLVMTOOLS_UNREFERENCED_PARAMETER( private_data )
 
 	if( vslvmmount_mount_handle != NULL )
 	{
@@ -980,9 +987,9 @@ static size_t vslvmmount_dokan_path_prefix_length = 4;
 int __stdcall vslvmmount_dokan_CreateFile(
                const wchar_t *path,
                DWORD desired_access,
-               DWORD share_mode LIBCSYSTEM_ATTRIBUTE_UNUSED,
+               DWORD share_mode VSLVMTOOLS_ATTRIBUTE_UNUSED,
                DWORD creation_disposition,
-               DWORD attribute_flags LIBCSYSTEM_ATTRIBUTE_UNUSED,
+               DWORD attribute_flags VSLVMTOOLS_ATTRIBUTE_UNUSED,
                DOKAN_FILE_INFO *file_info )
 {
 	libcerror_error_t *error = NULL;
@@ -990,8 +997,8 @@ int __stdcall vslvmmount_dokan_CreateFile(
 	size_t path_length       = 0;
 	int result               = 0;
 
-	LIBCSYSTEM_UNREFERENCED_PARAMETER( share_mode )
-	LIBCSYSTEM_UNREFERENCED_PARAMETER( attribute_flags )
+	VSLVMTOOLS_UNREFERENCED_PARAMETER( share_mode )
+	VSLVMTOOLS_UNREFERENCED_PARAMETER( attribute_flags )
 
 	if( path == NULL )
 	{
@@ -1114,14 +1121,14 @@ on_error:
  */
 int __stdcall vslvmmount_dokan_OpenDirectory(
                const wchar_t *path,
-               DOKAN_FILE_INFO *file_info LIBCSYSTEM_ATTRIBUTE_UNUSED )
+               DOKAN_FILE_INFO *file_info VSLVMTOOLS_ATTRIBUTE_UNUSED )
 {
 	libcerror_error_t *error = NULL;
 	static char *function    = "vslvmmount_dokan_OpenDirectory";
 	size_t path_length       = 0;
 	int result               = 0;
 
-	LIBCSYSTEM_UNREFERENCED_PARAMETER( file_info )
+	VSLVMTOOLS_UNREFERENCED_PARAMETER( file_info )
 
 	if( path == NULL )
 	{
@@ -1172,13 +1179,13 @@ on_error:
  */
 int __stdcall vslvmmount_dokan_CloseFile(
                const wchar_t *path,
-               DOKAN_FILE_INFO *file_info LIBCSYSTEM_ATTRIBUTE_UNUSED )
+               DOKAN_FILE_INFO *file_info VSLVMTOOLS_ATTRIBUTE_UNUSED )
 {
 	libcerror_error_t *error = NULL;
 	static char *function    = "vslvmmount_dokan_CloseFile";
 	int result               = 0;
 
-	LIBCSYSTEM_UNREFERENCED_PARAMETER( file_info )
+	VSLVMTOOLS_UNREFERENCED_PARAMETER( file_info )
 
 	if( path == NULL )
 	{
@@ -1215,7 +1222,7 @@ int __stdcall vslvmmount_dokan_ReadFile(
                DWORD number_of_bytes_to_read,
                DWORD *number_of_bytes_read,
                LONGLONG offset,
-               DOKAN_FILE_INFO *file_info LIBCSYSTEM_ATTRIBUTE_UNUSED )
+               DOKAN_FILE_INFO *file_info VSLVMTOOLS_ATTRIBUTE_UNUSED )
 {
 	libcerror_error_t *error = NULL;
 	static char *function    = "vslvmmount_dokan_ReadFile";
@@ -1225,7 +1232,7 @@ int __stdcall vslvmmount_dokan_ReadFile(
 	int result               = 0;
 	int string_index         = 0;
 
-	LIBCSYSTEM_UNREFERENCED_PARAMETER( file_info )
+	VSLVMTOOLS_UNREFERENCED_PARAMETER( file_info )
 
 	if( path == NULL )
 	{
@@ -1964,13 +1971,13 @@ int __stdcall vslvmmount_dokan_GetVolumeInformation(
                DWORD *file_system_flags,
                wchar_t *file_system_name,
                DWORD file_system_name_size,
-               DOKAN_FILE_INFO *file_info LIBCSYSTEM_ATTRIBUTE_UNUSED )
+               DOKAN_FILE_INFO *file_info VSLVMTOOLS_ATTRIBUTE_UNUSED )
 {
 	libcerror_error_t *error = NULL;
 	static char *function    = "vslvmmount_dokan_GetVolumeInformation";
 	int result               = 0;
 
-	LIBCSYSTEM_UNREFERENCED_PARAMETER( file_info )
+	VSLVMTOOLS_UNREFERENCED_PARAMETER( file_info )
 
 	if( ( volume_name != NULL )
 	 && ( volume_name_size > (DWORD) ( sizeof( wchar_t ) * 4 ) ) )
@@ -2050,11 +2057,11 @@ on_error:
  * Returns 0 if successful or a negative error code otherwise
  */
 int __stdcall vslvmmount_dokan_Unmount(
-               DOKAN_FILE_INFO *file_info LIBCSYSTEM_ATTRIBUTE_UNUSED )
+               DOKAN_FILE_INFO *file_info VSLVMTOOLS_ATTRIBUTE_UNUSED )
 {
 	static char *function = "vslvmmount_dokan_Unmount";
 
-	LIBCSYSTEM_UNREFERENCED_PARAMETER( file_info )
+	VSLVMTOOLS_UNREFERENCED_PARAMETER( file_info )
 
 	return( 0 );
 }
@@ -2107,13 +2114,13 @@ int main( int argc, char * const argv[] )
 
 		goto on_error;
 	}
-	if( libcsystem_initialize(
+	if( vslvmtools_output_initialize(
              _IONBF,
              &error ) != 1 )
 	{
 		fprintf(
 		 stderr,
-		 "Unable to initialize system values.\n" );
+		 "Unable to initialize output settings.\n" );
 
 		goto on_error;
 	}
@@ -2121,7 +2128,7 @@ int main( int argc, char * const argv[] )
 	 stdout,
 	 program );
 
-	while( ( option = libcsystem_getopt(
+	while( ( option = vslvmtools_getopt(
 	                   argc,
 	                   argv,
 	                   _SYSTEM_STRING( "ho:vVX:" ) ) ) != (system_integer_t) -1 )

@@ -124,5 +124,5 @@ int libvslvm_metadata_get_volume_group(
 }
 #endif
 
-#endif
+#endif /* !defined( _LIBVSLVM_METADATA_H ) */
 

@@ -1,7 +1,7 @@
 /*
- * Python object definition of the segments sequence and iterator
+ * Python object definition of the sequence and iterator object of segments
  *
- * Copyright (C) 2011-2017, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (C) 2014-2017, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -27,7 +27,6 @@
 
 #include "pyvslvm_libvslvm.h"
 #include "pyvslvm_python.h"
-#include "pyvslvm_logical_volume.h"
 
 #if defined( __cplusplus )
 extern "C" {
@@ -41,56 +40,56 @@ struct pyvslvm_segments
 	 */
 	PyObject_HEAD
 
-	/* The pyvslvm logical volume object
+	/* The parent object
 	 */
-	pyvslvm_logical_volume_t *logical_volume_object;
+	PyObject *parent_object;
 
-	/* The get segment by index callback function
+	/* The get item by index callback function
 	 */
-	PyObject* (*get_segment_by_index)(
-	             pyvslvm_logical_volume_t *logical_volume_object,
-	             int segment_index );
+	PyObject* (*get_item_by_index)(
+	             PyObject *parent_object,
+	             int index );
 
-	/* The (current) segment index
+	/* The current index
 	 */
-	int segment_index;
+	int current_index;
 
-	/* The number of segments
+	/* The number of items
 	 */
-	int number_of_segments;
+	int number_of_items;
 };
 
 extern PyTypeObject pyvslvm_segments_type_object;
 
 PyObject *pyvslvm_segments_new(
-           pyvslvm_logical_volume_t *logical_volume_object,
-           PyObject* (*get_segment_by_index)(
-                        pyvslvm_logical_volume_t *logical_volume_object,
-                        int segment_index ),
-           int number_of_segments );
+           PyObject *parent_object,
+           PyObject* (*get_item_by_index)(
+                        PyObject *parent_object,
+                        int index ),
+           int number_of_items );
 
 int pyvslvm_segments_init(
-     pyvslvm_segments_t *pyvslvm_segments );
+     pyvslvm_segments_t *segments_object );
 
 void pyvslvm_segments_free(
-      pyvslvm_segments_t *pyvslvm_segments );
+      pyvslvm_segments_t *segments_object );
 
 Py_ssize_t pyvslvm_segments_len(
-            pyvslvm_segments_t *pyvslvm_segments );
+            pyvslvm_segments_t *segments_object );
 
 PyObject *pyvslvm_segments_getitem(
-           pyvslvm_segments_t *pyvslvm_segments,
+           pyvslvm_segments_t *segments_object,
            Py_ssize_t item_index );
 
 PyObject *pyvslvm_segments_iter(
-           pyvslvm_segments_t *pyvslvm_segments );
+           pyvslvm_segments_t *segments_object );
 
 PyObject *pyvslvm_segments_iternext(
-           pyvslvm_segments_t *pyvslvm_segments );
+           pyvslvm_segments_t *segments_object );
 
 #if defined( __cplusplus )
 }
 #endif
 
-#endif
+#endif /* !defined( _PYVSLVM_SEGMENTS_H ) */
 

@@ -10,7 +10,6 @@ AM_CPPFLAGS = \
 	@LIBCFILE_CPPFLAGS@ \
 	@LIBCPATH_CPPFLAGS@ \
 	@LIBBFIO_CPPFLAGS@ \
-	@LIBCSYSTEM_CPPFLAGS@ \
 	@LIBFUSE_CPPFLAGS@ \
 	@LIBVSLVM_DLL_IMPORT@
 
@@ -22,56 +21,60 @@ bin_PROGRAMS = \
 
 vslvminfo_SOURCES = \
 	byte_size_string.c byte_size_string.h \
+	info_handle.c info_handle.h \
 	vslvminfo.c \
-	vslvmoutput.c vslvmoutput.h \
+	vslvmtools_getopt.c vslvmtools_getopt.h \
+	vslvmtools_i18n.h \
 	vslvmtools_libbfio.h \
 	vslvmtools_libcerror.h \
 	vslvmtools_libclocale.h \
 	vslvmtools_libcnotify.h \
-	vslvmtools_libcsystem.h \
 	vslvmtools_libvslvm.h \
 	vslvmtools_libuna.h \
-	info_handle.c info_handle.h
+	vslvmtools_output.c vslvmtools_output.h \
+	vslvmtools_signal.c vslvmtools_signal.h \
+	vslvmtools_unused.h
 
 vslvminfo_LDADD = \
-	@LIBCSYSTEM_LIBADD@ \
 	@LIBBFIO_LIBADD@ \
 	@LIBCPATH_LIBADD@ \
 	@LIBCFILE_LIBADD@ \
 	@LIBUNA_LIBADD@ \
 	@LIBCSPLIT_LIBADD@ \
 	@LIBCDATA_LIBADD@ \
-	../libvslvm/libvslvm.la \
 	@LIBCNOTIFY_LIBADD@ \
 	@LIBCLOCALE_LIBADD@ \
+	../libvslvm/libvslvm.la \
 	@LIBCERROR_LIBADD@ \
 	@LIBINTL@
 
 vslvmmount_SOURCES = \
 	mount_handle.c mount_handle.h \
 	vslvmmount.c \
-	vslvmoutput.c vslvmoutput.h \
+	vslvmtools_getopt.c vslvmtools_getopt.h \
+	vslvmtools_i18n.h \
 	vslvmtools_libbfio.h \
 	vslvmtools_libcdata.h \
 	vslvmtools_libcerror.h \
 	vslvmtools_libclocale.h \
 	vslvmtools_libcnotify.h \
-	vslvmtools_libcsystem.h \
 	vslvmtools_libvslvm.h \
-	vslvmtools_libuna.h
+	vslvmtools_libuna.h \
+	vslvmtools_output.c vslvmtools_output.h \
+	vslvmtools_signal.c vslvmtools_signal.h \
+	vslvmtools_unused.h
 
 vslvmmount_LDADD = \
 	@LIBFUSE_LIBADD@ \
-	@LIBCSYSTEM_LIBADD@ \
 	@LIBBFIO_LIBADD@ \
 	@LIBCPATH_LIBADD@ \
 	@LIBCFILE_LIBADD@ \
 	@LIBUNA_LIBADD@ \
 	@LIBCSPLIT_LIBADD@ \
 	@LIBCDATA_LIBADD@ \
-	../libvslvm/libvslvm.la \
 	@LIBCNOTIFY_LIBADD@ \
 	@LIBCLOCALE_LIBADD@ \
+	../libvslvm/libvslvm.la \
 	@LIBCERROR_LIBADD@ \
 	@LIBINTL@
 

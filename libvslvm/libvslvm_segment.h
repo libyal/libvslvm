@@ -119,5 +119,5 @@ int libvslvm_segment_append_stripe(
 }
 #endif
 
-#endif
+#endif /* !defined( _LIBVSLVM_SEGMENT_H ) */
 
