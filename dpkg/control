@@ -1,10 +1,10 @@
 Source: libvslvm
-Section: libs
 Priority: extra
 Maintainer: Joachim Metz <joachim.metz@gmail.com>
-Build-Depends: debhelper (>= 7), autotools-dev, libfuse-dev, python-all-dev, python3-all-dev
+Build-Depends: debhelper (>= 9), dh-autoreconf, pkg-config, python-dev, python3-dev
 Standards-Version: 3.9.5
-Homepage: https://github.com/libyal/libvslvm/
+Section: libs
+Homepage: https://github.com/libyal/libvslvm
 
 Package: libvslvm
 Architecture: any
@@ -32,7 +32,14 @@ Section: utils
 Architecture: any
 Depends: libvslvm (= ${binary:Version}), ${shlibs:Depends}, ${misc:Depends}
 Description: Several tools for Several tools for reading Linux Logical Volume Manager (LVM) volume systems
- Several tools for Several tools for reading Linux Logical Volume Manager (LVM) volume system.
+ Several tools for Several tools for reading Linux Logical Volume Manager (LVM) volume systems.
+
+Package: libvslvm-tools-dbg
+Section: debug
+Architecture: any
+Depends: libvslvm-tools (= ${binary:Version}), ${misc:Depends}
+Description: Debugging symbols for libvslvm-tools
+ Debugging symbols for libvslvm-tools.
 
 Package: libvslvm-python
 Section: python
