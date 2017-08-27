@@ -35,7 +35,7 @@
 
 #include "../libvslvm/libvslvm_volume_group.h"
 
-#if defined( __GNUC__ )
+#if defined( __GNUC__ ) && !defined( LIBVSLVM_DLL_IMPORT )
 
 /* Tests the libvslvm_volume_group_initialize function
  * Returns 1 if successful or 0 if not
@@ -72,8 +72,8 @@ int vslvm_test_volume_group_initialize(
          "error",
          error );
 
-	result = libvslvm_volume_group_free(
-	          &volume_group,
+	result = libvslvm_internal_volume_group_free(
+	          (libvslvm_internal_volume_group_t **) &volume_group,
 	          &error );
 
 	VSLVM_TEST_ASSERT_EQUAL_INT(
@@ -147,8 +147,8 @@ int vslvm_test_volume_group_initialize(
 
 			if( volume_group != NULL )
 			{
-				libvslvm_volume_group_free(
-				 &volume_group,
+				libvslvm_internal_volume_group_free(
+				 (libvslvm_internal_volume_group_t **) &volume_group,
 				 NULL );
 			}
 		}
@@ -189,8 +189,8 @@ int vslvm_test_volume_group_initialize(
 
 			if( volume_group != NULL )
 			{
-				libvslvm_volume_group_free(
-				 &volume_group,
+				libvslvm_internal_volume_group_free(
+				 (libvslvm_internal_volume_group_t **) &volume_group,
 				 NULL );
 			}
 		}
@@ -225,14 +225,14 @@ on_error:
 	}
 	if( volume_group != NULL )
 	{
-		libvslvm_volume_group_free(
-		 &volume_group,
+		libvslvm_internal_volume_group_free(
+		 (libvslvm_internal_volume_group_t **) &volume_group,
 		 NULL );
 	}
 	return( 0 );
 }
 
-#endif /* defined( __GNUC__ ) */
+#endif /* defined( __GNUC__ ) && !defined( LIBVSLVM_DLL_IMPORT ) */
 
 /* Tests the libvslvm_volume_group_free function
  * Returns 1 if successful or 0 if not
@@ -272,7 +272,7 @@ on_error:
 	return( 0 );
 }
 
-#if defined( __GNUC__ )
+#if defined( __GNUC__ ) && !defined( LIBVSLVM_DLL_IMPORT )
 
 /* Tests the libvslvm_volume_group_get_name_size function
  * Returns 1 if successful or 0 if not
@@ -363,8 +363,8 @@ int vslvm_test_volume_group_get_name_size(
 	}
 	/* Clean up
 	 */
-	result = libvslvm_volume_group_free(
-	          &volume_group,
+	result = libvslvm_internal_volume_group_free(
+	          (libvslvm_internal_volume_group_t **) &volume_group,
 	          &error );
 
 	VSLVM_TEST_ASSERT_EQUAL_INT(
@@ -390,8 +390,8 @@ on_error:
 	}
 	if( volume_group != NULL )
 	{
-		libvslvm_volume_group_free(
-		 &volume_group,
+		libvslvm_internal_volume_group_free(
+		 (libvslvm_internal_volume_group_t **) &volume_group,
 		 NULL );
 	}
 	return( 0 );
@@ -486,8 +486,8 @@ int vslvm_test_volume_group_get_identifier_size(
 	}
 	/* Clean up
 	 */
-	result = libvslvm_volume_group_free(
-	          &volume_group,
+	result = libvslvm_internal_volume_group_free(
+	          (libvslvm_internal_volume_group_t **) &volume_group,
 	          &error );
 
 	VSLVM_TEST_ASSERT_EQUAL_INT(
@@ -513,8 +513,8 @@ on_error:
 	}
 	if( volume_group != NULL )
 	{
-		libvslvm_volume_group_free(
-		 &volume_group,
+		libvslvm_internal_volume_group_free(
+		 (libvslvm_internal_volume_group_t **) &volume_group,
 		 NULL );
 	}
 	return( 0 );
@@ -609,8 +609,8 @@ int vslvm_test_volume_group_get_sequence_number(
 	}
 	/* Clean up
 	 */
-	result = libvslvm_volume_group_free(
-	          &volume_group,
+	result = libvslvm_internal_volume_group_free(
+	          (libvslvm_internal_volume_group_t **) &volume_group,
 	          &error );
 
 	VSLVM_TEST_ASSERT_EQUAL_INT(
@@ -636,8 +636,8 @@ on_error:
 	}
 	if( volume_group != NULL )
 	{
-		libvslvm_volume_group_free(
-		 &volume_group,
+		libvslvm_internal_volume_group_free(
+		 (libvslvm_internal_volume_group_t **) &volume_group,
 		 NULL );
 	}
 	return( 0 );
@@ -732,8 +732,8 @@ int vslvm_test_volume_group_get_extent_size(
 	}
 	/* Clean up
 	 */
-	result = libvslvm_volume_group_free(
-	          &volume_group,
+	result = libvslvm_internal_volume_group_free(
+	          (libvslvm_internal_volume_group_t **) &volume_group,
 	          &error );
 
 	VSLVM_TEST_ASSERT_EQUAL_INT(
@@ -759,8 +759,8 @@ on_error:
 	}
 	if( volume_group != NULL )
 	{
-		libvslvm_volume_group_free(
-		 &volume_group,
+		libvslvm_internal_volume_group_free(
+		 (libvslvm_internal_volume_group_t **) &volume_group,
 		 NULL );
 	}
 	return( 0 );
@@ -855,8 +855,8 @@ int vslvm_test_volume_group_get_number_of_physical_volumes(
 	}
 	/* Clean up
 	 */
-	result = libvslvm_volume_group_free(
-	          &volume_group,
+	result = libvslvm_internal_volume_group_free(
+	          (libvslvm_internal_volume_group_t **) &volume_group,
 	          &error );
 
 	VSLVM_TEST_ASSERT_EQUAL_INT(
@@ -882,8 +882,8 @@ on_error:
 	}
 	if( volume_group != NULL )
 	{
-		libvslvm_volume_group_free(
-		 &volume_group,
+		libvslvm_internal_volume_group_free(
+		 (libvslvm_internal_volume_group_t **) &volume_group,
 		 NULL );
 	}
 	return( 0 );
@@ -978,8 +978,8 @@ int vslvm_test_volume_group_get_number_of_logical_volumes(
 	}
 	/* Clean up
 	 */
-	result = libvslvm_volume_group_free(
-	          &volume_group,
+	result = libvslvm_internal_volume_group_free(
+	          (libvslvm_internal_volume_group_t **) &volume_group,
 	          &error );
 
 	VSLVM_TEST_ASSERT_EQUAL_INT(
@@ -1005,14 +1005,14 @@ on_error:
 	}
 	if( volume_group != NULL )
 	{
-		libvslvm_volume_group_free(
-		 &volume_group,
+		libvslvm_internal_volume_group_free(
+		 (libvslvm_internal_volume_group_t **) &volume_group,
 		 NULL );
 	}
 	return( 0 );
 }
 
-#endif /* defined( __GNUC__ ) */
+#endif /* defined( __GNUC__ ) && !defined( LIBVSLVM_DLL_IMPORT ) */
 
 /* The main program
  */
@@ -1029,19 +1029,19 @@ int main(
 	VSLVM_TEST_UNREFERENCED_PARAMETER( argc )
 	VSLVM_TEST_UNREFERENCED_PARAMETER( argv )
 
-#if defined( __GNUC__ )
+#if defined( __GNUC__ ) && !defined( LIBVSLVM_DLL_IMPORT )
 
 	VSLVM_TEST_RUN(
 	 "libvslvm_volume_group_initialize",
 	 vslvm_test_volume_group_initialize );
 
-#endif /* defined( __GNUC__ ) */
+#endif /* defined( __GNUC__ ) && !defined( LIBVSLVM_DLL_IMPORT ) */
 
 	VSLVM_TEST_RUN(
 	 "libvslvm_volume_group_free",
 	 vslvm_test_volume_group_free );
 
-#if defined( __GNUC__ )
+#if defined( __GNUC__ ) && !defined( LIBVSLVM_DLL_IMPORT )
 
 	/* TODO: add tests for libvslvm_volume_group_set_io_values */
 
@@ -1087,7 +1087,7 @@ int main(
 
 	/* TODO: add tests for libvslvm_volume_group_append_logical_volume */
 
-#endif /* defined( __GNUC__ ) */
+#endif /* defined( __GNUC__ ) && !defined( LIBVSLVM_DLL_IMPORT ) */
 
 	return( EXIT_SUCCESS );
 

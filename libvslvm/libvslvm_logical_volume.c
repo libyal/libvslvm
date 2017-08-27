@@ -356,20 +356,6 @@ int libvslvm_logical_volume_initialize(
 			}
 /* TODO check segment size ? */
 		}
-		if( libvslvm_segment_free(
-		     &segment,
-		     error ) != 1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
-			 "%s: unable to free segment: %d.",
-			 function,
-			 segment_index );
-
-			goto on_error;
-		}
 /* TODO skip the append if the physical volumes are not available? */
 		if( libfdata_vector_append_segment(
 		     internal_logical_volume->chunks_vector,
@@ -389,6 +375,7 @@ int libvslvm_logical_volume_initialize(
 
 			goto on_error;
 		}
+		segment = NULL;
 	}
 	if( libfdata_vector_get_size(
 	     internal_logical_volume->chunks_vector,
@@ -446,12 +433,6 @@ on_error:
 	{
 		libvslvm_stripe_free(
 		 &stripe,
-		 NULL );
-	}
-	if( segment != NULL )
-	{
-		libvslvm_segment_free(
-		 &segment,
 		 NULL );
 	}
 	if( internal_logical_volume != NULL )

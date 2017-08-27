@@ -35,7 +35,7 @@
 
 #include "../libvslvm/libvslvm_metadata.h"
 
-#if defined( __GNUC__ )
+#if defined( __GNUC__ ) && !defined( LIBVSLVM_DLL_IMPORT )
 
 /* Tests the libvslvm_metadata_initialize function
  * Returns 1 if successful or 0 if not
@@ -426,7 +426,7 @@ on_error:
 	return( 0 );
 }
 
-#endif /* defined( __GNUC__ ) */
+#endif /* defined( __GNUC__ ) && !defined( LIBVSLVM_DLL_IMPORT ) */
 
 /* The main program
  */
@@ -443,7 +443,7 @@ int main(
 	VSLVM_TEST_UNREFERENCED_PARAMETER( argc )
 	VSLVM_TEST_UNREFERENCED_PARAMETER( argv )
 
-#if defined( __GNUC__ )
+#if defined( __GNUC__ ) && !defined( LIBVSLVM_DLL_IMPORT )
 
 	VSLVM_TEST_RUN(
 	 "libvslvm_metadata_initialize",
@@ -473,7 +473,7 @@ int main(
 	 "libvslvm_metadata_get_volume_group",
 	 vslvm_test_metadata_get_volume_group );
 
-#endif /* defined( __GNUC__ ) */
+#endif /* defined( __GNUC__ ) && !defined( LIBVSLVM_DLL_IMPORT ) */
 
 	return( EXIT_SUCCESS );
 

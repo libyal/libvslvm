@@ -35,7 +35,7 @@
 
 #include "../libvslvm/libvslvm_segment.h"
 
-#if defined( __GNUC__ )
+#if defined( __GNUC__ ) && !defined( LIBVSLVM_DLL_IMPORT )
 
 /* Tests the libvslvm_segment_initialize function
  * Returns 1 if successful or 0 if not
@@ -72,8 +72,8 @@ int vslvm_test_segment_initialize(
          "error",
          error );
 
-	result = libvslvm_segment_free(
-	          &segment,
+	result = libvslvm_internal_segment_free(
+	          (libvslvm_internal_segment_t **) &segment,
 	          &error );
 
 	VSLVM_TEST_ASSERT_EQUAL_INT(
@@ -147,8 +147,8 @@ int vslvm_test_segment_initialize(
 
 			if( segment != NULL )
 			{
-				libvslvm_segment_free(
-				 &segment,
+				libvslvm_internal_segment_free(
+				 (libvslvm_internal_segment_t **) &segment,
 				 NULL );
 			}
 		}
@@ -189,8 +189,8 @@ int vslvm_test_segment_initialize(
 
 			if( segment != NULL )
 			{
-				libvslvm_segment_free(
-				 &segment,
+				libvslvm_internal_segment_free(
+				 (libvslvm_internal_segment_t **) &segment,
 				 NULL );
 			}
 		}
@@ -225,14 +225,14 @@ on_error:
 	}
 	if( segment != NULL )
 	{
-		libvslvm_segment_free(
-		 &segment,
+		libvslvm_internal_segment_free(
+		 (libvslvm_internal_segment_t **) &segment,
 		 NULL );
 	}
 	return( 0 );
 }
 
-#endif /* defined( __GNUC__ ) */
+#endif /* defined( __GNUC__ ) && !defined( LIBVSLVM_DLL_IMPORT ) */
 
 /* Tests the libvslvm_segment_free function
  * Returns 1 if successful or 0 if not
@@ -272,7 +272,7 @@ on_error:
 	return( 0 );
 }
 
-#if defined( __GNUC__ )
+#if defined( __GNUC__ ) && !defined( LIBVSLVM_DLL_IMPORT )
 
 /* Tests the libvslvm_segment_get_offset function
  * Returns 1 if successful or 0 if not
@@ -363,8 +363,8 @@ int vslvm_test_segment_get_offset(
 	}
 	/* Clean up
 	 */
-	result = libvslvm_segment_free(
-	          &segment,
+	result = libvslvm_internal_segment_free(
+	          (libvslvm_internal_segment_t **) &segment,
 	          &error );
 
 	VSLVM_TEST_ASSERT_EQUAL_INT(
@@ -390,8 +390,8 @@ on_error:
 	}
 	if( segment != NULL )
 	{
-		libvslvm_segment_free(
-		 &segment,
+		libvslvm_internal_segment_free(
+		 (libvslvm_internal_segment_t **) &segment,
 		 NULL );
 	}
 	return( 0 );
@@ -486,8 +486,8 @@ int vslvm_test_segment_get_size(
 	}
 	/* Clean up
 	 */
-	result = libvslvm_segment_free(
-	          &segment,
+	result = libvslvm_internal_segment_free(
+	          (libvslvm_internal_segment_t **) &segment,
 	          &error );
 
 	VSLVM_TEST_ASSERT_EQUAL_INT(
@@ -513,8 +513,8 @@ on_error:
 	}
 	if( segment != NULL )
 	{
-		libvslvm_segment_free(
-		 &segment,
+		libvslvm_internal_segment_free(
+		 (libvslvm_internal_segment_t **) &segment,
 		 NULL );
 	}
 	return( 0 );
@@ -609,8 +609,8 @@ int vslvm_test_segment_get_number_of_stripes(
 	}
 	/* Clean up
 	 */
-	result = libvslvm_segment_free(
-	          &segment,
+	result = libvslvm_internal_segment_free(
+	          (libvslvm_internal_segment_t **) &segment,
 	          &error );
 
 	VSLVM_TEST_ASSERT_EQUAL_INT(
@@ -636,14 +636,14 @@ on_error:
 	}
 	if( segment != NULL )
 	{
-		libvslvm_segment_free(
-		 &segment,
+		libvslvm_internal_segment_free(
+		 (libvslvm_internal_segment_t **) &segment,
 		 NULL );
 	}
 	return( 0 );
 }
 
-#endif /* defined( __GNUC__ ) */
+#endif /* defined( __GNUC__ ) && !defined( LIBVSLVM_DLL_IMPORT ) */
 
 /* The main program
  */
@@ -660,19 +660,19 @@ int main(
 	VSLVM_TEST_UNREFERENCED_PARAMETER( argc )
 	VSLVM_TEST_UNREFERENCED_PARAMETER( argv )
 
-#if defined( __GNUC__ )
+#if defined( __GNUC__ ) && !defined( LIBVSLVM_DLL_IMPORT )
 
 	VSLVM_TEST_RUN(
 	 "libvslvm_segment_initialize",
 	 vslvm_test_segment_initialize );
 
-#endif /* defined( __GNUC__ ) */
+#endif /* defined( __GNUC__ ) && !defined( LIBVSLVM_DLL_IMPORT ) */
 
 	VSLVM_TEST_RUN(
 	 "libvslvm_segment_free",
 	 vslvm_test_segment_free );
 
-#if defined( __GNUC__ )
+#if defined( __GNUC__ ) && !defined( LIBVSLVM_DLL_IMPORT )
 
 	/* TODO: add tests for libvslvm_segment_set_name */
 
@@ -694,7 +694,7 @@ int main(
 
 	/* TODO: add tests for libvslvm_segment_append_stripe */
 
-#endif /* defined( __GNUC__ ) */
+#endif /* defined( __GNUC__ ) && !defined( LIBVSLVM_DLL_IMPORT ) */
 
 	return( EXIT_SUCCESS );
 

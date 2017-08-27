@@ -144,8 +144,8 @@ int libvslvm_metadata_free(
 	{
 		if( ( *metadata )->volume_group != NULL )
 		{
-			if( libvslvm_volume_group_free(
-			     &( ( *metadata )->volume_group ),
+			if( libvslvm_internal_volume_group_free(
+			     (libvslvm_internal_volume_group_t **) &( ( *metadata )->volume_group ),
 			     error ) != 1 )
 			{
 				libcerror_error_set(

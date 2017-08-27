@@ -162,7 +162,8 @@ int libvslvm_handle_free(
 	{
 		internal_handle = (libvslvm_internal_handle_t *) *handle;
 
-		if( internal_handle->physical_volume_file_io_pool != NULL )
+		if( ( internal_handle->physical_volume_file_io_pool != NULL )
+		 || ( internal_handle->metadata != NULL ) )
 		{
 			if( libvslvm_handle_close(
 			     *handle,
@@ -556,6 +557,28 @@ int libvslvm_handle_open_file_io_handle(
 	}
 	internal_handle = (libvslvm_internal_handle_t *) handle;
 
+	if( internal_handle->metadata != NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: invalid internal handle - metadata already set.",
+		 function );
+
+		return( -1 );
+	}
+	if( internal_handle->physical_volume_file_io_pool != NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
+		 "%s: invalid handle - physical volume file IO pool already exists.",
+		 function );
+
+		return( -1 );
+	}
 	if( ( ( access_flags & LIBVSLVM_ACCESS_FLAG_READ ) == 0 )
 	 && ( ( access_flags & LIBVSLVM_ACCESS_FLAG_WRITE ) == 0 ) )
 	{
@@ -1710,8 +1733,8 @@ int libvslvm_handle_open_read_data_area_table(
 on_error:
 	if( physical_volume != NULL )
 	{
-		libvslvm_physical_volume_free(
-		 &physical_volume,
+		libvslvm_internal_physical_volume_free(
+		 (libvslvm_internal_physical_volume_t **) &physical_volume,
 		 NULL );
 	}
 	return( -1 );
@@ -2142,8 +2165,8 @@ int libvslvm_handle_open_read(
 
 		goto on_error;
 	}
-	if( libvslvm_physical_volume_free(
-	     &physical_volume,
+	if( libvslvm_internal_physical_volume_free(
+	     (libvslvm_internal_physical_volume_t **) &physical_volume,
 	     error ) != 1 )
 	{
 		libcerror_error_set(
@@ -2172,8 +2195,8 @@ on_error:
 	}
 	if( physical_volume != NULL )
 	{
-		libvslvm_physical_volume_free(
-		 &physical_volume,
+		libvslvm_internal_physical_volume_free(
+		 (libvslvm_internal_physical_volume_t **) &physical_volume,
 		 NULL );
 	}
 	if( file_io_pool != NULL )

@@ -1821,7 +1821,7 @@ int libvslvm_physical_volume_read_element_data(
 	     (intptr_t *) file_io_pool,
 	     cache,
 	     (intptr_t *) physical_volume,
-	     (int (*)(intptr_t **, libcerror_error_t **)) &libvslvm_physical_volume_free,
+	     (int (*)(intptr_t **, libcerror_error_t **)) &libvslvm_internal_physical_volume_free,
 	     LIBFDATA_LIST_ELEMENT_VALUE_FLAG_MANAGED,
 	     error ) != 1 )
 	{
@@ -1839,8 +1839,8 @@ int libvslvm_physical_volume_read_element_data(
 on_error:
 	if( physical_volume != NULL )
 	{
-		libvslvm_physical_volume_free(
-		 &physical_volume,
+		libvslvm_internal_physical_volume_free(
+		 (libvslvm_internal_physical_volume_t **) &physical_volume,
 		 NULL );
 	}
 	return( -1 );

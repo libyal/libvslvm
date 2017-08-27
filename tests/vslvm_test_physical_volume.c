@@ -35,7 +35,7 @@
 
 #include "../libvslvm/libvslvm_physical_volume.h"
 
-#if defined( __GNUC__ )
+#if defined( __GNUC__ ) && !defined( LIBVSLVM_DLL_IMPORT )
 
 /* Tests the libvslvm_physical_volume_initialize function
  * Returns 1 if successful or 0 if not
@@ -72,8 +72,8 @@ int vslvm_test_physical_volume_initialize(
          "error",
          error );
 
-	result = libvslvm_physical_volume_free(
-	          &physical_volume,
+	result = libvslvm_internal_physical_volume_free(
+	          (libvslvm_internal_physical_volume_t **) &physical_volume,
 	          &error );
 
 	VSLVM_TEST_ASSERT_EQUAL_INT(
@@ -147,8 +147,8 @@ int vslvm_test_physical_volume_initialize(
 
 			if( physical_volume != NULL )
 			{
-				libvslvm_physical_volume_free(
-				 &physical_volume,
+				libvslvm_internal_physical_volume_free(
+				 (libvslvm_internal_physical_volume_t **) &physical_volume,
 				 NULL );
 			}
 		}
@@ -189,8 +189,8 @@ int vslvm_test_physical_volume_initialize(
 
 			if( physical_volume != NULL )
 			{
-				libvslvm_physical_volume_free(
-				 &physical_volume,
+				libvslvm_internal_physical_volume_free(
+				 (libvslvm_internal_physical_volume_t **) &physical_volume,
 				 NULL );
 			}
 		}
@@ -225,14 +225,14 @@ on_error:
 	}
 	if( physical_volume != NULL )
 	{
-		libvslvm_physical_volume_free(
-		 &physical_volume,
+		libvslvm_internal_physical_volume_free(
+		 (libvslvm_internal_physical_volume_t **) &physical_volume,
 		 NULL );
 	}
 	return( 0 );
 }
 
-#endif /* defined( __GNUC__ ) */
+#endif /* defined( __GNUC__ ) && !defined( LIBVSLVM_DLL_IMPORT ) */
 
 /* Tests the libvslvm_physical_volume_free function
  * Returns 1 if successful or 0 if not
@@ -272,7 +272,7 @@ on_error:
 	return( 0 );
 }
 
-#if defined( __GNUC__ )
+#if defined( __GNUC__ ) && !defined( LIBVSLVM_DLL_IMPORT )
 
 /* Tests the libvslvm_physical_volume_get_name_size function
  * Returns 1 if successful or 0 if not
@@ -363,8 +363,8 @@ int vslvm_test_physical_volume_get_name_size(
 	}
 	/* Clean up
 	 */
-	result = libvslvm_physical_volume_free(
-	          &physical_volume,
+	result = libvslvm_internal_physical_volume_free(
+	          (libvslvm_internal_physical_volume_t **) &physical_volume,
 	          &error );
 
 	VSLVM_TEST_ASSERT_EQUAL_INT(
@@ -390,8 +390,8 @@ on_error:
 	}
 	if( physical_volume != NULL )
 	{
-		libvslvm_physical_volume_free(
-		 &physical_volume,
+		libvslvm_internal_physical_volume_free(
+		 (libvslvm_internal_physical_volume_t **) &physical_volume,
 		 NULL );
 	}
 	return( 0 );
@@ -486,8 +486,8 @@ int vslvm_test_physical_volume_get_identifier_size(
 	}
 	/* Clean up
 	 */
-	result = libvslvm_physical_volume_free(
-	          &physical_volume,
+	result = libvslvm_internal_physical_volume_free(
+	          (libvslvm_internal_physical_volume_t **) &physical_volume,
 	          &error );
 
 	VSLVM_TEST_ASSERT_EQUAL_INT(
@@ -513,8 +513,8 @@ on_error:
 	}
 	if( physical_volume != NULL )
 	{
-		libvslvm_physical_volume_free(
-		 &physical_volume,
+		libvslvm_internal_physical_volume_free(
+		 (libvslvm_internal_physical_volume_t **) &physical_volume,
 		 NULL );
 	}
 	return( 0 );
@@ -609,8 +609,8 @@ int vslvm_test_physical_volume_get_device_path_size(
 	}
 	/* Clean up
 	 */
-	result = libvslvm_physical_volume_free(
-	          &physical_volume,
+	result = libvslvm_internal_physical_volume_free(
+	          (libvslvm_internal_physical_volume_t **) &physical_volume,
 	          &error );
 
 	VSLVM_TEST_ASSERT_EQUAL_INT(
@@ -636,8 +636,8 @@ on_error:
 	}
 	if( physical_volume != NULL )
 	{
-		libvslvm_physical_volume_free(
-		 &physical_volume,
+		libvslvm_internal_physical_volume_free(
+		 (libvslvm_internal_physical_volume_t **) &physical_volume,
 		 NULL );
 	}
 	return( 0 );
@@ -732,8 +732,8 @@ int vslvm_test_physical_volume_get_size(
 	}
 	/* Clean up
 	 */
-	result = libvslvm_physical_volume_free(
-	          &physical_volume,
+	result = libvslvm_internal_physical_volume_free(
+	          (libvslvm_internal_physical_volume_t **) &physical_volume,
 	          &error );
 
 	VSLVM_TEST_ASSERT_EQUAL_INT(
@@ -759,8 +759,8 @@ on_error:
 	}
 	if( physical_volume != NULL )
 	{
-		libvslvm_physical_volume_free(
-		 &physical_volume,
+		libvslvm_internal_physical_volume_free(
+		 (libvslvm_internal_physical_volume_t **) &physical_volume,
 		 NULL );
 	}
 	return( 0 );
@@ -855,8 +855,8 @@ int vslvm_test_physical_volume_get_number_of_data_area_descriptors(
 	}
 	/* Clean up
 	 */
-	result = libvslvm_physical_volume_free(
-	          &physical_volume,
+	result = libvslvm_internal_physical_volume_free(
+	          (libvslvm_internal_physical_volume_t **) &physical_volume,
 	          &error );
 
 	VSLVM_TEST_ASSERT_EQUAL_INT(
@@ -882,8 +882,8 @@ on_error:
 	}
 	if( physical_volume != NULL )
 	{
-		libvslvm_physical_volume_free(
-		 &physical_volume,
+		libvslvm_internal_physical_volume_free(
+		 (libvslvm_internal_physical_volume_t **) &physical_volume,
 		 NULL );
 	}
 	return( 0 );
@@ -978,8 +978,8 @@ int vslvm_test_physical_volume_get_number_of_metadata_area_descriptors(
 	}
 	/* Clean up
 	 */
-	result = libvslvm_physical_volume_free(
-	          &physical_volume,
+	result = libvslvm_internal_physical_volume_free(
+	          (libvslvm_internal_physical_volume_t **) &physical_volume,
 	          &error );
 
 	VSLVM_TEST_ASSERT_EQUAL_INT(
@@ -1005,14 +1005,14 @@ on_error:
 	}
 	if( physical_volume != NULL )
 	{
-		libvslvm_physical_volume_free(
-		 &physical_volume,
+		libvslvm_internal_physical_volume_free(
+		 (libvslvm_internal_physical_volume_t **) &physical_volume,
 		 NULL );
 	}
 	return( 0 );
 }
 
-#endif /* defined( __GNUC__ ) */
+#endif /* defined( __GNUC__ ) && !defined( LIBVSLVM_DLL_IMPORT ) */
 
 /* The main program
  */
@@ -1029,19 +1029,19 @@ int main(
 	VSLVM_TEST_UNREFERENCED_PARAMETER( argc )
 	VSLVM_TEST_UNREFERENCED_PARAMETER( argv )
 
-#if defined( __GNUC__ )
+#if defined( __GNUC__ ) && !defined( LIBVSLVM_DLL_IMPORT )
 
 	VSLVM_TEST_RUN(
 	 "libvslvm_physical_volume_initialize",
 	 vslvm_test_physical_volume_initialize );
 
-#endif /* defined( __GNUC__ ) */
+#endif /* defined( __GNUC__ ) && !defined( LIBVSLVM_DLL_IMPORT ) */
 
 	VSLVM_TEST_RUN(
 	 "libvslvm_physical_volume_free",
 	 vslvm_test_physical_volume_free );
 
-#if defined( __GNUC__ )
+#if defined( __GNUC__ ) && !defined( LIBVSLVM_DLL_IMPORT )
 
 	VSLVM_TEST_RUN(
 	 "libvslvm_physical_volume_get_name_size",
@@ -1091,7 +1091,7 @@ int main(
 
 	/* TODO: add tests for libvslvm_physical_volume_read_element_data */
 
-#endif /* defined( __GNUC__ ) */
+#endif /* defined( __GNUC__ ) && !defined( LIBVSLVM_DLL_IMPORT ) */
 
 	return( EXIT_SUCCESS );
 

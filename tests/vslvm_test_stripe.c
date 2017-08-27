@@ -35,7 +35,7 @@
 
 #include "../libvslvm/libvslvm_stripe.h"
 
-#if defined( __GNUC__ )
+#if defined( __GNUC__ ) && !defined( LIBVSLVM_DLL_IMPORT )
 
 /* Tests the libvslvm_stripe_initialize function
  * Returns 1 if successful or 0 if not
@@ -72,8 +72,8 @@ int vslvm_test_stripe_initialize(
          "error",
          error );
 
-	result = libvslvm_stripe_free(
-	          &stripe,
+	result = libvslvm_internal_stripe_free(
+	          (libvslvm_internal_stripe_t **) &stripe,
 	          &error );
 
 	VSLVM_TEST_ASSERT_EQUAL_INT(
@@ -147,8 +147,8 @@ int vslvm_test_stripe_initialize(
 
 			if( stripe != NULL )
 			{
-				libvslvm_stripe_free(
-				 &stripe,
+				libvslvm_internal_stripe_free(
+				 (libvslvm_internal_stripe_t **) &stripe,
 				 NULL );
 			}
 		}
@@ -189,8 +189,8 @@ int vslvm_test_stripe_initialize(
 
 			if( stripe != NULL )
 			{
-				libvslvm_stripe_free(
-				 &stripe,
+				libvslvm_internal_stripe_free(
+				 (libvslvm_internal_stripe_t **) &stripe,
 				 NULL );
 			}
 		}
@@ -225,14 +225,14 @@ on_error:
 	}
 	if( stripe != NULL )
 	{
-		libvslvm_stripe_free(
-		 &stripe,
+		libvslvm_internal_stripe_free(
+		 (libvslvm_internal_stripe_t **) &stripe,
 		 NULL );
 	}
 	return( 0 );
 }
 
-#endif /* defined( __GNUC__ ) */
+#endif /* defined( __GNUC__ ) && !defined( LIBVSLVM_DLL_IMPORT ) */
 
 /* Tests the libvslvm_stripe_free function
  * Returns 1 if successful or 0 if not
@@ -272,7 +272,7 @@ on_error:
 	return( 0 );
 }
 
-#if defined( __GNUC__ )
+#if defined( __GNUC__ ) && !defined( LIBVSLVM_DLL_IMPORT )
 
 /* Tests the libvslvm_stripe_get_physical_volume_name_size function
  * Returns 1 if successful or 0 if not
@@ -363,8 +363,8 @@ int vslvm_test_stripe_get_physical_volume_name_size(
 	}
 	/* Clean up
 	 */
-	result = libvslvm_stripe_free(
-	          &stripe,
+	result = libvslvm_internal_stripe_free(
+	          (libvslvm_internal_stripe_t **) &stripe,
 	          &error );
 
 	VSLVM_TEST_ASSERT_EQUAL_INT(
@@ -390,8 +390,8 @@ on_error:
 	}
 	if( stripe != NULL )
 	{
-		libvslvm_stripe_free(
-		 &stripe,
+		libvslvm_internal_stripe_free(
+		 (libvslvm_internal_stripe_t **) &stripe,
 		 NULL );
 	}
 	return( 0 );
@@ -486,8 +486,8 @@ int vslvm_test_stripe_get_data_area_offset(
 	}
 	/* Clean up
 	 */
-	result = libvslvm_stripe_free(
-	          &stripe,
+	result = libvslvm_internal_stripe_free(
+	          (libvslvm_internal_stripe_t **) &stripe,
 	          &error );
 
 	VSLVM_TEST_ASSERT_EQUAL_INT(
@@ -513,14 +513,14 @@ on_error:
 	}
 	if( stripe != NULL )
 	{
-		libvslvm_stripe_free(
-		 &stripe,
+		libvslvm_internal_stripe_free(
+		 (libvslvm_internal_stripe_t **) &stripe,
 		 NULL );
 	}
 	return( 0 );
 }
 
-#endif /* defined( __GNUC__ ) */
+#endif /* defined( __GNUC__ ) && !defined( LIBVSLVM_DLL_IMPORT ) */
 
 /* The main program
  */
@@ -537,19 +537,19 @@ int main(
 	VSLVM_TEST_UNREFERENCED_PARAMETER( argc )
 	VSLVM_TEST_UNREFERENCED_PARAMETER( argv )
 
-#if defined( __GNUC__ )
+#if defined( __GNUC__ ) && !defined( LIBVSLVM_DLL_IMPORT )
 
 	VSLVM_TEST_RUN(
 	 "libvslvm_stripe_initialize",
 	 vslvm_test_stripe_initialize );
 
-#endif /* defined( __GNUC__ ) */
+#endif /* defined( __GNUC__ ) && !defined( LIBVSLVM_DLL_IMPORT ) */
 
 	VSLVM_TEST_RUN(
 	 "libvslvm_stripe_free",
 	 vslvm_test_stripe_free );
 
-#if defined( __GNUC__ )
+#if defined( __GNUC__ ) && !defined( LIBVSLVM_DLL_IMPORT )
 
 	VSLVM_TEST_RUN(
 	 "libvslvm_stripe_get_physical_volume_name_size",
@@ -565,7 +565,7 @@ int main(
 
 	/* TODO: add tests for libvslvm_stripe_set_data_area_offset */
 
-#endif /* defined( __GNUC__ ) */
+#endif /* defined( __GNUC__ ) && !defined( LIBVSLVM_DLL_IMPORT ) */
 
 	return( EXIT_SUCCESS );
 

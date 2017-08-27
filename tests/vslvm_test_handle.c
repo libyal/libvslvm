@@ -1514,7 +1514,7 @@ int main(
 
 		/* TODO: add tests for libvslvm_handle_open_physical_volume_files_file_io_pool */
 
-#if defined( __GNUC__ )
+#if defined( __GNUC__ ) && !defined( LIBVSLVM_DLL_IMPORT )
 
 		/* TODO: add tests for libvslvm_handle_open_physical_volume_file */
 
@@ -1526,7 +1526,7 @@ int main(
 
 		/* TODO: add tests for libvslvm_handle_open_read */
 
-#endif /* defined( __GNUC__ ) */
+#endif /* defined( __GNUC__ ) && !defined( LIBVSLVM_DLL_IMPORT ) */
 
 		VSLVM_TEST_RUN_WITH_ARGS(
 		 "libvslvm_handle_get_volume_group",
