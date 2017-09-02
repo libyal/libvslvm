@@ -64,13 +64,13 @@ int vslvm_test_metadata_area_initialize(
 	 result,
 	 1 );
 
-        VSLVM_TEST_ASSERT_IS_NOT_NULL(
-         "metadata_area",
-         metadata_area );
+	VSLVM_TEST_ASSERT_IS_NOT_NULL(
+	 "metadata_area",
+	 metadata_area );
 
-        VSLVM_TEST_ASSERT_IS_NULL(
-         "error",
-         error );
+	VSLVM_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
 
 	result = libvslvm_metadata_area_free(
 	          &metadata_area,
@@ -81,13 +81,13 @@ int vslvm_test_metadata_area_initialize(
 	 result,
 	 1 );
 
-        VSLVM_TEST_ASSERT_IS_NULL(
-         "metadata_area",
-         metadata_area );
+	VSLVM_TEST_ASSERT_IS_NULL(
+	 "metadata_area",
+	 metadata_area );
 
-        VSLVM_TEST_ASSERT_IS_NULL(
-         "error",
-         error );
+	VSLVM_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
 
 	/* Test error cases
 	 */
@@ -100,9 +100,9 @@ int vslvm_test_metadata_area_initialize(
 	 result,
 	 -1 );
 
-        VSLVM_TEST_ASSERT_IS_NOT_NULL(
-         "error",
-         error );
+	VSLVM_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
 
 	libcerror_error_free(
 	 &error );
@@ -118,9 +118,9 @@ int vslvm_test_metadata_area_initialize(
 	 result,
 	 -1 );
 
-        VSLVM_TEST_ASSERT_IS_NOT_NULL(
-         "error",
-         error );
+	VSLVM_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
 
 	libcerror_error_free(
 	 &error );
@@ -252,9 +252,9 @@ int vslvm_test_metadata_area_free(
 	 result,
 	 -1 );
 
-        VSLVM_TEST_ASSERT_IS_NOT_NULL(
-         "error",
-         error );
+	VSLVM_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
 
 	libcerror_error_free(
 	 &error );

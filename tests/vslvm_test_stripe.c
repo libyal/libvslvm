@@ -64,13 +64,13 @@ int vslvm_test_stripe_initialize(
 	 result,
 	 1 );
 
-        VSLVM_TEST_ASSERT_IS_NOT_NULL(
-         "stripe",
-         stripe );
+	VSLVM_TEST_ASSERT_IS_NOT_NULL(
+	 "stripe",
+	 stripe );
 
-        VSLVM_TEST_ASSERT_IS_NULL(
-         "error",
-         error );
+	VSLVM_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
 
 	result = libvslvm_internal_stripe_free(
 	          (libvslvm_internal_stripe_t **) &stripe,
@@ -81,13 +81,13 @@ int vslvm_test_stripe_initialize(
 	 result,
 	 1 );
 
-        VSLVM_TEST_ASSERT_IS_NULL(
-         "stripe",
-         stripe );
+	VSLVM_TEST_ASSERT_IS_NULL(
+	 "stripe",
+	 stripe );
 
-        VSLVM_TEST_ASSERT_IS_NULL(
-         "error",
-         error );
+	VSLVM_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
 
 	/* Test error cases
 	 */
@@ -100,9 +100,9 @@ int vslvm_test_stripe_initialize(
 	 result,
 	 -1 );
 
-        VSLVM_TEST_ASSERT_IS_NOT_NULL(
-         "error",
-         error );
+	VSLVM_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
 
 	libcerror_error_free(
 	 &error );
@@ -118,9 +118,9 @@ int vslvm_test_stripe_initialize(
 	 result,
 	 -1 );
 
-        VSLVM_TEST_ASSERT_IS_NOT_NULL(
-         "error",
-         error );
+	VSLVM_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
 
 	libcerror_error_free(
 	 &error );
@@ -254,9 +254,9 @@ int vslvm_test_stripe_free(
 	 result,
 	 -1 );
 
-        VSLVM_TEST_ASSERT_IS_NOT_NULL(
-         "error",
-         error );
+	VSLVM_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
 
 	libcerror_error_free(
 	 &error );

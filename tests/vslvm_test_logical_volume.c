@@ -55,9 +55,9 @@ int vslvm_test_logical_volume_free(
 	 result,
 	 -1 );
 
-        VSLVM_TEST_ASSERT_IS_NOT_NULL(
-         "error",
-         error );
+	VSLVM_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
 
 	libcerror_error_free(
 	 &error );

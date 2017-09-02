@@ -490,9 +490,9 @@ int vslvm_test_get_codepage(
 	 result,
 	 1 );
 
-        VSLVM_TEST_ASSERT_IS_NULL(
-         "error",
-         error );
+	VSLVM_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
 
 	/* Test error cases
 	 */
@@ -505,9 +505,9 @@ int vslvm_test_get_codepage(
 	 result,
 	 -1 );
 
-        VSLVM_TEST_ASSERT_IS_NOT_NULL(
-         "error",
-         error );
+	VSLVM_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
 
 	libcerror_error_free(
 	 &error );
@@ -541,9 +541,9 @@ int vslvm_test_set_codepage(
 	 result,
 	 1 );
 
-        VSLVM_TEST_ASSERT_IS_NULL(
-         "error",
-         error );
+	VSLVM_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
 
 	/* Test error cases
 	 */
@@ -556,9 +556,9 @@ int vslvm_test_set_codepage(
 	 result,
 	 -1 );
 
-        VSLVM_TEST_ASSERT_IS_NOT_NULL(
-         "error",
-         error );
+	VSLVM_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
 
 	libcerror_error_free(
 	 &error );
@@ -598,9 +598,9 @@ int vslvm_test_check_volume_signature(
 	 result,
 	 1 );
 
-        VSLVM_TEST_ASSERT_IS_NULL(
-         "error",
-         error );
+	VSLVM_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
 
 	/* Test check volume signature
 	 */
@@ -613,9 +613,9 @@ int vslvm_test_check_volume_signature(
 	 result,
 	 1 );
 
-        VSLVM_TEST_ASSERT_IS_NULL(
-         "error",
-         error );
+	VSLVM_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
 
 	/* Test error cases
 	 */
@@ -628,9 +628,9 @@ int vslvm_test_check_volume_signature(
 	 result,
 	 -1 );
 
-        VSLVM_TEST_ASSERT_IS_NOT_NULL(
-         "error",
-         error );
+	VSLVM_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
 
 	libcerror_error_free(
 	 &error );
@@ -672,9 +672,9 @@ int vslvm_test_check_volume_signature_wide(
 	 result,
 	 1 );
 
-        VSLVM_TEST_ASSERT_IS_NULL(
-         "error",
-         error );
+	VSLVM_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
 
 	/* Test check volume signature
 	 */
@@ -687,9 +687,9 @@ int vslvm_test_check_volume_signature_wide(
 	 result,
 	 1 );
 
-        VSLVM_TEST_ASSERT_IS_NULL(
-         "error",
-         error );
+	VSLVM_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
 
 	/* Test error cases
 	 */
@@ -702,9 +702,9 @@ int vslvm_test_check_volume_signature_wide(
 	 result,
 	 -1 );
 
-        VSLVM_TEST_ASSERT_IS_NOT_NULL(
-         "error",
-         error );
+	VSLVM_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
 
 	libcerror_error_free(
 	 &error );
@@ -747,13 +747,13 @@ int vslvm_test_check_volume_signature_file_io_handle(
 	 result,
 	 1 );
 
-        VSLVM_TEST_ASSERT_IS_NOT_NULL(
-         "file_io_handle",
-         file_io_handle );
+	VSLVM_TEST_ASSERT_IS_NOT_NULL(
+	 "file_io_handle",
+	 file_io_handle );
 
-        VSLVM_TEST_ASSERT_IS_NULL(
-         "error",
-         error );
+	VSLVM_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
 
 	source_length = system_string_length(
 	                 source );
@@ -776,9 +776,9 @@ int vslvm_test_check_volume_signature_file_io_handle(
 	 result,
 	 1 );
 
-        VSLVM_TEST_ASSERT_IS_NULL(
-         "error",
-         error );
+	VSLVM_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
 
 	result = libbfio_handle_open(
 	          file_io_handle,
@@ -790,9 +790,9 @@ int vslvm_test_check_volume_signature_file_io_handle(
 	 result,
 	 1 );
 
-        VSLVM_TEST_ASSERT_IS_NULL(
-         "error",
-         error );
+	VSLVM_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
 
 	/* Test check volume signature
 	 */
@@ -805,9 +805,9 @@ int vslvm_test_check_volume_signature_file_io_handle(
 	 result,
 	 1 );
 
-        VSLVM_TEST_ASSERT_IS_NULL(
-         "error",
-         error );
+	VSLVM_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
 
 	/* Test error cases
 	 */
@@ -820,9 +820,9 @@ int vslvm_test_check_volume_signature_file_io_handle(
 	 result,
 	 -1 );
 
-        VSLVM_TEST_ASSERT_IS_NOT_NULL(
-         "error",
-         error );
+	VSLVM_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
 
 	libcerror_error_free(
 	 &error );
@@ -838,9 +838,9 @@ int vslvm_test_check_volume_signature_file_io_handle(
 	 result,
 	 0 );
 
-        VSLVM_TEST_ASSERT_IS_NULL(
-         "error",
-         error );
+	VSLVM_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
 
 	result = libbfio_handle_free(
 	          &file_io_handle,
@@ -851,13 +851,13 @@ int vslvm_test_check_volume_signature_file_io_handle(
 	 result,
 	 1 );
 
-        VSLVM_TEST_ASSERT_IS_NULL(
-         "file_io_handle",
-         file_io_handle );
+	VSLVM_TEST_ASSERT_IS_NULL(
+	 "file_io_handle",
+	 file_io_handle );
 
-        VSLVM_TEST_ASSERT_IS_NULL(
-         "error",
-         error );
+	VSLVM_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
 
 	/* Initialize test
 	 */
@@ -866,9 +866,9 @@ int vslvm_test_check_volume_signature_file_io_handle(
 	                 0,
 	                 sizeof( uint8_t ) * 1024 );
 
-        VSLVM_TEST_ASSERT_IS_NOT_NULL(
-         "memset_result",
-         memset_result );
+	VSLVM_TEST_ASSERT_IS_NOT_NULL(
+	 "memset_result",
+	 memset_result );
 
 	result = libbfio_memory_range_initialize(
 	          &file_io_handle,
@@ -879,13 +879,13 @@ int vslvm_test_check_volume_signature_file_io_handle(
 	 result,
 	 1 );
 
-        VSLVM_TEST_ASSERT_IS_NOT_NULL(
-         "file_io_handle",
-         file_io_handle );
+	VSLVM_TEST_ASSERT_IS_NOT_NULL(
+	 "file_io_handle",
+	 file_io_handle );
 
-        VSLVM_TEST_ASSERT_IS_NULL(
-         "error",
-         error );
+	VSLVM_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
 
 	result = libbfio_memory_range_set(
 	          file_io_handle,
@@ -898,9 +898,9 @@ int vslvm_test_check_volume_signature_file_io_handle(
 	 result,
 	 1 );
 
-        VSLVM_TEST_ASSERT_IS_NULL(
-         "error",
-         error );
+	VSLVM_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
 
 	result = libbfio_handle_open(
 	          file_io_handle,
@@ -912,9 +912,9 @@ int vslvm_test_check_volume_signature_file_io_handle(
 	 result,
 	 1 );
 
-        VSLVM_TEST_ASSERT_IS_NULL(
-         "error",
-         error );
+	VSLVM_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
 
 	/* Test check volume signature
 	 */
@@ -927,9 +927,9 @@ int vslvm_test_check_volume_signature_file_io_handle(
 	 result,
 	 0 );
 
-        VSLVM_TEST_ASSERT_IS_NULL(
-         "error",
-         error );
+	VSLVM_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
 
 	/* Clean up
 	 */
@@ -942,9 +942,9 @@ int vslvm_test_check_volume_signature_file_io_handle(
 	 result,
 	 0 );
 
-        VSLVM_TEST_ASSERT_IS_NULL(
-         "error",
-         error );
+	VSLVM_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
 
 	result = libbfio_handle_free(
 	          &file_io_handle,
@@ -955,13 +955,13 @@ int vslvm_test_check_volume_signature_file_io_handle(
 	 result,
 	 1 );
 
-        VSLVM_TEST_ASSERT_IS_NULL(
-         "file_io_handle",
-         file_io_handle );
+	VSLVM_TEST_ASSERT_IS_NULL(
+	 "file_io_handle",
+	 file_io_handle );
 
-        VSLVM_TEST_ASSERT_IS_NULL(
-         "error",
-         error );
+	VSLVM_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
 
 	/* TODO test volume too small */
 
