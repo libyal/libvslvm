@@ -682,7 +682,7 @@ PyObject *pyvslvm_volume_group_get_number_of_physical_volumes(
  * Returns a Python object if successful or NULL on error
  */
 PyObject *pyvslvm_volume_group_get_physical_volume_by_index(
-           pyvslvm_volume_group_t *pyvslvm_volume_group,
+           PyObject *pyvslvm_volume_group,
            int volume_index )
 {
 	libcerror_error_t *error                    = NULL;
@@ -703,7 +703,7 @@ PyObject *pyvslvm_volume_group_get_physical_volume_by_index(
 	Py_BEGIN_ALLOW_THREADS
 
 	result = libvslvm_volume_group_get_physical_volume(
-	          pyvslvm_volume_group->volume_group,
+	          ( (pyvslvm_volume_group_t *) pyvslvm_volume_group )->volume_group,
 	          volume_index,
 	          &physical_volume,
 	          &error );
@@ -726,7 +726,7 @@ PyObject *pyvslvm_volume_group_get_physical_volume_by_index(
 	}
 	physical_volume_object = pyvslvm_physical_volume_new(
 	                          physical_volume,
-	                          pyvslvm_volume_group );
+	                          (pyvslvm_volume_group_t *) pyvslvm_volume_group );
 
 	if( physical_volume_object == NULL )
 	{
@@ -771,7 +771,7 @@ PyObject *pyvslvm_volume_group_get_physical_volume(
 		return( NULL );
 	}
 	physical_volume_object = pyvslvm_volume_group_get_physical_volume_by_index(
-	                          pyvslvm_volume_group,
+	                          (PyObject *) pyvslvm_volume_group,
 	                          volume_index );
 
 	return( physical_volume_object );
@@ -824,7 +824,7 @@ PyObject *pyvslvm_volume_group_get_physical_volumes(
 		return( NULL );
 	}
 	physical_volumes_object = pyvslvm_physical_volumes_new(
-	                           pyvslvm_volume_group,
+	                           (PyObject *) pyvslvm_volume_group,
 	                           &pyvslvm_volume_group_get_physical_volume_by_index,
 	                           number_of_physical_volumes );
 
@@ -900,7 +900,7 @@ PyObject *pyvslvm_volume_group_get_number_of_logical_volumes(
  * Returns a Python object if successful or NULL on error
  */
 PyObject *pyvslvm_volume_group_get_logical_volume_by_index(
-           pyvslvm_volume_group_t *pyvslvm_volume_group,
+           PyObject *pyvslvm_volume_group,
            int volume_index )
 {
 	libcerror_error_t *error                  = NULL;
@@ -921,7 +921,7 @@ PyObject *pyvslvm_volume_group_get_logical_volume_by_index(
 	Py_BEGIN_ALLOW_THREADS
 
 	result = libvslvm_volume_group_get_logical_volume(
-	          pyvslvm_volume_group->volume_group,
+	          ( (pyvslvm_volume_group_t *) pyvslvm_volume_group )->volume_group,
 	          volume_index,
 	          &logical_volume,
 	          &error );
@@ -944,7 +944,7 @@ PyObject *pyvslvm_volume_group_get_logical_volume_by_index(
 	}
 	logical_volume_object = pyvslvm_logical_volume_new(
 	                         logical_volume,
-	                         pyvslvm_volume_group );
+	                         (pyvslvm_volume_group_t *) pyvslvm_volume_group );
 
 	if( logical_volume_object == NULL )
 	{
@@ -989,7 +989,7 @@ PyObject *pyvslvm_volume_group_get_logical_volume(
 		return( NULL );
 	}
 	logical_volume_object = pyvslvm_volume_group_get_logical_volume_by_index(
-	                         pyvslvm_volume_group,
+	                         (PyObject *) pyvslvm_volume_group,
 	                         volume_index );
 
 	return( logical_volume_object );
@@ -1042,7 +1042,7 @@ PyObject *pyvslvm_volume_group_get_logical_volumes(
 		return( NULL );
 	}
 	logical_volumes_object = pyvslvm_logical_volumes_new(
-	                          pyvslvm_volume_group,
+	                          (PyObject *) pyvslvm_volume_group,
 	                          &pyvslvm_volume_group_get_logical_volume_by_index,
 	                          number_of_logical_volumes );
 

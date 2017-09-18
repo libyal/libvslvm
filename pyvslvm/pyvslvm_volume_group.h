@@ -81,7 +81,7 @@ PyObject *pyvslvm_volume_group_get_number_of_physical_volumes(
            PyObject *arguments );
 
 PyObject *pyvslvm_volume_group_get_physical_volume_by_index(
-           pyvslvm_volume_group_t *pyvslvm_volume_group,
+           PyObject *pyvslvm_volume_group,
            int volume_index );
 
 PyObject *pyvslvm_volume_group_get_physical_volume(
@@ -98,7 +98,7 @@ PyObject *pyvslvm_volume_group_get_number_of_logical_volumes(
            PyObject *arguments );
 
 PyObject *pyvslvm_volume_group_get_logical_volume_by_index(
-           pyvslvm_volume_group_t *pyvslvm_volume_group,
+           PyObject *pyvslvm_volume_group,
            int volume_index );
 
 PyObject *pyvslvm_volume_group_get_logical_volume(

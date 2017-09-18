@@ -1124,7 +1124,7 @@ PyObject *pyvslvm_logical_volume_get_number_of_segments(
  * Returns a Python object if successful or NULL on error
  */
 PyObject *pyvslvm_logical_volume_get_segment_by_index(
-           pyvslvm_logical_volume_t *pyvslvm_logical_volume,
+           PyObject *pyvslvm_logical_volume,
            int segment_index )
 {
 	libcerror_error_t *error    = NULL;
@@ -1145,7 +1145,7 @@ PyObject *pyvslvm_logical_volume_get_segment_by_index(
 	Py_BEGIN_ALLOW_THREADS
 
 	result = libvslvm_logical_volume_get_segment(
-	          pyvslvm_logical_volume->logical_volume,
+	          ( (pyvslvm_logical_volume_t *) pyvslvm_logical_volume )->logical_volume,
 	          segment_index,
 	          &segment,
 	          &error );
@@ -1168,7 +1168,7 @@ PyObject *pyvslvm_logical_volume_get_segment_by_index(
 	}
 	segment_object = pyvslvm_segment_new(
 	                  segment,
-	                  pyvslvm_logical_volume );
+	                  (pyvslvm_logical_volume_t *) pyvslvm_logical_volume );
 
 	if( segment_object == NULL )
 	{
@@ -1213,7 +1213,7 @@ PyObject *pyvslvm_logical_volume_get_segment(
 		return( NULL );
 	}
 	segment_object = pyvslvm_logical_volume_get_segment_by_index(
-	                  pyvslvm_logical_volume,
+	                  (PyObject *) pyvslvm_logical_volume,
 	                  segment_index );
 
 	return( segment_object );
@@ -1266,7 +1266,7 @@ PyObject *pyvslvm_logical_volume_get_segments(
 		return( NULL );
 	}
 	segments_object = pyvslvm_segments_new(
-	                   pyvslvm_logical_volume,
+	                   (PyObject *) pyvslvm_logical_volume,
 	                   &pyvslvm_logical_volume_get_segment_by_index,
 	                   number_of_segments );
 

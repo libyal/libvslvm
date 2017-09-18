@@ -99,7 +99,7 @@ PyObject *pyvslvm_logical_volume_get_number_of_segments(
            PyObject *arguments );
 
 PyObject *pyvslvm_logical_volume_get_segment_by_index(
-           pyvslvm_logical_volume_t *pyvslvm_logical_volume,
+           PyObject *pyvslvm_logical_volume,
            int segment_index );
 
 PyObject *pyvslvm_logical_volume_get_segment(
