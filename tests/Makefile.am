@@ -227,6 +227,7 @@ vslvm_test_stripe_LDADD = \
 	@LIBCERROR_LIBADD@
 
 vslvm_test_support_SOURCES = \
+	vslvm_test_functions.c vslvm_test_functions.h \
 	vslvm_test_getopt.c vslvm_test_getopt.h \
 	vslvm_test_libbfio.h \
 	vslvm_test_libcerror.h \

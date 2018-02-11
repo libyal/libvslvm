@@ -48,7 +48,7 @@
 
 #include <libcdata.h>
 
-#endif
+#endif /* defined( HAVE_LOCAL_LIBCDATA ) */
 
-#endif
+#endif /* !defined( _VSLVMTOOLS_LIBCDATA_H ) */
 
