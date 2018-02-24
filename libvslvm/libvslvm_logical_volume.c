@@ -961,7 +961,6 @@ off64_t libvslvm_logical_volume_seek_offset(
 	return( offset );
 }
 
-
 /* Retrieves the current offset of the (logical volume) data
  * Returns 1 if successful or -1 on error
  */

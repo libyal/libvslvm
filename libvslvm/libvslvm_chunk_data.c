@@ -63,19 +63,20 @@ int libvslvm_chunk_data_initialize(
 
 		return( -1 );
 	}
-	if( data_size > (size_t) SSIZE_MAX )
+	if( ( data_size == 0 )
+	 || ( data_size > (size_t) SSIZE_MAX ) )
 	{
 		libcerror_error_set(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBCERROR_ARGUMENT_ERROR_VALUE_EXCEEDS_MAXIMUM,
-		 "%s: invalid data size value exceeds maximum.",
+		 LIBCERROR_ARGUMENT_ERROR_VALUE_OUT_OF_BOUNDS,
+		 "%s: invalid data size value out of bounds.",
 		 function );
 
 		return( -1 );
 	}
 	*chunk_data = memory_allocate_structure(
-	                  libvslvm_chunk_data_t );
+	               libvslvm_chunk_data_t );
 
 	if( *chunk_data == NULL )
 	{
@@ -107,24 +108,22 @@ int libvslvm_chunk_data_initialize(
 
 		return( -1 );
 	}
-	if( data_size > 0 )
+	( *chunk_data )->data = (uint8_t *) memory_allocate(
+	                                     sizeof( uint8_t ) * data_size );
+
+	if( ( *chunk_data )->data == NULL )
 	{
-		( *chunk_data )->data = (uint8_t *) memory_allocate(
-		                                        sizeof( uint8_t ) * data_size );
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_MEMORY,
+		 LIBCERROR_MEMORY_ERROR_INSUFFICIENT,
+		 "%s: unable to create data.",
+		 function );
 
-		if( ( *chunk_data )->data == NULL )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_MEMORY,
-			 LIBCERROR_MEMORY_ERROR_INSUFFICIENT,
-			 "%s: unable to create data.",
-			 function );
-
-			goto on_error;
-		}
-		( *chunk_data )->data_size = data_size;
+		goto on_error;
 	}
+	( *chunk_data )->data_size = data_size;
+
 	return( 1 );
 
 on_error:
@@ -161,25 +160,23 @@ int libvslvm_chunk_data_free(
 	}
 	if( *chunk_data != NULL )
 	{
-		if( ( *chunk_data )->data != NULL )
+		if( memory_set(
+		     ( *chunk_data )->data,
+		     0,
+		     ( *chunk_data )->data_size ) == NULL )
 		{
-			if( memory_set(
-			     ( *chunk_data )->data,
-			     0,
-			     ( *chunk_data )->data_size ) == NULL )
-			{
-				libcerror_error_set(
-				 error,
-				 LIBCERROR_ERROR_DOMAIN_MEMORY,
-				 LIBCERROR_MEMORY_ERROR_SET_FAILED,
-				 "%s: unable to clear data.",
-				 function );
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_MEMORY,
+			 LIBCERROR_MEMORY_ERROR_SET_FAILED,
+			 "%s: unable to clear data.",
+			 function );
 
-				result = -1;
-			}
-			memory_free(
-			 ( *chunk_data )->data );
+			result = -1;
 		}
+		memory_free(
+		 ( *chunk_data )->data );
+
 		memory_free(
 		 *chunk_data );
 
@@ -191,14 +188,14 @@ int libvslvm_chunk_data_free(
 /* Reads chunk data
  * Returns 1 if successful or -1 on error
  */
-int libvslvm_chunk_data_read(
+int libvslvm_chunk_data_read_file_io_pool(
      libvslvm_chunk_data_t *chunk_data,
      libbfio_pool_t *file_io_pool,
      int file_io_pool_entry,
-     off64_t chunk_data_offset,
+     off64_t chunk_offset,
      libcerror_error_t **error )
 {
-	static char *function = "libvslvm_chunk_data_read";
+	static char *function = "libvslvm_chunk_data_read_file_io_pool";
 	ssize_t read_count    = 0;
 
 	if( chunk_data == NULL )
@@ -229,14 +226,14 @@ int libvslvm_chunk_data_read(
 		libcnotify_printf(
 		 "%s: reading chunk data at offset: %" PRIi64 " (0x%08" PRIx64 ")\n",
 		 function,
-		 chunk_data_offset,
-		 chunk_data_offset );
+		 chunk_offset,
+		 chunk_offset );
 	}
 #endif
 	if( libbfio_pool_seek_offset(
 	     file_io_pool,
 	     file_io_pool_entry,
-	     chunk_data_offset,
+	     chunk_offset,
 	     SEEK_SET,
 	     error ) == -1 )
 	{
@@ -246,8 +243,8 @@ int libvslvm_chunk_data_read(
 		 LIBCERROR_IO_ERROR_SEEK_FAILED,
 		 "%s: unable to seek chunk data offset: %" PRIi64 " (0x%08" PRIx64 ").",
 		 function,
-		 chunk_data_offset,
-		 chunk_data_offset );
+		 chunk_offset,
+		 chunk_offset );
 
 		return( -1 );
 	}

@@ -226,7 +226,7 @@ int libvslvm_io_handle_read_chunk_data(
 
 		goto on_error;
 	}
-	if( libvslvm_chunk_data_read(
+	if( libvslvm_chunk_data_read_file_io_pool(
 	     chunk_data,
 	     file_io_pool,
 	     element_data_file_index,

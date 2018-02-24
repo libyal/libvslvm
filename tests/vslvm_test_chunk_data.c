@@ -37,6 +37,240 @@
 
 #if defined( __GNUC__ ) && !defined( LIBVSLVM_DLL_IMPORT )
 
+/* Tests the libvslvm_chunk_data_initialize function
+ * Returns 1 if successful or 0 if not
+ */
+int vslvm_test_chunk_data_initialize(
+     void )
+{
+	libcerror_error_t *error          = NULL;
+	libvslvm_chunk_data_t *chunk_data = NULL;
+	int result                        = 0;
+
+#if defined( HAVE_VSLVM_TEST_MEMORY )
+	int number_of_malloc_fail_tests   = 1;
+	int number_of_memset_fail_tests   = 1;
+	int test_number                   = 0;
+#endif
+
+	/* Test regular cases
+	 */
+	result = libvslvm_chunk_data_initialize(
+	          &chunk_data,
+	          512,
+	          &error );
+
+	VSLVM_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	VSLVM_TEST_ASSERT_IS_NOT_NULL(
+	 "chunk_data",
+	 chunk_data );
+
+	VSLVM_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	result = libvslvm_chunk_data_free(
+	          &chunk_data,
+	          &error );
+
+	VSLVM_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	VSLVM_TEST_ASSERT_IS_NULL(
+	 "chunk_data",
+	 chunk_data );
+
+	VSLVM_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	/* Test error cases
+	 */
+	result = libvslvm_chunk_data_initialize(
+	          NULL,
+	          512,
+	          &error );
+
+	VSLVM_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	VSLVM_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	chunk_data = (libvslvm_chunk_data_t *) 0x12345678UL;
+
+	result = libvslvm_chunk_data_initialize(
+	          &chunk_data,
+	          512,
+	          &error );
+
+	VSLVM_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	VSLVM_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	chunk_data = NULL;
+
+	result = libvslvm_chunk_data_initialize(
+	          &chunk_data,
+	          0,
+	          &error );
+
+	VSLVM_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	VSLVM_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	result = libvslvm_chunk_data_initialize(
+	          &chunk_data,
+	          (size_t) SSIZE_MAX + 1,
+	          &error );
+
+	VSLVM_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	VSLVM_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+#if defined( HAVE_VSLVM_TEST_MEMORY )
+
+	for( test_number = 0;
+	     test_number < number_of_malloc_fail_tests;
+	     test_number++ )
+	{
+		/* Test libvslvm_chunk_data_initialize with malloc failing
+		 */
+		vslvm_test_malloc_attempts_before_fail = test_number;
+
+		result = libvslvm_chunk_data_initialize(
+		          &chunk_data,
+		          512,
+		          &error );
+
+		if( vslvm_test_malloc_attempts_before_fail != -1 )
+		{
+			vslvm_test_malloc_attempts_before_fail = -1;
+
+			if( chunk_data != NULL )
+			{
+				libvslvm_chunk_data_free(
+				 &chunk_data,
+				 NULL );
+			}
+		}
+		else
+		{
+			VSLVM_TEST_ASSERT_EQUAL_INT(
+			 "result",
+			 result,
+			 -1 );
+
+			VSLVM_TEST_ASSERT_IS_NULL(
+			 "chunk_data",
+			 chunk_data );
+
+			VSLVM_TEST_ASSERT_IS_NOT_NULL(
+			 "error",
+			 error );
+
+			libcerror_error_free(
+			 &error );
+		}
+	}
+	for( test_number = 0;
+	     test_number < number_of_memset_fail_tests;
+	     test_number++ )
+	{
+		/* Test libvslvm_chunk_data_initialize with memset failing
+		 */
+		vslvm_test_memset_attempts_before_fail = test_number;
+
+		result = libvslvm_chunk_data_initialize(
+		          &chunk_data,
+		          512,
+		          &error );
+
+		if( vslvm_test_memset_attempts_before_fail != -1 )
+		{
+			vslvm_test_memset_attempts_before_fail = -1;
+
+			if( chunk_data != NULL )
+			{
+				libvslvm_chunk_data_free(
+				 &chunk_data,
+				 NULL );
+			}
+		}
+		else
+		{
+			VSLVM_TEST_ASSERT_EQUAL_INT(
+			 "result",
+			 result,
+			 -1 );
+
+			VSLVM_TEST_ASSERT_IS_NULL(
+			 "chunk_data",
+			 chunk_data );
+
+			VSLVM_TEST_ASSERT_IS_NOT_NULL(
+			 "error",
+			 error );
+
+			libcerror_error_free(
+			 &error );
+		}
+	}
+#endif /* defined( HAVE_VSLVM_TEST_MEMORY ) */
+
+	return( 1 );
+
+on_error:
+	if( error != NULL )
+	{
+		libcerror_error_free(
+		 &error );
+	}
+	if( chunk_data != NULL )
+	{
+		libvslvm_chunk_data_free(
+		 &chunk_data,
+		 NULL );
+	}
+	return( 0 );
+}
+
 /* Tests the libvslvm_chunk_data_free function
  * Returns 1 if successful or 0 if not
  */
@@ -75,6 +309,153 @@ on_error:
 	return( 0 );
 }
 
+/* Tests the libvslvm_chunk_data_read_file_io_pool function
+ * Returns 1 if successful or 0 if not
+ */
+int vslvm_test_chunk_data_read_file_io_pool(
+     void )
+{
+	uint8_t test_data[ 512 ];
+
+	libbfio_pool_t *file_io_pool      = NULL;
+	libcerror_error_t *error          = NULL;
+	libvslvm_chunk_data_t *chunk_data = NULL;
+	int result                        = 0;
+
+	/* Initialize test
+	 */
+	result = libvslvm_chunk_data_initialize(
+	          &chunk_data,
+	          512,
+	          &error );
+
+	VSLVM_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	VSLVM_TEST_ASSERT_IS_NOT_NULL(
+	 "chunk_data",
+	 chunk_data );
+
+	VSLVM_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	/* Test error cases
+	 */
+	result = libvslvm_chunk_data_read_file_io_pool(
+	          NULL,
+	          file_io_pool,
+	          0,
+	          0,
+	          &error );
+
+	VSLVM_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	VSLVM_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	result = libvslvm_chunk_data_read_file_io_pool(
+	          chunk_data,
+	          NULL,
+	          0,
+	          0,
+	          &error );
+
+	VSLVM_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	VSLVM_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	result = libvslvm_chunk_data_read_file_io_pool(
+	          chunk_data,
+	          file_io_pool,
+	          -1,
+	          0,
+	          &error );
+
+	VSLVM_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	VSLVM_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	result = libvslvm_chunk_data_read_file_io_pool(
+	          chunk_data,
+	          file_io_pool,
+	          0,
+	          -1,
+	          &error );
+
+	VSLVM_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	VSLVM_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	/* Clean up
+	 */
+	result = libvslvm_chunk_data_free(
+	          &chunk_data,
+	          &error );
+
+	VSLVM_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	VSLVM_TEST_ASSERT_IS_NULL(
+	 "chunk_data",
+	 chunk_data );
+
+	VSLVM_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	return( 1 );
+
+on_error:
+	if( error != NULL )
+	{
+		libcerror_error_free(
+		 &error );
+	}
+	if( chunk_data != NULL )
+	{
+		libvslvm_chunk_data_free(
+		 &chunk_data,
+		 NULL );
+	}
+	return( 0 );
+}
+
 #endif /* defined( __GNUC__ ) && !defined( LIBVSLVM_DLL_IMPORT ) */
 
 /* The main program
@@ -94,13 +475,17 @@ int main(
 
 #if defined( __GNUC__ ) && !defined( LIBVSLVM_DLL_IMPORT )
 
-	/* TODO: add tests for libvslvm_chunk_data_initialize */
+	VSLVM_TEST_RUN(
+	 "libvslvm_chunk_data_initialize",
+	 vslvm_test_chunk_data_initialize );
 
 	VSLVM_TEST_RUN(
 	 "libvslvm_chunk_data_free",
 	 vslvm_test_chunk_data_free );
 
-	/* TODO: add tests for libvslvm_chunk_data_read */
+	VSLVM_TEST_RUN(
+	 "libvslvm_chunk_data_read_file_io_pool",
+	 vslvm_test_chunk_data_read_file_io_pool );
 
 #endif /* defined( __GNUC__ ) && !defined( LIBVSLVM_DLL_IMPORT ) */
 

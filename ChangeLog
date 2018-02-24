@@ -40,62 +40,8 @@ Tests:
 Deployment:
 * update manuals
 
-20160110
-* Changelog cleanup
-
-20160109
-* worked on Python bindings
-
-20160108
-* worked on format support
-* worked on Python bindings
-
-20160107
-* 2016 update
-* worked on format support
-
-20151229
-* updated dependencies
-
-20150105
-* 2015 update
-
-20141225
-* worked on multi physical volume files support
-
-20141130
-* code clean up
-
-20141123
-* worked on read logical volume functionality
-* worked on multi physical volume files support
-
-20141122
-* worked on vslvmmount
-* worked on read logical volume functionality
-* updated include header
-* worked on multi physical volume files support
-
-20141121
-* worked on read logical volume functionality
-* worked on vslvmmount
-
-20141103
-* worked on read logical volume functionality
-
-20141102
-* worked on tests
-* worked on API
-* worked on seek/read logical volume functionality
-
-20141027
-* changes for deployment
-
-20141023
-* changes for deployment
-* updated msvscpp files
-
 20141001
+* see `git log' for more recent change log
 * removed README.macosx
 
 20140725

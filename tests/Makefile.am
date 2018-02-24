@@ -57,6 +57,7 @@ check_PROGRAMS = \
 
 vslvm_test_chunk_data_SOURCES = \
 	vslvm_test_chunk_data.c \
+	vslvm_test_libbfio.h \
 	vslvm_test_libcerror.h \
 	vslvm_test_libvslvm.h \
 	vslvm_test_macros.h \
@@ -64,6 +65,14 @@ vslvm_test_chunk_data_SOURCES = \
 	vslvm_test_unused.h
 
 vslvm_test_chunk_data_LDADD = \
+	@LIBBFIO_LIBADD@ \
+	@LIBCPATH_LIBADD@ \
+	@LIBCFILE_LIBADD@ \
+	@LIBUNA_LIBADD@ \
+	@LIBCSPLIT_LIBADD@ \
+	@LIBCNOTIFY_LIBADD@ \
+	@LIBCLOCALE_LIBADD@ \
+	@LIBCDATA_LIBADD@ \
 	../libvslvm/libvslvm.la \
 	@LIBCERROR_LIBADD@
 
