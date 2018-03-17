@@ -177,6 +177,19 @@ int libvslvm_logical_volume_get_segment(
      libvslvm_segment_t **segment,
      libcerror_error_t **error );
 
+int libvslvm_logical_volume_read_chunk_data(
+     intptr_t *data_handle,
+     libbfio_pool_t *file_io_pool,
+     libfdata_vector_t *vector,
+     libfcache_cache_t *cache,
+     int element_index,
+     int element_data_file_index,
+     off64_t element_data_offset,
+     size64_t element_data_size,
+     uint32_t element_data_flags,
+     uint8_t read_flags,
+     libcerror_error_t **error );
+
 #if defined( __cplusplus )
 }
 #endif

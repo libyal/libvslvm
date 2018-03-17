@@ -25,11 +25,7 @@
 #include <common.h>
 #include <types.h>
 
-#include "libvslvm_libbfio.h"
-#include "libvslvm_libcdata.h"
 #include "libvslvm_libcerror.h"
-#include "libvslvm_libfcache.h"
-#include "libvslvm_libfdata.h"
 
 #if defined( __cplusplus )
 extern "C" {
@@ -58,19 +54,6 @@ int libvslvm_io_handle_free(
 
 int libvslvm_io_handle_clear(
      libvslvm_io_handle_t *io_handle,
-     libcerror_error_t **error );
-
-int libvslvm_io_handle_read_chunk_data(
-     intptr_t *data_handle,
-     libbfio_pool_t *file_io_pool,
-     libfdata_vector_t *vector,
-     libfcache_cache_t *cache,
-     int element_index,
-     int element_data_file_index,
-     off64_t element_data_offset,
-     size64_t element_data_size,
-     uint32_t element_data_flags,
-     uint8_t read_flags,
      libcerror_error_t **error );
 
 #if defined( __cplusplus )

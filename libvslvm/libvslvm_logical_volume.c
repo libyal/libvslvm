@@ -39,6 +39,7 @@
 #include "libvslvm_segment.h"
 #include "libvslvm_stripe.h"
 #include "libvslvm_types.h"
+#include "libvslvm_unused.h"
 #include "libvslvm_volume_group.h"
 
 /* Creates a logical volume
@@ -136,15 +137,14 @@ int libvslvm_logical_volume_initialize(
 
 		return( -1 );
 	}
-/* TODO clone function ? */
 /* TODO determine how the LVM raid chunk size is determined, 64k seems to be pretty standard */
 	if( libfdata_vector_initialize(
 	     &( internal_logical_volume->chunks_vector ),
 	     (size64_t) ( 64 * 1024 ),
-	     (intptr_t *) io_handle,
 	     NULL,
 	     NULL,
-	     (int (*)(intptr_t *, intptr_t *, libfdata_vector_t *, libfcache_cache_t *, int, int, off64_t, size64_t, uint32_t, uint8_t, libcerror_error_t **)) &libvslvm_io_handle_read_chunk_data,
+	     NULL,
+	     (int (*)(intptr_t *, intptr_t *, libfdata_vector_t *, libfcache_cache_t *, int, int, off64_t, size64_t, uint32_t, uint8_t, libcerror_error_t **)) &libvslvm_logical_volume_read_chunk_data,
 	     NULL,
 	     LIBFDATA_DATA_HANDLE_FLAG_NON_MANAGED,
 	     error ) != 1 )
@@ -1538,5 +1538,101 @@ int libvslvm_logical_volume_get_segment(
 	}
 #endif
 	return( result );
+}
+
+/* Reads chunk data
+ * Callback function for the chunk data vector
+ * Returns 1 if successful or -1 on error
+ */
+int libvslvm_logical_volume_read_chunk_data(
+     intptr_t *data_handle LIBVSLVM_ATTRIBUTE_UNUSED,
+     libbfio_pool_t *file_io_pool,
+     libfdata_vector_t *vector,
+     libfcache_cache_t *cache,
+     int element_index,
+     int element_data_file_index,
+     off64_t element_data_offset,
+     size64_t element_data_size,
+     uint32_t element_data_flags LIBVSLVM_ATTRIBUTE_UNUSED,
+     uint8_t read_flags LIBVSLVM_ATTRIBUTE_UNUSED,
+     libcerror_error_t **error )
+{
+	libvslvm_chunk_data_t *chunk_data = NULL;
+	static char *function             = "libvslvm_logical_volume_read_chunk_data";
+
+	LIBVSLVM_UNREFERENCED_PARAMETER( data_handle );
+	LIBVSLVM_UNREFERENCED_PARAMETER( element_data_flags );
+	LIBVSLVM_UNREFERENCED_PARAMETER( read_flags );
+
+	if( element_data_size > (size64_t) SSIZE_MAX )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_VALUE_EXCEEDS_MAXIMUM,
+		 "%s: invalid element data size value exceeds maximum.",
+		 function );
+
+		goto on_error;
+	}
+	if( libvslvm_chunk_data_initialize(
+	     &chunk_data,
+	     (size_t) element_data_size,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+		 "%s: unable to create chunk data.",
+		 function );
+
+		goto on_error;
+	}
+	if( libvslvm_chunk_data_read_file_io_pool(
+	     chunk_data,
+	     file_io_pool,
+	     element_data_file_index,
+             element_data_offset,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_IO,
+		 LIBCERROR_IO_ERROR_READ_FAILED,
+		 "%s: unable to read chunk data.",
+		 function );
+
+		goto on_error;
+	}
+	if( libfdata_vector_set_element_value_by_index(
+	     vector,
+	     (intptr_t *) file_io_pool,
+	     cache,
+	     element_index,
+	     (intptr_t *) chunk_data,
+	     (int (*)(intptr_t **, libcerror_error_t **)) &libvslvm_chunk_data_free,
+	     LIBFDATA_LIST_ELEMENT_VALUE_FLAG_MANAGED,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
+		 "%s: unable to set chunk data as element value.",
+		 function );
+
+		goto on_error;
+	}
+	return( 1 );
+
+on_error:
+	if( chunk_data != NULL )
+	{
+		libvslvm_chunk_data_free(
+		 &chunk_data,
+		 NULL );
+	}
+	return( -1 );
 }
 

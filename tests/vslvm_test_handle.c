@@ -31,6 +31,7 @@
 #endif
 
 #include "vslvm_test_getopt.h"
+#include "vslvm_test_functions.h"
 #include "vslvm_test_libcerror.h"
 #include "vslvm_test_libclocale.h"
 #include "vslvm_test_libuna.h"
