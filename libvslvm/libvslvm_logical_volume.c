@@ -484,37 +484,31 @@ int libvslvm_logical_volume_free(
 
 		/* The logical_volume_values and physical_volume_file_io_pool references are freed elsewhere
 		 */
-		if( internal_logical_volume->chunks_vector != NULL )
+		if( libfdata_vector_free(
+		     &( internal_logical_volume->chunks_vector ),
+		     error ) != 1 )
 		{
-			if( libfdata_vector_free(
-			     &( internal_logical_volume->chunks_vector ),
-			     error ) != 1 )
-			{
-				libcerror_error_set(
-				 error,
-				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
-				 "%s: unable to free chunks vector.",
-				 function );
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+			 "%s: unable to free chunks vector.",
+			 function );
 
-				result = -1;
-			}
+			result = -1;
 		}
-		if( internal_logical_volume->chunks_cache != NULL )
+		if( libfcache_cache_free(
+		     &( internal_logical_volume->chunks_cache ),
+		     error ) != 1 )
 		{
-			if( libfcache_cache_free(
-			     &( internal_logical_volume->chunks_cache ),
-			     error ) != 1 )
-			{
-				libcerror_error_set(
-				 error,
-				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
-				 "%s: unable to free chunks cache.",
-				 function );
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+			 "%s: unable to free chunks cache.",
+			 function );
 
-				result = -1;
-			}
+			result = -1;
 		}
 #if defined( HAVE_MULTI_THREAD_SUPPORT )
 		if( libcthreads_read_write_lock_free(

@@ -179,13 +179,15 @@ vslvm_test_metadata_area_LDADD = \
 	@LIBCERROR_LIBADD@
 
 vslvm_test_notify_SOURCES = \
+	vslvm_test_libcerror.h \
 	vslvm_test_libvslvm.h \
 	vslvm_test_macros.h \
 	vslvm_test_notify.c \
 	vslvm_test_unused.h
 
 vslvm_test_notify_LDADD = \
-	../libvslvm/libvslvm.la
+	../libvslvm/libvslvm.la \
+	@LIBCERROR_LIBADD@
 
 vslvm_test_physical_volume_SOURCES = \
 	vslvm_test_libcerror.h \
@@ -245,6 +247,7 @@ vslvm_test_support_SOURCES = \
 	vslvm_test_libuna.h \
 	vslvm_test_libvslvm.h \
 	vslvm_test_macros.h \
+	vslvm_test_memory.c vslvm_test_memory.h \
 	vslvm_test_support.c
 
 vslvm_test_support_LDADD = \
