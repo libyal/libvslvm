@@ -1,5 +1,5 @@
 /*
- * The internal libvslvm header
+ * The libvslvm header wrapper
  *
  * Copyright (C) 2014-2018, Joachim Metz <joachim.metz@gmail.com>
  *

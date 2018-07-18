@@ -113,6 +113,8 @@ int vslvm_test_io_handle_initialize(
 	          &io_handle,
 	          &error );
 
+	io_handle = NULL;
+
 	VSLVM_TEST_ASSERT_EQUAL_INT(
 	 "result",
 	 result,
@@ -124,8 +126,6 @@ int vslvm_test_io_handle_initialize(
 
 	libcerror_error_free(
 	 &error );
-
-	io_handle = NULL;
 
 #if defined( HAVE_VSLVM_TEST_MEMORY )
 
@@ -270,6 +270,134 @@ on_error:
 	return( 0 );
 }
 
+/* Tests the libvslvm_io_handle_clear function
+ * Returns 1 if successful or 0 if not
+ */
+int vslvm_test_io_handle_clear(
+     void )
+{
+	libcerror_error_t *error        = NULL;
+	libvslvm_io_handle_t *io_handle = NULL;
+	int result                      = 0;
+
+	/* Initialize test
+	 */
+	result = libvslvm_io_handle_initialize(
+	          &io_handle,
+	          &error );
+
+	VSLVM_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	VSLVM_TEST_ASSERT_IS_NOT_NULL(
+	 "io_handle",
+	 io_handle );
+
+	VSLVM_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	/* Test regular cases
+	 */
+	result = libvslvm_io_handle_clear(
+	          io_handle,
+	          &error );
+
+	VSLVM_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	VSLVM_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	/* Test error cases
+	 */
+	result = libvslvm_io_handle_clear(
+	          NULL,
+	          &error );
+
+	VSLVM_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	VSLVM_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+#if defined( HAVE_VSLVM_TEST_MEMORY )
+
+	/* Test libvslvm_io_handle_clear with memset failing
+	 */
+	vslvm_test_memset_attempts_before_fail = 0;
+
+	result = libvslvm_io_handle_clear(
+	          io_handle,
+	          &error );
+
+	if( vslvm_test_memset_attempts_before_fail != -1 )
+	{
+		vslvm_test_memset_attempts_before_fail = -1;
+	}
+	else
+	{
+		VSLVM_TEST_ASSERT_EQUAL_INT(
+		 "result",
+		 result,
+		 -1 );
+
+		VSLVM_TEST_ASSERT_IS_NOT_NULL(
+		 "error",
+		 error );
+
+		libcerror_error_free(
+		 &error );
+	}
+#endif /* defined( HAVE_VSLVM_TEST_MEMORY ) */
+
+	/* Clean up
+	 */
+	result = libvslvm_io_handle_free(
+	          &io_handle,
+	          &error );
+
+	VSLVM_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	VSLVM_TEST_ASSERT_IS_NULL(
+	 "io_handle",
+	 io_handle );
+
+	VSLVM_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	return( 1 );
+
+on_error:
+	if( error != NULL )
+	{
+		libcerror_error_free(
+		 &error );
+	}
+	if( io_handle != NULL )
+	{
+		libvslvm_io_handle_free(
+		 &io_handle,
+		 NULL );
+	}
+	return( 0 );
+}
+
 #endif /* defined( __GNUC__ ) && !defined( LIBVSLVM_DLL_IMPORT ) */
 
 /* The main program
@@ -297,9 +425,9 @@ int main(
 	 "libvslvm_io_handle_free",
 	 vslvm_test_io_handle_free );
 
-	/* TODO: add tests for libvslvm_io_handle_clear */
-
-	/* TODO: add tests for libvslvm_io_handle_read_chunk_data */
+	VSLVM_TEST_RUN(
+	 "libvslvm_io_handle_clear",
+	 vslvm_test_io_handle_clear );
 
 #endif /* defined( __GNUC__ ) && !defined( LIBVSLVM_DLL_IMPORT ) */
 

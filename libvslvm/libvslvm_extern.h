@@ -37,8 +37,11 @@
 
 #include <libvslvm/extern.h>
 
+#define LIBVSLVM_EXTERN_VARIABLE	LIBVSLVM_EXTERN
+
 #else
-#define LIBVSLVM_EXTERN	/* extern */
+#define LIBVSLVM_EXTERN		/* extern */
+#define LIBVSLVM_EXTERN_VARIABLE	extern
 
 #endif /* !defined( HAVE_LOCAL_LIBVSLVM ) */
 

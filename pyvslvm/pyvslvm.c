@@ -507,7 +507,7 @@ PyMODINIT_FUNC initpyvslvm(
 		goto on_error;
 	}
 	Py_IncRef(
-	 (PyObject * ) &pyvslvm_handle_type_object );
+	 (PyObject *) &pyvslvm_handle_type_object );
 
 	handle_type_object = &pyvslvm_handle_type_object;
 
@@ -526,7 +526,7 @@ PyMODINIT_FUNC initpyvslvm(
 		goto on_error;
 	}
 	Py_IncRef(
-	 (PyObject * ) &pyvslvm_logical_volume_type_object );
+	 (PyObject *) &pyvslvm_logical_volume_type_object );
 
 	logical_volume_type_object = &pyvslvm_logical_volume_type_object;
 
@@ -545,7 +545,7 @@ PyMODINIT_FUNC initpyvslvm(
 		goto on_error;
 	}
 	Py_IncRef(
-	 (PyObject * ) &pyvslvm_physical_volume_type_object );
+	 (PyObject *) &pyvslvm_physical_volume_type_object );
 
 	physical_volume_type_object = &pyvslvm_physical_volume_type_object;
 
@@ -564,7 +564,7 @@ PyMODINIT_FUNC initpyvslvm(
 		goto on_error;
 	}
 	Py_IncRef(
-	 (PyObject * ) &pyvslvm_segment_type_object );
+	 (PyObject *) &pyvslvm_segment_type_object );
 
 	segment_type_object = &pyvslvm_segment_type_object;
 
@@ -583,7 +583,7 @@ PyMODINIT_FUNC initpyvslvm(
 		goto on_error;
 	}
 	Py_IncRef(
-	 (PyObject * ) &pyvslvm_stripe_type_object );
+	 (PyObject *) &pyvslvm_stripe_type_object );
 
 	stripe_type_object = &pyvslvm_stripe_type_object;
 
@@ -602,7 +602,7 @@ PyMODINIT_FUNC initpyvslvm(
 		goto on_error;
 	}
 	Py_IncRef(
-	 (PyObject * ) &pyvslvm_volume_group_type_object );
+	 (PyObject *) &pyvslvm_volume_group_type_object );
 
 	volume_group_type_object = &pyvslvm_volume_group_type_object;
 
