@@ -28,13 +28,6 @@
  */
 #if !defined( HAVE_LOCAL_LIBVSLVM )
 
-/* If libtool DLL support is enabled set LIBVSLVM_DLL_EXPORT
- * before including libvslvm/extern.h
- */
-#if defined( _WIN32 ) && defined( DLL_EXPORT )
-#define LIBVSLVM_DLL_EXPORT
-#endif
-
 #include <libvslvm/extern.h>
 
 #define LIBVSLVM_EXTERN_VARIABLE	LIBVSLVM_EXTERN
