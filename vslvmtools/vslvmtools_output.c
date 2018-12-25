@@ -90,7 +90,7 @@ int vslvmtools_output_initialize(
 
 /* Prints the copyright information
  */
-void vslvmoutput_copyright_fprint(
+void vslvmtools_output_copyright_fprint(
       FILE *stream )
 {
 	if( stream == NULL )
@@ -122,7 +122,7 @@ void vslvmoutput_copyright_fprint(
 
 /* Prints the version information
  */
-void vslvmoutput_version_fprint(
+void vslvmtools_output_version_fprint(
       FILE *stream,
       const char *program )
 {
@@ -143,7 +143,7 @@ void vslvmoutput_version_fprint(
 
 /* Prints the detailed version information
  */
-void vslvmoutput_version_detailed_fprint(
+void vslvmtools_output_version_detailed_fprint(
       FILE *stream,
       const char *program )
 {

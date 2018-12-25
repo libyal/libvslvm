@@ -49,6 +49,10 @@ vslvminfo_LDADD = \
 	@LIBINTL@
 
 vslvmmount_SOURCES = \
+	mount_dokan.c mount_dokan.h \
+	mount_file_entry.c mount_file_entry.h \
+	mount_file_system.c mount_file_system.h \
+	mount_fuse.c mount_fuse.h \
 	mount_handle.c mount_handle.h \
 	vslvmmount.c \
 	vslvmtools_getopt.c vslvmtools_getopt.h \
@@ -58,6 +62,7 @@ vslvmmount_SOURCES = \
 	vslvmtools_libcerror.h \
 	vslvmtools_libclocale.h \
 	vslvmtools_libcnotify.h \
+	vslvmtools_libcpath.h \
 	vslvmtools_libvslvm.h \
 	vslvmtools_libuna.h \
 	vslvmtools_output.c vslvmtools_output.h \

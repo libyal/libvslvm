@@ -26,8 +26,9 @@
 #include <file_stream.h>
 #include <types.h>
 
+#include "mount_file_entry.h"
+#include "mount_file_system.h"
 #include "vslvmtools_libbfio.h"
-#include "vslvmtools_libcdata.h"
 #include "vslvmtools_libcerror.h"
 #include "vslvmtools_libvslvm.h"
 
@@ -39,29 +40,37 @@ typedef struct mount_handle mount_handle_t;
 
 struct mount_handle
 {
+	/* The basename
+	 */
+	system_character_t *basename;
+
+	/* The basename size
+	 */
+	size_t basename_size;
+
+	/* The file system
+	 */
+	mount_file_system_t *file_system;
+
 	/* The volume offset
 	 */
 	off64_t volume_offset;
 
-	/* The libbfio input file IO handle
+	/* The libbfio file IO handle
 	 */
-	libbfio_handle_t *input_file_io_handle;
+	libbfio_handle_t *file_io_handle;
 
 	/* The libbfio physical volume file IO pool
 	 */
 	libbfio_pool_t *physical_volume_file_io_pool;
 
-	/* The libvslvm input handle
+	/* The libvslvm handle
 	 */
-	libvslvm_handle_t *input_handle;
+	libvslvm_handle_t *handle;
 
 	/* The volume group
 	 */
 	libvslvm_volume_group_t *volume_group;
-
-	/* The logical volumes array
-	 */
-	libcdata_array_t *logical_volumes_array;
 
 	/* The notification output stream
 	 */
@@ -72,7 +81,7 @@ struct mount_handle
 	int abort;
 };
 
-int vslvmtools_system_string_copy_from_64_bit_in_decimal(
+int mount_handle_system_string_copy_from_64_bit_in_decimal(
      const system_character_t *string,
      size_t string_size,
      uint64_t *value_64bit,
@@ -90,43 +99,36 @@ int mount_handle_signal_abort(
      mount_handle_t *mount_handle,
      libcerror_error_t **error );
 
-int mount_handle_set_volume_offset(
+int mount_handle_set_basename(
+     mount_handle_t *mount_handle,
+     const system_character_t *basename,
+     size_t basename_size,
+     libcerror_error_t **error );
+
+int mount_handle_set_offset(
      mount_handle_t *mount_handle,
      const system_character_t *string,
      libcerror_error_t **error );
 
-int mount_handle_open_input(
+int mount_handle_set_path_prefix(
+     mount_handle_t *mount_handle,
+     const system_character_t *path_prefix,
+     size_t path_prefix_size,
+     libcerror_error_t **error );
+
+int mount_handle_open(
      mount_handle_t *mount_handle,
      const system_character_t *filename,
      libcerror_error_t **error );
 
-int mount_handle_close_input(
+int mount_handle_close(
      mount_handle_t *mount_handle,
      libcerror_error_t **error );
 
-ssize_t mount_handle_read_buffer(
-         mount_handle_t *mount_handle,
-         int logical_volume_index,
-         uint8_t *buffer,
-         size_t size,
-         libcerror_error_t **error );
-
-off64_t mount_handle_seek_offset(
-         mount_handle_t *mount_handle,
-         int logical_volume_index,
-         off64_t offset,
-         int whence,
-         libcerror_error_t **error );
-
-int mount_handle_get_volume_size(
+int mount_handle_get_file_entry_by_path(
      mount_handle_t *mount_handle,
-     int logical_volume_index,
-     size64_t *volume_size,
-     libcerror_error_t **error );
-
-int mount_handle_get_number_of_logical_volumes(
-     mount_handle_t *mount_handle,
-     int *number_of_logical_volumes,
+     const system_character_t *path,
+     mount_file_entry_t **file_entry,
      libcerror_error_t **error );
 
 #if defined( __cplusplus )

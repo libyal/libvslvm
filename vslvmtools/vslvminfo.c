@@ -159,7 +159,7 @@ int main( int argc, char * const argv[] )
 
 		goto on_error;
 	}
-	vslvmoutput_version_fprint(
+	vslvmtools_output_version_fprint(
 	 stdout,
 	 program );
 
@@ -199,7 +199,7 @@ int main( int argc, char * const argv[] )
 				break;
 
 			case (system_integer_t) 'V':
-				vslvmoutput_copyright_fprint(
+				vslvmtools_output_copyright_fprint(
 				 stdout );
 
 				return( EXIT_SUCCESS );
