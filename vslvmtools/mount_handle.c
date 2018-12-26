@@ -30,7 +30,6 @@
 #include "mount_file_system.h"
 #include "mount_handle.h"
 #include "vslvmtools_libbfio.h"
-#include "vslvmtools_libcdata.h"
 #include "vslvmtools_libcerror.h"
 #include "vslvmtools_libcpath.h"
 #include "vslvmtools_libvslvm.h"
@@ -62,8 +61,8 @@ int mount_handle_system_string_copy_from_64_bit_in_decimal(
      libcerror_error_t **error )
 {
 	static char *function              = "mount_handle_system_string_copy_from_64_bit_in_decimal";
-	size_t string_index                = 0;
 	system_character_t character_value = 0;
+	size_t string_index                = 0;
 	uint8_t maximum_string_index       = 20;
 	int8_t sign                        = 1;
 
