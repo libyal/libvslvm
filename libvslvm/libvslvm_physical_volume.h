@@ -30,7 +30,6 @@
 #include "libvslvm_libbfio.h"
 #include "libvslvm_libcdata.h"
 #include "libvslvm_libcerror.h"
-#include "libvslvm_libfcache.h"
 #include "libvslvm_libfdata.h"
 #include "libvslvm_types.h"
 
@@ -198,7 +197,7 @@ int libvslvm_physical_volume_read_element_data(
      intptr_t *data_handle,
      libbfio_pool_t *file_io_pool,
      libfdata_list_element_t *element,
-     libfcache_cache_t *cache,
+     libfdata_cache_t *cache,
      int file_io_pool_entry,
      off64_t physical_volume_offset,
      size64_t physical_volume_size,

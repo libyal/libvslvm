@@ -144,7 +144,7 @@ int libvslvm_logical_volume_initialize(
 	     NULL,
 	     NULL,
 	     NULL,
-	     (int (*)(intptr_t *, intptr_t *, libfdata_vector_t *, libfcache_cache_t *, int, int, off64_t, size64_t, uint32_t, uint8_t, libcerror_error_t **)) &libvslvm_logical_volume_read_chunk_data,
+	     (int (*)(intptr_t *, intptr_t *, libfdata_vector_t *, libfdata_cache_t *, int, int, off64_t, size64_t, uint32_t, uint8_t, libcerror_error_t **)) &libvslvm_logical_volume_read_chunk_data,
 	     NULL,
 	     LIBFDATA_DATA_HANDLE_FLAG_NON_MANAGED,
 	     error ) != 1 )
@@ -587,7 +587,7 @@ ssize_t libvslvm_internal_logical_volume_read_buffer_from_file_io_pool(
 		if( libfdata_vector_get_element_value_at_offset(
 		     internal_logical_volume->chunks_vector,
 		     (intptr_t *) physical_volume_file_io_pool,
-		     internal_logical_volume->chunks_cache,
+		     (libfdata_cache_t *) internal_logical_volume->chunks_cache,
 		     internal_logical_volume->current_offset,
 		     &element_data_offset,
 		     (intptr_t **) &chunk_data,
@@ -1542,7 +1542,7 @@ int libvslvm_logical_volume_read_chunk_data(
      intptr_t *data_handle LIBVSLVM_ATTRIBUTE_UNUSED,
      libbfio_pool_t *file_io_pool,
      libfdata_vector_t *vector,
-     libfcache_cache_t *cache,
+     libfdata_cache_t *cache,
      int element_index,
      int element_data_file_index,
      off64_t element_data_offset,

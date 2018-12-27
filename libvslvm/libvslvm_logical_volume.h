@@ -181,7 +181,7 @@ int libvslvm_logical_volume_read_chunk_data(
      intptr_t *data_handle,
      libbfio_pool_t *file_io_pool,
      libfdata_vector_t *vector,
-     libfcache_cache_t *cache,
+     libfdata_cache_t *cache,
      int element_index,
      int element_data_file_index,
      off64_t element_data_offset,
