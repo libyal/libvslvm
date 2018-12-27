@@ -9,6 +9,8 @@ Homepage: https://github.com/libyal/libvslvm
 Package: libvslvm
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}
+Conflicts: libvslvm1
+Replaces: libvslvm1
 Suggests: libvslvm-dbg
 Description: Library to access the Linux Logical Volume Manager (LVM) volume system
  libvslvm is a library to access the Linux Logical Volume Manager (LVM) volume system.
@@ -31,6 +33,8 @@ Package: libvslvm-tools
 Section: utils
 Architecture: any
 Depends: libvslvm (= ${binary:Version}), ${shlibs:Depends}, ${misc:Depends}
+Conflicts: libvslvm-utils
+Replaces: libvslvm-utils
 Description: Several tools for Several tools for reading Linux Logical Volume Manager (LVM) volume systems
  Several tools for Several tools for reading Linux Logical Volume Manager (LVM) volume systems.
 
@@ -45,6 +49,8 @@ Package: libvslvm-python
 Section: python
 Architecture: any
 Depends: libvslvm (= ${binary:Version}), ${shlibs:Depends}, ${misc:Depends}
+Conflicts: python-libvslvm
+Replaces: python-libvslvm
 Suggests: libvslvm-python-dbg
 Description: Python 2 bindings for libvslvm
  Python 2 bindings for libvslvm.
@@ -60,6 +66,8 @@ Package: libvslvm-python3
 Section: python
 Architecture: any
 Depends: libvslvm (= ${binary:Version}), ${shlibs:Depends}, ${misc:Depends}
+Conflicts: python3-libvslvm
+Replaces: python3-libvslvm
 Suggests: libvslvm-python3-dbg
 Description: Python 3 bindings for libvslvm
  Python 3 bindings for libvslvm.

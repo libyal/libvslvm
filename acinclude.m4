@@ -1,6 +1,6 @@
 dnl Checks for required headers and functions
 dnl
-dnl Version: 20170918
+dnl Version: 20181226
 
 dnl Function to detect if libvslvm dependencies are available
 AC_DEFUN([AX_LIBVSLVM_CHECK_LOCAL],
@@ -51,7 +51,7 @@ AC_DEFUN([AX_VSLVMTOOLS_CHECK_LOCAL],
   dnl Functions included in vslvmtools/vslvmmount.c
   AS_IF(
     [test "x$ac_cv_enable_winapi" = xno],
-    [AC_CHECK_FUNCS([getegid geteuid time])
+    [AC_CHECK_FUNCS([clock_gettime getegid geteuid time])
   ])
 
   dnl Check if tools should be build as static executables
