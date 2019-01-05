@@ -1,7 +1,7 @@
 /*
  * Library to access the Linux Logical Volume Manager (LVM) volume system
  *
- * Copyright (C) 2014-2018, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (C) 2014-2019, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *

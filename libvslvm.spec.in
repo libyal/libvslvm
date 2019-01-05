@@ -13,6 +13,14 @@ BuildRequires: gcc @ax_libbfio_spec_build_requires@ @ax_libcdata_spec_build_requ
 %description -n libvslvm
 Library to access the Linux Logical Volume Manager (LVM) volume system
 
+%package -n libvslvm-static
+Summary: Library to access the Linux Logical Volume Manager (LVM) volume system
+Group: Development/Libraries
+Requires: libvslvm = %{version}-%{release}
+
+%description -n libvslvm-static
+Static library version of libvslvm.
+
 %package -n libvslvm-devel
 Summary: Header files and libraries for developing applications for libvslvm
 Group: Development/Libraries
@@ -74,11 +82,16 @@ rm -rf %{buildroot}
 %doc AUTHORS README
 %attr(755,root,root) %{_libdir}/*.so.*
 
+%files -n libvslvm-static
+%defattr(644,root,root,755)
+%license COPYING
+%doc AUTHORS README
+%attr(755,root,root) %{_libdir}/*.a
+
 %files -n libvslvm-devel
 %defattr(644,root,root,755)
 %license COPYING
-%doc AUTHORS README ChangeLog
-%{_libdir}/*.a
+%doc AUTHORS README
 %{_libdir}/*.la
 %{_libdir}/*.so
 %{_libdir}/pkgconfig/libvslvm.pc
