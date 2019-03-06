@@ -24,12 +24,14 @@ endif
 
 TESTS = \
 	test_library.sh \
+	test_manpage.sh \
 	test_vslvminfo.sh \
 	$(TESTS_PYVSLVM)
 
 check_SCRIPTS = \
 	pyvslvm_test_support.py \
 	test_library.sh \
+	test_manpage.sh \
 	test_python_module.sh \
 	test_runner.sh \
 	test_vslvminfo.sh

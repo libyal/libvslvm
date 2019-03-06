@@ -1,11 +1,9 @@
-.Dd January  9, 2016
+.Dd March  6, 2019
 .Dt libvslvm 3
 .Os libvslvm
 .Sh NAME
 .Nm libvslvm.h
 .Nd Library to access the Linux Logical Volume Manager (LVM) volume system
-.Sh LIBRARY
-.Lb libvslvm
 .Sh SYNOPSIS
 .In libvslvm.h
 .Pp
@@ -17,27 +15,27 @@ Support functions
 .Ft int
 .Fn libvslvm_get_access_flags_write "void"
 .Ft int
-.Fn libvslvm_get_codepage "int *codepage, libvslvm_error_t **error"
+.Fn libvslvm_get_codepage "int *codepage" "libvslvm_error_t **error"
 .Ft int
-.Fn libvslvm_set_codepage "int codepage, libvslvm_error_t **error"
+.Fn libvslvm_set_codepage "int codepage" "libvslvm_error_t **error"
 .Ft int
-.Fn libvslvm_check_volume_signature "const char *filename, libvslvm_error_t **error"
+.Fn libvslvm_check_volume_signature "const char *filename" "libvslvm_error_t **error"
 .Pp
 Available when compiled with wide character string support:
 .Ft int
-.Fn libvslvm_check_volume_signature_wide "const wchar_t *filename, libvslvm_error_t **error"
+.Fn libvslvm_check_volume_signature_wide "const wchar_t *filename" "libvslvm_error_t **error"
 .Pp
 Available when compiled with libbfio support:
 .Ft int
-.Fn libvslvm_check_volume_signature_file_io_handle "libbfio_handle_t *file_io_handle, libvslvm_error_t **error"
+.Fn libvslvm_check_volume_signature_file_io_handle "libbfio_handle_t *file_io_handle" "libvslvm_error_t **error"
 .Pp
 Notify functions
 .Ft void
 .Fn libvslvm_notify_set_verbose "int verbose"
 .Ft int
-.Fn libvslvm_notify_set_stream "FILE *stream, libvslvm_error_t **error"
+.Fn libvslvm_notify_set_stream "FILE *stream" "libvslvm_error_t **error"
 .Ft int
-.Fn libvslvm_notify_stream_open "const char *filename, libvslvm_error_t **error"
+.Fn libvslvm_notify_stream_open "const char *filename" "libvslvm_error_t **error"
 .Ft int
 .Fn libvslvm_notify_stream_close "libvslvm_error_t **error"
 .Pp
@@ -45,133 +43,133 @@ Error functions
 .Ft void
 .Fn libvslvm_error_free "libvslvm_error_t **error"
 .Ft int
-.Fn libvslvm_error_fprint "libvslvm_error_t *error, FILE *stream"
+.Fn libvslvm_error_fprint "libvslvm_error_t *error" "FILE *stream"
 .Ft int
-.Fn libvslvm_error_sprint "libvslvm_error_t *error, char *string, size_t size"
+.Fn libvslvm_error_sprint "libvslvm_error_t *error" "char *string" "size_t size"
 .Ft int
-.Fn libvslvm_error_backtrace_fprint "libvslvm_error_t *error, FILE *stream"
+.Fn libvslvm_error_backtrace_fprint "libvslvm_error_t *error" "FILE *stream"
 .Ft int
-.Fn libvslvm_error_backtrace_sprint "libvslvm_error_t *error, char *string, size_t size"
+.Fn libvslvm_error_backtrace_sprint "libvslvm_error_t *error" "char *string" "size_t size"
 .Pp
 Handle functions
 .Ft int
-.Fn libvslvm_handle_initialize "libvslvm_handle_t **handle, libvslvm_error_t **error"
+.Fn libvslvm_handle_initialize "libvslvm_handle_t **handle" "libvslvm_error_t **error"
 .Ft int
-.Fn libvslvm_handle_free "libvslvm_handle_t **handle, libvslvm_error_t **error"
+.Fn libvslvm_handle_free "libvslvm_handle_t **handle" "libvslvm_error_t **error"
 .Ft int
-.Fn libvslvm_handle_signal_abort "libvslvm_handle_t *handle, libvslvm_error_t **error"
+.Fn libvslvm_handle_signal_abort "libvslvm_handle_t *handle" "libvslvm_error_t **error"
 .Ft int
-.Fn libvslvm_handle_open "libvslvm_handle_t *handle, const char *filename, int access_flags, libvslvm_error_t **error"
+.Fn libvslvm_handle_open "libvslvm_handle_t *handle" "const char *filename" "int access_flags" "libvslvm_error_t **error"
 .Ft int
-.Fn libvslvm_handle_open_physical_volume_files "libvslvm_handle_t *handle, char * const filenames[], int number_of_filenames, libvslvm_error_t **error"
+.Fn libvslvm_handle_open_physical_volume_files "libvslvm_handle_t *handle" "char * const filenames[]" "int number_of_filenames" "libvslvm_error_t **error"
 .Ft int
-.Fn libvslvm_handle_close "libvslvm_handle_t *handle, libvslvm_error_t **error"
+.Fn libvslvm_handle_close "libvslvm_handle_t *handle" "libvslvm_error_t **error"
 .Ft int
-.Fn libvslvm_handle_get_volume_group "libvslvm_handle_t *handle, libvslvm_volume_group_t **volume_group, libvslvm_error_t **error"
+.Fn libvslvm_handle_get_volume_group "libvslvm_handle_t *handle" "libvslvm_volume_group_t **volume_group" "libvslvm_error_t **error"
 .Pp
 Available when compiled with wide character string support:
 .Ft int
-.Fn libvslvm_handle_open_wide "libvslvm_handle_t *handle, const wchar_t *filename, int access_flags, libvslvm_error_t **error"
+.Fn libvslvm_handle_open_wide "libvslvm_handle_t *handle" "const wchar_t *filename" "int access_flags" "libvslvm_error_t **error"
 .Ft int
-.Fn libvslvm_handle_open_physical_volume_files_wide "libvslvm_handle_t *handle, wchar_t * const filenames[], int number_of_filenames, libvslvm_error_t **error"
+.Fn libvslvm_handle_open_physical_volume_files_wide "libvslvm_handle_t *handle" "wchar_t * const filenames[]" "int number_of_filenames" "libvslvm_error_t **error"
 .Pp
 Available when compiled with libbfio support:
 .Ft int
-.Fn libvslvm_handle_open_file_io_handle "libvslvm_handle_t *handle, libbfio_handle_t *file_io_handle, int access_flags, libvslvm_error_t **error"
+.Fn libvslvm_handle_open_file_io_handle "libvslvm_handle_t *handle" "libbfio_handle_t *file_io_handle" "int access_flags" "libvslvm_error_t **error"
 .Ft int
-.Fn libvslvm_handle_open_physical_volume_files_file_io_pool "libvslvm_handle_t *handle, libbfio_pool_t *file_io_pool, libvslvm_error_t **error"
+.Fn libvslvm_handle_open_physical_volume_files_file_io_pool "libvslvm_handle_t *handle" "libbfio_pool_t *file_io_pool" "libvslvm_error_t **error"
 .Pp
 Volume group functions
 .Ft int
-.Fn libvslvm_volume_group_free "libvslvm_volume_group_t **volume_group, libvslvm_error_t **error"
+.Fn libvslvm_volume_group_free "libvslvm_volume_group_t **volume_group" "libvslvm_error_t **error"
 .Ft int
-.Fn libvslvm_volume_group_get_name_size "libvslvm_volume_group_t *volume_group, size_t *name_size, libvslvm_error_t **error"
+.Fn libvslvm_volume_group_get_name_size "libvslvm_volume_group_t *volume_group" "size_t *name_size" "libvslvm_error_t **error"
 .Ft int
-.Fn libvslvm_volume_group_get_name "libvslvm_volume_group_t *volume_group, char *name, size_t name_size, libvslvm_error_t **error"
+.Fn libvslvm_volume_group_get_name "libvslvm_volume_group_t *volume_group" "char *name" "size_t name_size" "libvslvm_error_t **error"
 .Ft int
-.Fn libvslvm_volume_group_get_identifier_size "libvslvm_volume_group_t *volume_group, size_t *identifier_size, libvslvm_error_t **error"
+.Fn libvslvm_volume_group_get_identifier_size "libvslvm_volume_group_t *volume_group" "size_t *identifier_size" "libvslvm_error_t **error"
 .Ft int
-.Fn libvslvm_volume_group_get_identifier "libvslvm_volume_group_t *volume_group, char *identifier, size_t identifier_size, libvslvm_error_t **error"
+.Fn libvslvm_volume_group_get_identifier "libvslvm_volume_group_t *volume_group" "char *identifier" "size_t identifier_size" "libvslvm_error_t **error"
 .Ft int
-.Fn libvslvm_volume_group_get_sequence_number "libvslvm_volume_group_t *volume_group, uint32_t *sequence_number, libvslvm_error_t **error"
+.Fn libvslvm_volume_group_get_sequence_number "libvslvm_volume_group_t *volume_group" "uint32_t *sequence_number" "libvslvm_error_t **error"
 .Ft int
-.Fn libvslvm_volume_group_get_extent_size "libvslvm_volume_group_t *volume_group, size64_t *extent_size, libvslvm_error_t **error"
+.Fn libvslvm_volume_group_get_extent_size "libvslvm_volume_group_t *volume_group" "size64_t *extent_size" "libvslvm_error_t **error"
 .Ft int
-.Fn libvslvm_volume_group_get_number_of_physical_volumes "libvslvm_volume_group_t *volume_group, int *number_of_physical_volumes, libvslvm_error_t **error"
+.Fn libvslvm_volume_group_get_number_of_physical_volumes "libvslvm_volume_group_t *volume_group" "int *number_of_physical_volumes" "libvslvm_error_t **error"
 .Ft int
-.Fn libvslvm_volume_group_get_physical_volume "libvslvm_volume_group_t *volume_group, int volume_index, libvslvm_physical_volume_t **physical_volume, libvslvm_error_t **error"
+.Fn libvslvm_volume_group_get_physical_volume "libvslvm_volume_group_t *volume_group" "int volume_index" "libvslvm_physical_volume_t **physical_volume" "libvslvm_error_t **error"
 .Ft int
-.Fn libvslvm_volume_group_get_physical_volume_by_name "libvslvm_volume_group_t *volume_group, const char *volume_name, size_t volume_name_length, libvslvm_physical_volume_t **physical_volume, libvslvm_error_t **error"
+.Fn libvslvm_volume_group_get_physical_volume_by_name "libvslvm_volume_group_t *volume_group" "const char *volume_name" "size_t volume_name_length" "libvslvm_physical_volume_t **physical_volume" "libvslvm_error_t **error"
 .Ft int
-.Fn libvslvm_volume_group_get_number_of_logical_volumes "libvslvm_volume_group_t *volume_group, int *number_of_logical_volumes, libvslvm_error_t **error"
+.Fn libvslvm_volume_group_get_number_of_logical_volumes "libvslvm_volume_group_t *volume_group" "int *number_of_logical_volumes" "libvslvm_error_t **error"
 .Ft int
-.Fn libvslvm_volume_group_get_logical_volume "libvslvm_volume_group_t *volume_group, int volume_index, libvslvm_logical_volume_t **logical_volume, libvslvm_error_t **error"
+.Fn libvslvm_volume_group_get_logical_volume "libvslvm_volume_group_t *volume_group" "int volume_index" "libvslvm_logical_volume_t **logical_volume" "libvslvm_error_t **error"
 .Pp
 Physical volume functions
 .Ft int
-.Fn libvslvm_physical_volume_free "libvslvm_physical_volume_t **physical_volume, libvslvm_error_t **error"
+.Fn libvslvm_physical_volume_free "libvslvm_physical_volume_t **physical_volume" "libvslvm_error_t **error"
 .Ft int
-.Fn libvslvm_physical_volume_get_name_size "libvslvm_physical_volume_t *physical_volume, size_t *name_size, libvslvm_error_t **error"
+.Fn libvslvm_physical_volume_get_name_size "libvslvm_physical_volume_t *physical_volume" "size_t *name_size" "libvslvm_error_t **error"
 .Ft int
-.Fn libvslvm_physical_volume_get_name "libvslvm_physical_volume_t *physical_volume, char *name, size_t name_size, libvslvm_error_t **error"
+.Fn libvslvm_physical_volume_get_name "libvslvm_physical_volume_t *physical_volume" "char *name" "size_t name_size" "libvslvm_error_t **error"
 .Ft int
-.Fn libvslvm_physical_volume_get_identifier_size "libvslvm_physical_volume_t *physical_volume, size_t *identifier_size, libvslvm_error_t **error"
+.Fn libvslvm_physical_volume_get_identifier_size "libvslvm_physical_volume_t *physical_volume" "size_t *identifier_size" "libvslvm_error_t **error"
 .Ft int
-.Fn libvslvm_physical_volume_get_identifier "libvslvm_physical_volume_t *physical_volume, char *identifier, size_t identifier_size, libvslvm_error_t **error"
+.Fn libvslvm_physical_volume_get_identifier "libvslvm_physical_volume_t *physical_volume" "char *identifier" "size_t identifier_size" "libvslvm_error_t **error"
 .Ft int
-.Fn libvslvm_physical_volume_get_device_path_size "libvslvm_physical_volume_t *physical_volume, size_t *device_path_size, libvslvm_error_t **error"
+.Fn libvslvm_physical_volume_get_device_path_size "libvslvm_physical_volume_t *physical_volume" "size_t *device_path_size" "libvslvm_error_t **error"
 .Ft int
-.Fn libvslvm_physical_volume_get_device_path "libvslvm_physical_volume_t *physical_volume, char *device_path, size_t device_path_size, libvslvm_error_t **error"
+.Fn libvslvm_physical_volume_get_device_path "libvslvm_physical_volume_t *physical_volume" "char *device_path" "size_t device_path_size" "libvslvm_error_t **error"
 .Ft int
-.Fn libvslvm_physical_volume_get_size "libvslvm_physical_volume_t *physical_volume, size64_t *size, libvslvm_error_t **error"
+.Fn libvslvm_physical_volume_get_size "libvslvm_physical_volume_t *physical_volume" "size64_t *size" "libvslvm_error_t **error"
 .Pp
 Logical volume functions
 .Ft int
-.Fn libvslvm_logical_volume_free "libvslvm_logical_volume_t **logical_volume, libvslvm_error_t **error"
+.Fn libvslvm_logical_volume_free "libvslvm_logical_volume_t **logical_volume" "libvslvm_error_t **error"
 .Ft ssize_t
-.Fn libvslvm_logical_volume_read_buffer "libvslvm_logical_volume_t *logical_volume, void *buffer, size_t buffer_size, libvslvm_error_t **error"
+.Fn libvslvm_logical_volume_read_buffer "libvslvm_logical_volume_t *logical_volume" "void *buffer" "size_t buffer_size" "libvslvm_error_t **error"
 .Ft ssize_t
-.Fn libvslvm_logical_volume_read_buffer_at_offset "libvslvm_logical_volume_t *logical_volume, void *buffer, size_t buffer_size, off64_t offset, libvslvm_error_t **error"
+.Fn libvslvm_logical_volume_read_buffer_at_offset "libvslvm_logical_volume_t *logical_volume" "void *buffer" "size_t buffer_size" "off64_t offset" "libvslvm_error_t **error"
 .Ft off64_t
-.Fn libvslvm_logical_volume_seek_offset "libvslvm_logical_volume_t *logical_volume, off64_t offset, int whence, libvslvm_error_t **error"
+.Fn libvslvm_logical_volume_seek_offset "libvslvm_logical_volume_t *logical_volume" "off64_t offset" "int whence" "libvslvm_error_t **error"
 .Ft int
-.Fn libvslvm_logical_volume_get_offset "libvslvm_logical_volume_t *logical_volume, off64_t *offset, libvslvm_error_t **error"
+.Fn libvslvm_logical_volume_get_offset "libvslvm_logical_volume_t *logical_volume" "off64_t *offset" "libvslvm_error_t **error"
 .Ft int
-.Fn libvslvm_logical_volume_get_size "libvslvm_logical_volume_t *logical_volume, size64_t *size, libvslvm_error_t **error"
+.Fn libvslvm_logical_volume_get_size "libvslvm_logical_volume_t *logical_volume" "size64_t *size" "libvslvm_error_t **error"
 .Ft int
-.Fn libvslvm_logical_volume_get_name_size "libvslvm_logical_volume_t *logical_volume, size_t *name_size, libvslvm_error_t **error"
+.Fn libvslvm_logical_volume_get_name_size "libvslvm_logical_volume_t *logical_volume" "size_t *name_size" "libvslvm_error_t **error"
 .Ft int
-.Fn libvslvm_logical_volume_get_name "libvslvm_logical_volume_t *logical_volume, char *name, size_t name_size, libvslvm_error_t **error"
+.Fn libvslvm_logical_volume_get_name "libvslvm_logical_volume_t *logical_volume" "char *name" "size_t name_size" "libvslvm_error_t **error"
 .Ft int
-.Fn libvslvm_logical_volume_get_identifier_size "libvslvm_logical_volume_t *logical_volume, size_t *identifier_size, libvslvm_error_t **error"
+.Fn libvslvm_logical_volume_get_identifier_size "libvslvm_logical_volume_t *logical_volume" "size_t *identifier_size" "libvslvm_error_t **error"
 .Ft int
-.Fn libvslvm_logical_volume_get_identifier "libvslvm_logical_volume_t *logical_volume, char *identifier, size_t identifier_size, libvslvm_error_t **error"
+.Fn libvslvm_logical_volume_get_identifier "libvslvm_logical_volume_t *logical_volume" "char *identifier" "size_t identifier_size" "libvslvm_error_t **error"
 .Ft int
-.Fn libvslvm_logical_volume_get_number_of_segments "libvslvm_logical_volume_t *logical_volume, int *number_of_segments, libvslvm_error_t **error"
+.Fn libvslvm_logical_volume_get_number_of_segments "libvslvm_logical_volume_t *logical_volume" "int *number_of_segments" "libvslvm_error_t **error"
 .Ft int
-.Fn libvslvm_logical_volume_get_segment "libvslvm_logical_volume_t *logical_volume, int segment_index, libvslvm_segment_t **segment, libvslvm_error_t **error"
+.Fn libvslvm_logical_volume_get_segment "libvslvm_logical_volume_t *logical_volume" "int segment_index" "libvslvm_segment_t **segment" "libvslvm_error_t **error"
 .Pp
 Segment functions
 .Ft int
-.Fn libvslvm_segment_free "libvslvm_segment_t **segment, libvslvm_error_t **error"
+.Fn libvslvm_segment_free "libvslvm_segment_t **segment" "libvslvm_error_t **error"
 .Ft int
-.Fn libvslvm_segment_get_offset "libvslvm_segment_t *segment, off64_t *offset, libvslvm_error_t **error"
+.Fn libvslvm_segment_get_offset "libvslvm_segment_t *segment" "off64_t *offset" "libvslvm_error_t **error"
 .Ft int
-.Fn libvslvm_segment_get_size "libvslvm_segment_t *segment, size64_t *size, libvslvm_error_t **error"
+.Fn libvslvm_segment_get_size "libvslvm_segment_t *segment" "size64_t *size" "libvslvm_error_t **error"
 .Ft int
-.Fn libvslvm_segment_get_number_of_stripes "libvslvm_segment_t *segment, int *number_of_stripes, libvslvm_error_t **error"
+.Fn libvslvm_segment_get_number_of_stripes "libvslvm_segment_t *segment" "int *number_of_stripes" "libvslvm_error_t **error"
 .Ft int
-.Fn libvslvm_segment_get_stripe "libvslvm_segment_t *segment, int stripe_index, libvslvm_stripe_t **stripe, libvslvm_error_t **error"
+.Fn libvslvm_segment_get_stripe "libvslvm_segment_t *segment" "int stripe_index" "libvslvm_stripe_t **stripe" "libvslvm_error_t **error"
 .Pp
 Stripe functions
 .Ft int
-.Fn libvslvm_stripe_free "libvslvm_stripe_t **stripe, libvslvm_error_t **error"
+.Fn libvslvm_stripe_free "libvslvm_stripe_t **stripe" "libvslvm_error_t **error"
 .Ft int
-.Fn libvslvm_stripe_get_physical_volume_name_size "libvslvm_stripe_t *stripe, size_t *physical_volume_name_size, libvslvm_error_t **error"
+.Fn libvslvm_stripe_get_physical_volume_name_size "libvslvm_stripe_t *stripe" "size_t *physical_volume_name_size" "libvslvm_error_t **error"
 .Ft int
-.Fn libvslvm_stripe_get_physical_volume_name "libvslvm_stripe_t *stripe, char *physical_volume_name, size_t physical_volume_name_size, libvslvm_error_t **error"
+.Fn libvslvm_stripe_get_physical_volume_name "libvslvm_stripe_t *stripe" "char *physical_volume_name" "size_t physical_volume_name_size" "libvslvm_error_t **error"
 .Ft int
-.Fn libvslvm_stripe_get_data_area_offset "libvslvm_stripe_t *stripe, off64_t *data_area_offset, libvslvm_error_t **error"
+.Fn libvslvm_stripe_get_data_area_offset "libvslvm_stripe_t *stripe" "off64_t *data_area_offset" "libvslvm_error_t **error"
 .Sh DESCRIPTION
 The
 .Fn libvslvm_get_version
@@ -184,8 +182,8 @@ None
 .Sh FILES
 None
 .Sh NOTES
-libvslvm allows to be compiled with wide character support (wchar_t).
-
+libvslvm can be compiled with wide character support (wchar_t).
+.sp
 To compile libvslvm with wide character support use:
 .Ar ./configure --enable-wide-character-type=yes
  or define:
@@ -193,7 +191,7 @@ To compile libvslvm with wide character support use:
  or
 .Ar UNICODE
  during compilation.
-
+.sp
 .Ar LIBVSLVM_WIDE_CHARACTER_TYPE
  in libvslvm/features.h can be used to determine if libvslvm was compiled with wide character support.
 .Sh BUGS
@@ -202,7 +200,7 @@ Please report bugs of any kind on the project issue tracker: https://github.com/
 These man pages are generated from "libvslvm.h".
 .Sh COPYRIGHT
 Copyright (C) 2014-2019, Joachim Metz <joachim.metz@gmail.com>.
-
+.sp
 This is free software; see the source for copying conditions.
 There is NO warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 .Sh SEE ALSO
