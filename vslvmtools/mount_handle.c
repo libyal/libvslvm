@@ -1,7 +1,7 @@
 /*
  * Mount handle
  *
- * Copyright (C) 2014-2019, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (C) 2014-2020, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -547,7 +547,6 @@ int mount_handle_open(
 	libbfio_pool_t *physical_volume_file_io_pool     = NULL;
 	libvslvm_handle_t *handle                        = NULL;
 	libvslvm_logical_volume_t *logical_volume        = NULL;
-	libvslvm_volume_group_t *volume_group            = NULL;
 	system_character_t *basename_end                 = NULL;
 	static char *function                            = "mount_handle_open";
 	size_t basename_length                           = 0;
@@ -824,7 +823,7 @@ int mount_handle_open(
 	     logical_volume_index++ )
 	{
 		if( libvslvm_volume_group_get_logical_volume(
-		     volume_group,
+		     mount_handle->volume_group,
 		     logical_volume_index,
 		     &logical_volume,
 		     error ) != 1 )
@@ -859,7 +858,6 @@ int mount_handle_open(
 	mount_handle->file_io_handle               = handle_file_io_handle;
 	mount_handle->handle                       = handle;
 	mount_handle->physical_volume_file_io_pool = physical_volume_file_io_pool;
-	mount_handle->volume_group                 = volume_group;
 
 	return( 1 );
 
