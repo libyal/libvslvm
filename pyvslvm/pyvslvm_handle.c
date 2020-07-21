@@ -217,93 +217,6 @@ PyTypeObject pyvslvm_handle_type_object = {
 	0
 };
 
-/* Creates a new pyvslvm handle object
- * Returns a Python object if successful or NULL on error
- */
-PyObject *pyvslvm_handle_new(
-           void )
-{
-	static char *function            = "pyvslvm_handle_new";
-	pyvslvm_handle_t *pyvslvm_handle = NULL;
-
-	pyvslvm_handle = PyObject_New(
-	                  struct pyvslvm_handle,
-	                  &pyvslvm_handle_type_object );
-
-	if( pyvslvm_handle == NULL )
-	{
-		PyErr_Format(
-		 PyExc_MemoryError,
-		 "%s: unable to initialize handle.",
-		 function );
-
-		goto on_error;
-	}
-	if( pyvslvm_handle_init(
-	     pyvslvm_handle ) != 0 )
-	{
-		PyErr_Format(
-		 PyExc_MemoryError,
-		 "%s: unable to initialize handle.",
-		 function );
-
-		goto on_error;
-	}
-	return( (PyObject *) pyvslvm_handle );
-
-on_error:
-	if( pyvslvm_handle != NULL )
-	{
-		Py_DecRef(
-		 (PyObject *) pyvslvm_handle );
-	}
-	return( NULL );
-}
-
-/* Creates a new handle object and opens it
- * Returns a Python object if successful or NULL on error
- */
-PyObject *pyvslvm_handle_new_open(
-           PyObject *self PYVSLVM_ATTRIBUTE_UNUSED,
-           PyObject *arguments,
-           PyObject *keywords )
-{
-	PyObject *pyvslvm_handle = NULL;
-
-	PYVSLVM_UNREFERENCED_PARAMETER( self )
-
-	pyvslvm_handle = pyvslvm_handle_new();
-
-	pyvslvm_handle_open(
-	 (pyvslvm_handle_t *) pyvslvm_handle,
-	 arguments,
-	 keywords );
-
-	return( pyvslvm_handle );
-}
-
-/* Creates a new handle object and opens it
- * Returns a Python object if successful or NULL on error
- */
-PyObject *pyvslvm_handle_new_open_file_object(
-           PyObject *self PYVSLVM_ATTRIBUTE_UNUSED,
-           PyObject *arguments,
-           PyObject *keywords )
-{
-	PyObject *pyvslvm_handle = NULL;
-
-	PYVSLVM_UNREFERENCED_PARAMETER( self )
-
-	pyvslvm_handle = pyvslvm_handle_new();
-
-	pyvslvm_handle_open_file_object(
-	 (pyvslvm_handle_t *) pyvslvm_handle,
-	 arguments,
-	 keywords );
-
-	return( pyvslvm_handle );
-}
-
 /* Intializes a handle object
  * Returns 0 if successful or -1 on error
  */
@@ -363,15 +276,6 @@ void pyvslvm_handle_free(
 
 		return;
 	}
-	if( pyvslvm_handle->handle == NULL )
-	{
-		PyErr_Format(
-		 PyExc_TypeError,
-		 "%s: invalid handle - missing libvslvm handle.",
-		 function );
-
-		return;
-	}
 	ob_type = Py_TYPE(
 	           pyvslvm_handle );
 
@@ -393,24 +297,27 @@ void pyvslvm_handle_free(
 
 		return;
 	}
-	Py_BEGIN_ALLOW_THREADS
-
-	result = libvslvm_handle_free(
-	          &( pyvslvm_handle->handle ),
-	          &error );
-
-	Py_END_ALLOW_THREADS
-
-	if( result != 1 )
+	if( pyvslvm_handle->handle != NULL )
 	{
-		pyvslvm_error_raise(
-		 error,
-		 PyExc_MemoryError,
-		 "%s: unable to free handle.",
-		 function );
+		Py_BEGIN_ALLOW_THREADS
 
-		libcerror_error_free(
-		 &error );
+		result = libvslvm_handle_free(
+		          &( pyvslvm_handle->handle ),
+		          &error );
+
+		Py_END_ALLOW_THREADS
+
+		if( result != 1 )
+		{
+			pyvslvm_error_raise(
+			 error,
+			 PyExc_MemoryError,
+			 "%s: unable to free handle.",
+			 function );
+
+			libcerror_error_free(
+			 &error );
+		}
 	}
 	ob_type->tp_free(
 	 (PyObject*) pyvslvm_handle );
@@ -715,6 +622,46 @@ PyObject *pyvslvm_handle_open_file_object(
 		 mode );
 
 		return( NULL );
+	}
+	PyErr_Clear();
+
+	result = PyObject_HasAttrString(
+	          file_object,
+	          "read" );
+
+	if( result != 1 )
+	{
+		PyErr_Format(
+		 PyExc_TypeError,
+		 "%s: unsupported file object - missing read attribute.",
+		 function );
+
+		return( NULL );
+	}
+	PyErr_Clear();
+
+	result = PyObject_HasAttrString(
+	          file_object,
+	          "seek" );
+
+	if( result != 1 )
+	{
+		PyErr_Format(
+		 PyExc_TypeError,
+		 "%s: unsupported file object - missing seek attribute.",
+		 function );
+
+		return( NULL );
+	}
+	if( pyvslvm_handle->file_io_handle != NULL )
+	{
+		pyvslvm_error_raise(
+		 error,
+		 PyExc_IOError,
+		 "%s: invalid file - file IO handle already set.",
+		 function );
+
+		goto on_error;
 	}
 	if( pyvslvm_file_object_initialize(
 	     &( pyvslvm_handle->file_io_handle ),

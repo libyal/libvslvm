@@ -69,23 +69,23 @@ PyObject *pyvslvm_physical_volumes_new(
            int number_of_items );
 
 int pyvslvm_physical_volumes_init(
-     pyvslvm_physical_volumes_t *physical_volumes_object );
+     pyvslvm_physical_volumes_t *sequence_object );
 
 void pyvslvm_physical_volumes_free(
-      pyvslvm_physical_volumes_t *physical_volumes_object );
+      pyvslvm_physical_volumes_t *sequence_object );
 
 Py_ssize_t pyvslvm_physical_volumes_len(
-            pyvslvm_physical_volumes_t *physical_volumes_object );
+            pyvslvm_physical_volumes_t *sequence_object );
 
 PyObject *pyvslvm_physical_volumes_getitem(
-           pyvslvm_physical_volumes_t *physical_volumes_object,
+           pyvslvm_physical_volumes_t *sequence_object,
            Py_ssize_t item_index );
 
 PyObject *pyvslvm_physical_volumes_iter(
-           pyvslvm_physical_volumes_t *physical_volumes_object );
+           pyvslvm_physical_volumes_t *sequence_object );
 
 PyObject *pyvslvm_physical_volumes_iternext(
-           pyvslvm_physical_volumes_t *physical_volumes_object );
+           pyvslvm_physical_volumes_t *sequence_object );
 
 #if defined( __cplusplus )
 }

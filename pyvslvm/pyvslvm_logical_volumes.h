@@ -69,23 +69,23 @@ PyObject *pyvslvm_logical_volumes_new(
            int number_of_items );
 
 int pyvslvm_logical_volumes_init(
-     pyvslvm_logical_volumes_t *logical_volumes_object );
+     pyvslvm_logical_volumes_t *sequence_object );
 
 void pyvslvm_logical_volumes_free(
-      pyvslvm_logical_volumes_t *logical_volumes_object );
+      pyvslvm_logical_volumes_t *sequence_object );
 
 Py_ssize_t pyvslvm_logical_volumes_len(
-            pyvslvm_logical_volumes_t *logical_volumes_object );
+            pyvslvm_logical_volumes_t *sequence_object );
 
 PyObject *pyvslvm_logical_volumes_getitem(
-           pyvslvm_logical_volumes_t *logical_volumes_object,
+           pyvslvm_logical_volumes_t *sequence_object,
            Py_ssize_t item_index );
 
 PyObject *pyvslvm_logical_volumes_iter(
-           pyvslvm_logical_volumes_t *logical_volumes_object );
+           pyvslvm_logical_volumes_t *sequence_object );
 
 PyObject *pyvslvm_logical_volumes_iternext(
-           pyvslvm_logical_volumes_t *logical_volumes_object );
+           pyvslvm_logical_volumes_t *sequence_object );
 
 #if defined( __cplusplus )
 }

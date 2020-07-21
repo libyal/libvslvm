@@ -23,7 +23,7 @@
 #include <narrow_string.h>
 #include <types.h>
 
-#if defined( HAVE_STDLIB_H )
+#if defined( HAVE_STDLIB_H ) || defined( HAVE_WINAPI )
 #include <stdlib.h>
 #endif
 
@@ -31,6 +31,7 @@
 #include "pyvslvm_error.h"
 #include "pyvslvm_file_object_io_handle.h"
 #include "pyvslvm_handle.h"
+#include "pyvslvm_libbfio.h"
 #include "pyvslvm_libcerror.h"
 #include "pyvslvm_libvslvm.h"
 #include "pyvslvm_logical_volume.h"
@@ -69,22 +70,31 @@ PyMethodDef pyvslvm_module_methods[] = {
 	  METH_VARARGS | METH_KEYWORDS,
 	  "check_volume_signature(filename) -> Boolean\n"
 	  "\n"
-	  "Checks if a file has a Linux Logical Volume Manager (LVM) volume system signature." },
+	  "Checks if a volume has a Linux Logical Volume Manager (LVM) signature." },
 
 	{ "check_volume_signature_file_object",
 	  (PyCFunction) pyvslvm_check_volume_signature_file_object,
 	  METH_VARARGS | METH_KEYWORDS,
-	  "check_volume_signature_file_object(filename) -> Boolean\n"
+	  "check_volume_signature_file_object(file_object) -> Boolean\n"
 	  "\n"
-	  "Checks if a file has a Linux Logical Volume Manager (LVM) volume system signature using a file-like object." },
+	  "Checks if a volume has a Linux Logical Volume Manager (LVM) signature using a file-like object." },
 
-/* TODO: add open functions */
+	{ "open",
+	  (PyCFunction) pyvslvm_open_new_handle,
+	  METH_VARARGS | METH_KEYWORDS,
+	  "open(filename, mode='r') -> Object\n"
+	  "\n"
+	  "Opens a handle." },
+
+	{ "open_file_object",
+	  (PyCFunction) pyvslvm_open_new_handle_with_file_object,
+	  METH_VARARGS | METH_KEYWORDS,
+	  "open_file_object(file_object, mode='r') -> Object\n"
+	  "\n"
+	  "Opens a handle using a file-like object." },
 
 	/* Sentinel */
-	{ NULL,
-	  NULL,
-	  0,
-	  NULL}
+	{ NULL, NULL, 0, NULL }
 };
 
 /* Retrieves the pyvslvm/libvslvm version
@@ -120,7 +130,7 @@ PyObject *pyvslvm_get_version(
 	         errors ) );
 }
 
-/* Checks if the file has a Linux Logical Volume Manager (LVM) volume system signature
+/* Checks if a volume has a Linux Logical Volume Manager (LVM) signature
  * Returns a Python object if successful or NULL on error
  */
 PyObject *pyvslvm_check_volume_signature(
@@ -128,12 +138,12 @@ PyObject *pyvslvm_check_volume_signature(
            PyObject *arguments,
            PyObject *keywords )
 {
-	PyObject *string_object      = NULL;
-	libcerror_error_t *error     = NULL;
-	static char *function        = "pyvslvm_check_volume_signature";
-	static char *keyword_list[]  = { "filename", NULL };
-	const char *filename_narrow  = NULL;
-	int result                   = 0;
+	PyObject *string_object     = NULL;
+	libcerror_error_t *error    = NULL;
+	const char *filename_narrow = NULL;
+	static char *function       = "pyvslvm_check_volume_signature";
+	static char *keyword_list[] = { "filename", NULL };
+	int result                  = 0;
 
 #if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 	const wchar_t *filename_wide = NULL;
@@ -151,7 +161,7 @@ PyObject *pyvslvm_check_volume_signature(
 	if( PyArg_ParseTupleAndKeywords(
 	     arguments,
 	     keywords,
-	     "|O",
+	     "O|",
 	     keyword_list,
 	     &string_object ) == 0 )
 	{
@@ -166,8 +176,8 @@ PyObject *pyvslvm_check_volume_signature(
 	if( result == -1 )
 	{
 		pyvslvm_error_fetch_and_raise(
-	         PyExc_RuntimeError,
-		 "%s: unable to determine if string object is of type unicode.",
+		 PyExc_RuntimeError,
+		 "%s: unable to determine if string object is of type Unicode.",
 		 function );
 
 		return( NULL );
@@ -194,17 +204,17 @@ PyObject *pyvslvm_check_volume_signature(
 		{
 			pyvslvm_error_fetch_and_raise(
 			 PyExc_RuntimeError,
-			 "%s: unable to convert unicode string to UTF-8.",
+			 "%s: unable to convert Unicode string to UTF-8.",
 			 function );
 
 			return( NULL );
 		}
 #if PY_MAJOR_VERSION >= 3
 		filename_narrow = PyBytes_AsString(
-				   utf8_string_object );
+		                   utf8_string_object );
 #else
 		filename_narrow = PyString_AsString(
-				   utf8_string_object );
+		                   utf8_string_object );
 #endif
 		Py_BEGIN_ALLOW_THREADS
 
@@ -216,7 +226,9 @@ PyObject *pyvslvm_check_volume_signature(
 
 		Py_DecRef(
 		 utf8_string_object );
-#endif
+
+#endif /* defined( HAVE_WIDE_SYSTEM_CHARACTER ) */
+
 		if( result == -1 )
 		{
 			pyvslvm_error_raise(
@@ -246,17 +258,17 @@ PyObject *pyvslvm_check_volume_signature(
 
 #if PY_MAJOR_VERSION >= 3
 	result = PyObject_IsInstance(
-		  string_object,
-		  (PyObject *) &PyBytes_Type );
+	          string_object,
+	          (PyObject *) &PyBytes_Type );
 #else
 	result = PyObject_IsInstance(
-		  string_object,
-		  (PyObject *) &PyString_Type );
+	          string_object,
+	          (PyObject *) &PyString_Type );
 #endif
 	if( result == -1 )
 	{
 		pyvslvm_error_fetch_and_raise(
-	         PyExc_RuntimeError,
+		 PyExc_RuntimeError,
 		 "%s: unable to determine if string object is of type string.",
 		 function );
 
@@ -268,10 +280,10 @@ PyObject *pyvslvm_check_volume_signature(
 
 #if PY_MAJOR_VERSION >= 3
 		filename_narrow = PyBytes_AsString(
-				   string_object );
+		                   string_object );
 #else
 		filename_narrow = PyString_AsString(
-				   string_object );
+		                   string_object );
 #endif
 		Py_BEGIN_ALLOW_THREADS
 
@@ -314,7 +326,7 @@ PyObject *pyvslvm_check_volume_signature(
 	return( NULL );
 }
 
-/* Checks if the file has a Linux Logical Volume Manager (LVM) volume system signature using a file-like object
+/* Checks if a volume has a Linux Logical Volume Manager (LVM) signature using a file-like object
  * Returns a Python object if successful or NULL on error
  */
 PyObject *pyvslvm_check_volume_signature_file_object(
@@ -322,9 +334,9 @@ PyObject *pyvslvm_check_volume_signature_file_object(
            PyObject *arguments,
            PyObject *keywords )
 {
-	libcerror_error_t *error         = NULL;
-	libbfio_handle_t *file_io_handle = NULL;
 	PyObject *file_object            = NULL;
+	libbfio_handle_t *file_io_handle = NULL;
+	libcerror_error_t *error         = NULL;
 	static char *function            = "pyvslvm_check_volume_signature_file_object";
 	static char *keyword_list[]      = { "file_object", NULL };
 	int result                       = 0;
@@ -414,6 +426,108 @@ on_error:
 	return( NULL );
 }
 
+/* Creates a new handle object and opens it
+ * Returns a Python object if successful or NULL on error
+ */
+PyObject *pyvslvm_open_new_handle(
+           PyObject *self PYVSLVM_ATTRIBUTE_UNUSED,
+           PyObject *arguments,
+           PyObject *keywords )
+{
+	pyvslvm_handle_t *pyvslvm_handle = NULL;
+	static char *function            = "pyvslvm_open_new_handle";
+
+	PYVSLVM_UNREFERENCED_PARAMETER( self )
+
+	/* PyObject_New does not invoke tp_init
+	 */
+	pyvslvm_handle = PyObject_New(
+	                  struct pyvslvm_handle,
+	                  &pyvslvm_handle_type_object );
+
+	if( pyvslvm_handle == NULL )
+	{
+		PyErr_Format(
+		 PyExc_MemoryError,
+		 "%s: unable to create handle.",
+		 function );
+
+		goto on_error;
+	}
+	if( pyvslvm_handle_init(
+	     pyvslvm_handle ) != 0 )
+	{
+		goto on_error;
+	}
+	if( pyvslvm_handle_open(
+	     pyvslvm_handle,
+	     arguments,
+	     keywords ) == NULL )
+	{
+		goto on_error;
+	}
+	return( (PyObject *) pyvslvm_handle );
+
+on_error:
+	if( pyvslvm_handle != NULL )
+	{
+		Py_DecRef(
+		 (PyObject *) pyvslvm_handle );
+	}
+	return( NULL );
+}
+
+/* Creates a new handle object and opens it using a file-like object
+ * Returns a Python object if successful or NULL on error
+ */
+PyObject *pyvslvm_open_new_handle_with_file_object(
+           PyObject *self PYVSLVM_ATTRIBUTE_UNUSED,
+           PyObject *arguments,
+           PyObject *keywords )
+{
+	pyvslvm_handle_t *pyvslvm_handle = NULL;
+	static char *function            = "pyvslvm_open_new_handle_with_file_object";
+
+	PYVSLVM_UNREFERENCED_PARAMETER( self )
+
+	/* PyObject_New does not invoke tp_init
+	 */
+	pyvslvm_handle = PyObject_New(
+	                  struct pyvslvm_handle,
+	                  &pyvslvm_handle_type_object );
+
+	if( pyvslvm_handle == NULL )
+	{
+		PyErr_Format(
+		 PyExc_MemoryError,
+		 "%s: unable to create handle.",
+		 function );
+
+		goto on_error;
+	}
+	if( pyvslvm_handle_init(
+	     pyvslvm_handle ) != 0 )
+	{
+		goto on_error;
+	}
+	if( pyvslvm_handle_open_file_object(
+	     pyvslvm_handle,
+	     arguments,
+	     keywords ) == NULL )
+	{
+		goto on_error;
+	}
+	return( (PyObject *) pyvslvm_handle );
+
+on_error:
+	if( pyvslvm_handle != NULL )
+	{
+		Py_DecRef(
+		 (PyObject *) pyvslvm_handle );
+	}
+	return( NULL );
+}
+
 #if PY_MAJOR_VERSION >= 3
 
 /* The pyvslvm module definition
@@ -451,18 +565,8 @@ PyMODINIT_FUNC initpyvslvm(
                 void )
 #endif
 {
-	PyObject *module                           = NULL;
-	PyTypeObject *handle_type_object           = NULL;
-	PyTypeObject *logical_volume_type_object   = NULL;
-	PyTypeObject *logical_volumes_type_object  = NULL;
-	PyTypeObject *physical_volume_type_object  = NULL;
-	PyTypeObject *physical_volumes_type_object = NULL;
-	PyTypeObject *segment_type_object          = NULL;
-	PyTypeObject *segments_type_object         = NULL;
-	PyTypeObject *stripe_type_object           = NULL;
-	PyTypeObject *stripes_type_object          = NULL;
-	PyTypeObject *volume_group_type_object     = NULL;
-	PyGILState_STATE gil_state                 = 0;
+	PyObject *module           = NULL;
+	PyGILState_STATE gil_state = 0;
 
 #if defined( HAVE_DEBUG_OUTPUT )
 	libvslvm_notify_set_stream(
@@ -509,14 +613,12 @@ PyMODINIT_FUNC initpyvslvm(
 	Py_IncRef(
 	 (PyObject *) &pyvslvm_handle_type_object );
 
-	handle_type_object = &pyvslvm_handle_type_object;
-
 	PyModule_AddObject(
 	 module,
 	 "handle",
-	 (PyObject *) handle_type_object );
+	 (PyObject *) &pyvslvm_handle_type_object );
 
-	/* Setup the logical volume type object
+	/* Setup the logical_volume type object
 	 */
 	pyvslvm_logical_volume_type_object.tp_new = PyType_GenericNew;
 
@@ -528,14 +630,29 @@ PyMODINIT_FUNC initpyvslvm(
 	Py_IncRef(
 	 (PyObject *) &pyvslvm_logical_volume_type_object );
 
-	logical_volume_type_object = &pyvslvm_logical_volume_type_object;
-
 	PyModule_AddObject(
 	 module,
 	 "logical_volume",
-	 (PyObject *) logical_volume_type_object );
+	 (PyObject *) &pyvslvm_logical_volume_type_object );
 
-	/* Setup the physical volume type object
+	/* Setup the logical_volumes type object
+	 */
+	pyvslvm_logical_volumes_type_object.tp_new = PyType_GenericNew;
+
+	if( PyType_Ready(
+	     &pyvslvm_logical_volumes_type_object ) < 0 )
+	{
+		goto on_error;
+	}
+	Py_IncRef(
+	 (PyObject *) &pyvslvm_logical_volumes_type_object );
+
+	PyModule_AddObject(
+	 module,
+	 "logical_volumes",
+	 (PyObject *) &pyvslvm_logical_volumes_type_object );
+
+	/* Setup the physical_volume type object
 	 */
 	pyvslvm_physical_volume_type_object.tp_new = PyType_GenericNew;
 
@@ -547,12 +664,27 @@ PyMODINIT_FUNC initpyvslvm(
 	Py_IncRef(
 	 (PyObject *) &pyvslvm_physical_volume_type_object );
 
-	physical_volume_type_object = &pyvslvm_physical_volume_type_object;
-
 	PyModule_AddObject(
 	 module,
 	 "physical_volume",
-	 (PyObject *) physical_volume_type_object );
+	 (PyObject *) &pyvslvm_physical_volume_type_object );
+
+	/* Setup the physical_volumes type object
+	 */
+	pyvslvm_physical_volumes_type_object.tp_new = PyType_GenericNew;
+
+	if( PyType_Ready(
+	     &pyvslvm_physical_volumes_type_object ) < 0 )
+	{
+		goto on_error;
+	}
+	Py_IncRef(
+	 (PyObject *) &pyvslvm_physical_volumes_type_object );
+
+	PyModule_AddObject(
+	 module,
+	 "physical_volumes",
+	 (PyObject *) &pyvslvm_physical_volumes_type_object );
 
 	/* Setup the segment type object
 	 */
@@ -566,88 +698,10 @@ PyMODINIT_FUNC initpyvslvm(
 	Py_IncRef(
 	 (PyObject *) &pyvslvm_segment_type_object );
 
-	segment_type_object = &pyvslvm_segment_type_object;
-
 	PyModule_AddObject(
 	 module,
 	 "segment",
-	 (PyObject *) segment_type_object );
-
-	/* Setup the stripe type object
-	 */
-	pyvslvm_stripe_type_object.tp_new = PyType_GenericNew;
-
-	if( PyType_Ready(
-	     &pyvslvm_stripe_type_object ) < 0 )
-	{
-		goto on_error;
-	}
-	Py_IncRef(
-	 (PyObject *) &pyvslvm_stripe_type_object );
-
-	stripe_type_object = &pyvslvm_stripe_type_object;
-
-	PyModule_AddObject(
-	 module,
-	 "stripe",
-	 (PyObject *) stripe_type_object );
-
-	/* Setup the volume group type object
-	 */
-	pyvslvm_volume_group_type_object.tp_new = PyType_GenericNew;
-
-	if( PyType_Ready(
-	     &pyvslvm_volume_group_type_object ) < 0 )
-	{
-		goto on_error;
-	}
-	Py_IncRef(
-	 (PyObject *) &pyvslvm_volume_group_type_object );
-
-	volume_group_type_object = &pyvslvm_volume_group_type_object;
-
-	PyModule_AddObject(
-	 module,
-	 "volume_group",
-	 (PyObject *) volume_group_type_object );
-
-	/* Setup the logical volumes type object
-	 */
-	pyvslvm_logical_volumes_type_object.tp_new = PyType_GenericNew;
-
-	if( PyType_Ready(
-	     &pyvslvm_logical_volumes_type_object ) < 0 )
-	{
-		goto on_error;
-	}
-	Py_IncRef(
-	 (PyObject *) &pyvslvm_logical_volumes_type_object );
-
-	logical_volumes_type_object = &pyvslvm_logical_volumes_type_object;
-
-	PyModule_AddObject(
-	 module,
-	 "_logical_volumes",
-	 (PyObject *) logical_volumes_type_object );
-
-	/* Setup the physical volumes type object
-	 */
-	pyvslvm_physical_volumes_type_object.tp_new = PyType_GenericNew;
-
-	if( PyType_Ready(
-	     &pyvslvm_physical_volumes_type_object ) < 0 )
-	{
-		goto on_error;
-	}
-	Py_IncRef(
-	 (PyObject *) &pyvslvm_physical_volumes_type_object );
-
-	physical_volumes_type_object = &pyvslvm_physical_volumes_type_object;
-
-	PyModule_AddObject(
-	 module,
-	 "_physical_volumes",
-	 (PyObject *) physical_volumes_type_object );
+	 (PyObject *) &pyvslvm_segment_type_object );
 
 	/* Setup the segments type object
 	 */
@@ -661,12 +715,27 @@ PyMODINIT_FUNC initpyvslvm(
 	Py_IncRef(
 	 (PyObject *) &pyvslvm_segments_type_object );
 
-	segments_type_object = &pyvslvm_segments_type_object;
+	PyModule_AddObject(
+	 module,
+	 "segments",
+	 (PyObject *) &pyvslvm_segments_type_object );
+
+	/* Setup the stripe type object
+	 */
+	pyvslvm_stripe_type_object.tp_new = PyType_GenericNew;
+
+	if( PyType_Ready(
+	     &pyvslvm_stripe_type_object ) < 0 )
+	{
+		goto on_error;
+	}
+	Py_IncRef(
+	 (PyObject *) &pyvslvm_stripe_type_object );
 
 	PyModule_AddObject(
 	 module,
-	 "_segments",
-	 (PyObject *) segments_type_object );
+	 "stripe",
+	 (PyObject *) &pyvslvm_stripe_type_object );
 
 	/* Setup the stripes type object
 	 */
@@ -680,12 +749,27 @@ PyMODINIT_FUNC initpyvslvm(
 	Py_IncRef(
 	 (PyObject *) &pyvslvm_stripes_type_object );
 
-	stripes_type_object = &pyvslvm_stripes_type_object;
+	PyModule_AddObject(
+	 module,
+	 "stripes",
+	 (PyObject *) &pyvslvm_stripes_type_object );
+
+	/* Setup the volume_group type object
+	 */
+	pyvslvm_volume_group_type_object.tp_new = PyType_GenericNew;
+
+	if( PyType_Ready(
+	     &pyvslvm_volume_group_type_object ) < 0 )
+	{
+		goto on_error;
+	}
+	Py_IncRef(
+	 (PyObject *) &pyvslvm_volume_group_type_object );
 
 	PyModule_AddObject(
 	 module,
-	 "_stripes",
-	 (PyObject *) stripes_type_object );
+	 "volume_group",
+	 (PyObject *) &pyvslvm_volume_group_type_object );
 
 	PyGILState_Release(
 	 gil_state );

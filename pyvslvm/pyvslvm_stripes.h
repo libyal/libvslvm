@@ -69,23 +69,23 @@ PyObject *pyvslvm_stripes_new(
            int number_of_items );
 
 int pyvslvm_stripes_init(
-     pyvslvm_stripes_t *stripes_object );
+     pyvslvm_stripes_t *sequence_object );
 
 void pyvslvm_stripes_free(
-      pyvslvm_stripes_t *stripes_object );
+      pyvslvm_stripes_t *sequence_object );
 
 Py_ssize_t pyvslvm_stripes_len(
-            pyvslvm_stripes_t *stripes_object );
+            pyvslvm_stripes_t *sequence_object );
 
 PyObject *pyvslvm_stripes_getitem(
-           pyvslvm_stripes_t *stripes_object,
+           pyvslvm_stripes_t *sequence_object,
            Py_ssize_t item_index );
 
 PyObject *pyvslvm_stripes_iter(
-           pyvslvm_stripes_t *stripes_object );
+           pyvslvm_stripes_t *sequence_object );
 
 PyObject *pyvslvm_stripes_iternext(
-           pyvslvm_stripes_t *stripes_object );
+           pyvslvm_stripes_t *sequence_object );
 
 #if defined( __cplusplus )
 }

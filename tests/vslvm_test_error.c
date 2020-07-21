@@ -27,7 +27,6 @@
 #include <stdlib.h>
 #endif
 
-#include "vslvm_test_libcerror.h"
 #include "vslvm_test_libvslvm.h"
 #include "vslvm_test_macros.h"
 #include "vslvm_test_unused.h"

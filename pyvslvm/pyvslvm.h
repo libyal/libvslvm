@@ -1,5 +1,5 @@
 /*
- * Python bindings for libvslvm (pyvslvm)
+ * Python bindings module for libvslvm (pyvslvm)
  *
  * Copyright (C) 2014-2020, Joachim Metz <joachim.metz@gmail.com>
  *
@@ -41,6 +41,16 @@ PyObject *pyvslvm_check_volume_signature(
            PyObject *keywords );
 
 PyObject *pyvslvm_check_volume_signature_file_object(
+           PyObject *self,
+           PyObject *arguments,
+           PyObject *keywords );
+
+PyObject *pyvslvm_open_new_handle(
+           PyObject *self,
+           PyObject *arguments,
+           PyObject *keywords );
+
+PyObject *pyvslvm_open_new_handle_with_file_object(
            PyObject *self,
            PyObject *arguments,
            PyObject *keywords );

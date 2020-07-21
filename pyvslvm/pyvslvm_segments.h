@@ -69,23 +69,23 @@ PyObject *pyvslvm_segments_new(
            int number_of_items );
 
 int pyvslvm_segments_init(
-     pyvslvm_segments_t *segments_object );
+     pyvslvm_segments_t *sequence_object );
 
 void pyvslvm_segments_free(
-      pyvslvm_segments_t *segments_object );
+      pyvslvm_segments_t *sequence_object );
 
 Py_ssize_t pyvslvm_segments_len(
-            pyvslvm_segments_t *segments_object );
+            pyvslvm_segments_t *sequence_object );
 
 PyObject *pyvslvm_segments_getitem(
-           pyvslvm_segments_t *segments_object,
+           pyvslvm_segments_t *sequence_object,
            Py_ssize_t item_index );
 
 PyObject *pyvslvm_segments_iter(
-           pyvslvm_segments_t *segments_object );
+           pyvslvm_segments_t *sequence_object );
 
 PyObject *pyvslvm_segments_iternext(
-           pyvslvm_segments_t *segments_object );
+           pyvslvm_segments_t *sequence_object );
 
 #if defined( __cplusplus )
 }

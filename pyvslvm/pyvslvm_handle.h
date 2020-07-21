@@ -58,19 +58,6 @@ struct pyvslvm_handle
 extern PyMethodDef pyvslvm_handle_object_methods[];
 extern PyTypeObject pyvslvm_handle_type_object;
 
-PyObject *pyvslvm_handle_new(
-           void );
-
-PyObject *pyvslvm_handle_new_open(
-           PyObject *self,
-           PyObject *arguments,
-           PyObject *keywords );
-
-PyObject *pyvslvm_handle_new_open_file_object(
-           PyObject *self,
-           PyObject *arguments,
-           PyObject *keywords );
-
 int pyvslvm_handle_init(
      pyvslvm_handle_t *pyvslvm_handle );
 

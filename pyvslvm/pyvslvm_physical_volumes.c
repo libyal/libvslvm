@@ -59,7 +59,7 @@ PyTypeObject pyvslvm_physical_volumes_type_object = {
 	PyVarObject_HEAD_INIT( NULL, 0 )
 
 	/* tp_name */
-	"pyvslvm._physical_volumes",
+	"pyvslvm.physical_volumes",
 	/* tp_basicsize */
 	sizeof( pyvslvm_physical_volumes_t ),
 	/* tp_itemsize */
@@ -97,7 +97,7 @@ PyTypeObject pyvslvm_physical_volumes_type_object = {
 	/* tp_flags */
 	Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_ITER,
 	/* tp_doc */
-	"pyvslvm internal sequence and iterator object of physical volumes",
+	"pyvslvm sequence and iterator object of physical volumes",
 	/* tp_traverse */
 	0,
 	/* tp_clear */
@@ -150,7 +150,7 @@ PyTypeObject pyvslvm_physical_volumes_type_object = {
 	0
 };
 
-/* Creates a new physical volumes object
+/* Creates a new physical volumes sequence and iterator object
  * Returns a Python object if successful or NULL on error
  */
 PyObject *pyvslvm_physical_volumes_new(
@@ -160,8 +160,8 @@ PyObject *pyvslvm_physical_volumes_new(
                         int index ),
            int number_of_items )
 {
-	pyvslvm_physical_volumes_t *physical_volumes_object = NULL;
-	static char *function                               = "pyvslvm_physical_volumes_new";
+	pyvslvm_physical_volumes_t *sequence_object = NULL;
+	static char *function                       = "pyvslvm_physical_volumes_new";
 
 	if( parent_object == NULL )
 	{
@@ -183,93 +183,89 @@ PyObject *pyvslvm_physical_volumes_new(
 	}
 	/* Make sure the physical volumes values are initialized
 	 */
-	physical_volumes_object = PyObject_New(
-	                           struct pyvslvm_physical_volumes,
-	                           &pyvslvm_physical_volumes_type_object );
+	sequence_object = PyObject_New(
+	                   struct pyvslvm_physical_volumes,
+	                   &pyvslvm_physical_volumes_type_object );
 
-	if( physical_volumes_object == NULL )
+	if( sequence_object == NULL )
 	{
 		PyErr_Format(
 		 PyExc_MemoryError,
-		 "%s: unable to create physical volumes object.",
+		 "%s: unable to create sequence object.",
 		 function );
 
 		goto on_error;
 	}
-	if( pyvslvm_physical_volumes_init(
-	     physical_volumes_object ) != 0 )
-	{
-		PyErr_Format(
-		 PyExc_MemoryError,
-		 "%s: unable to initialize physical volumes object.",
-		 function );
-
-		goto on_error;
-	}
-	physical_volumes_object->parent_object     = parent_object;
-	physical_volumes_object->get_item_by_index = get_item_by_index;
-	physical_volumes_object->number_of_items   = number_of_items;
+	sequence_object->parent_object     = parent_object;
+	sequence_object->get_item_by_index = get_item_by_index;
+	sequence_object->current_index     = 0;
+	sequence_object->number_of_items   = number_of_items;
 
 	Py_IncRef(
-	 (PyObject *) physical_volumes_object->parent_object );
+	 (PyObject *) sequence_object->parent_object );
 
-	return( (PyObject *) physical_volumes_object );
+	return( (PyObject *) sequence_object );
 
 on_error:
-	if( physical_volumes_object != NULL )
+	if( sequence_object != NULL )
 	{
 		Py_DecRef(
-		 (PyObject *) physical_volumes_object );
+		 (PyObject *) sequence_object );
 	}
 	return( NULL );
 }
 
-/* Intializes a physical volumes object
+/* Intializes a physical volumes sequence and iterator object
  * Returns 0 if successful or -1 on error
  */
 int pyvslvm_physical_volumes_init(
-     pyvslvm_physical_volumes_t *physical_volumes_object )
+     pyvslvm_physical_volumes_t *sequence_object )
 {
 	static char *function = "pyvslvm_physical_volumes_init";
 
-	if( physical_volumes_object == NULL )
+	if( sequence_object == NULL )
 	{
 		PyErr_Format(
 		 PyExc_ValueError,
-		 "%s: invalid physical volumes object.",
+		 "%s: invalid sequence object.",
 		 function );
 
 		return( -1 );
 	}
 	/* Make sure the physical volumes values are initialized
 	 */
-	physical_volumes_object->parent_object     = NULL;
-	physical_volumes_object->get_item_by_index = NULL;
-	physical_volumes_object->current_index     = 0;
-	physical_volumes_object->number_of_items   = 0;
+	sequence_object->parent_object     = NULL;
+	sequence_object->get_item_by_index = NULL;
+	sequence_object->current_index     = 0;
+	sequence_object->number_of_items   = 0;
 
-	return( 0 );
+	PyErr_Format(
+	 PyExc_NotImplementedError,
+	 "%s: initialize of physical volumes not supported.",
+	 function );
+
+	return( -1 );
 }
 
-/* Frees a physical volumes object
+/* Frees a physical volumes sequence object
  */
 void pyvslvm_physical_volumes_free(
-      pyvslvm_physical_volumes_t *physical_volumes_object )
+      pyvslvm_physical_volumes_t *sequence_object )
 {
 	struct _typeobject *ob_type = NULL;
 	static char *function       = "pyvslvm_physical_volumes_free";
 
-	if( physical_volumes_object == NULL )
+	if( sequence_object == NULL )
 	{
 		PyErr_Format(
 		 PyExc_ValueError,
-		 "%s: invalid physical volumes object.",
+		 "%s: invalid sequence object.",
 		 function );
 
 		return;
 	}
 	ob_type = Py_TYPE(
-	           physical_volumes_object );
+	           sequence_object );
 
 	if( ob_type == NULL )
 	{
@@ -289,72 +285,72 @@ void pyvslvm_physical_volumes_free(
 
 		return;
 	}
-	if( physical_volumes_object->parent_object != NULL )
+	if( sequence_object->parent_object != NULL )
 	{
 		Py_DecRef(
-		 (PyObject *) physical_volumes_object->parent_object );
+		 (PyObject *) sequence_object->parent_object );
 	}
 	ob_type->tp_free(
-	 (PyObject*) physical_volumes_object );
+	 (PyObject*) sequence_object );
 }
 
 /* The physical volumes len() function
  */
 Py_ssize_t pyvslvm_physical_volumes_len(
-            pyvslvm_physical_volumes_t *physical_volumes_object )
+            pyvslvm_physical_volumes_t *sequence_object )
 {
 	static char *function = "pyvslvm_physical_volumes_len";
 
-	if( physical_volumes_object == NULL )
+	if( sequence_object == NULL )
 	{
 		PyErr_Format(
 		 PyExc_ValueError,
-		 "%s: invalid physical volumes object.",
+		 "%s: invalid sequence object.",
 		 function );
 
 		return( -1 );
 	}
-	return( (Py_ssize_t) physical_volumes_object->number_of_items );
+	return( (Py_ssize_t) sequence_object->number_of_items );
 }
 
 /* The physical volumes getitem() function
  */
 PyObject *pyvslvm_physical_volumes_getitem(
-           pyvslvm_physical_volumes_t *physical_volumes_object,
+           pyvslvm_physical_volumes_t *sequence_object,
            Py_ssize_t item_index )
 {
 	PyObject *physical_volume_object = NULL;
 	static char *function            = "pyvslvm_physical_volumes_getitem";
 
-	if( physical_volumes_object == NULL )
+	if( sequence_object == NULL )
 	{
 		PyErr_Format(
 		 PyExc_ValueError,
-		 "%s: invalid physical volumes object.",
+		 "%s: invalid sequence object.",
 		 function );
 
 		return( NULL );
 	}
-	if( physical_volumes_object->get_item_by_index == NULL )
+	if( sequence_object->get_item_by_index == NULL )
 	{
 		PyErr_Format(
 		 PyExc_ValueError,
-		 "%s: invalid physical volumes object - missing get item by index function.",
+		 "%s: invalid sequence object - missing get item by index function.",
 		 function );
 
 		return( NULL );
 	}
-	if( physical_volumes_object->number_of_items < 0 )
+	if( sequence_object->number_of_items < 0 )
 	{
 		PyErr_Format(
 		 PyExc_ValueError,
-		 "%s: invalid physical volumes object - invalid number of items.",
+		 "%s: invalid sequence object - invalid number of items.",
 		 function );
 
 		return( NULL );
 	}
 	if( ( item_index < 0 )
-	 || ( item_index >= (Py_ssize_t) physical_volumes_object->number_of_items ) )
+	 || ( item_index >= (Py_ssize_t) sequence_object->number_of_items ) )
 	{
 		PyErr_Format(
 		 PyExc_ValueError,
@@ -363,8 +359,8 @@ PyObject *pyvslvm_physical_volumes_getitem(
 
 		return( NULL );
 	}
-	physical_volume_object = physical_volumes_object->get_item_by_index(
-	                          physical_volumes_object->parent_object,
+	physical_volume_object = sequence_object->get_item_by_index(
+	                          sequence_object->parent_object,
 	                          (int) item_index );
 
 	return( physical_volume_object );
@@ -373,83 +369,83 @@ PyObject *pyvslvm_physical_volumes_getitem(
 /* The physical volumes iter() function
  */
 PyObject *pyvslvm_physical_volumes_iter(
-           pyvslvm_physical_volumes_t *physical_volumes_object )
+           pyvslvm_physical_volumes_t *sequence_object )
 {
 	static char *function = "pyvslvm_physical_volumes_iter";
 
-	if( physical_volumes_object == NULL )
+	if( sequence_object == NULL )
 	{
 		PyErr_Format(
 		 PyExc_ValueError,
-		 "%s: invalid physical volumes object.",
+		 "%s: invalid sequence object.",
 		 function );
 
 		return( NULL );
 	}
 	Py_IncRef(
-	 (PyObject *) physical_volumes_object );
+	 (PyObject *) sequence_object );
 
-	return( (PyObject *) physical_volumes_object );
+	return( (PyObject *) sequence_object );
 }
 
 /* The physical volumes iternext() function
  */
 PyObject *pyvslvm_physical_volumes_iternext(
-           pyvslvm_physical_volumes_t *physical_volumes_object )
+           pyvslvm_physical_volumes_t *sequence_object )
 {
 	PyObject *physical_volume_object = NULL;
 	static char *function            = "pyvslvm_physical_volumes_iternext";
 
-	if( physical_volumes_object == NULL )
+	if( sequence_object == NULL )
 	{
 		PyErr_Format(
 		 PyExc_ValueError,
-		 "%s: invalid physical volumes object.",
+		 "%s: invalid sequence object.",
 		 function );
 
 		return( NULL );
 	}
-	if( physical_volumes_object->get_item_by_index == NULL )
+	if( sequence_object->get_item_by_index == NULL )
 	{
 		PyErr_Format(
 		 PyExc_ValueError,
-		 "%s: invalid physical volumes object - missing get item by index function.",
+		 "%s: invalid sequence object - missing get item by index function.",
 		 function );
 
 		return( NULL );
 	}
-	if( physical_volumes_object->current_index < 0 )
+	if( sequence_object->current_index < 0 )
 	{
 		PyErr_Format(
 		 PyExc_ValueError,
-		 "%s: invalid physical volumes object - invalid current index.",
+		 "%s: invalid sequence object - invalid current index.",
 		 function );
 
 		return( NULL );
 	}
-	if( physical_volumes_object->number_of_items < 0 )
+	if( sequence_object->number_of_items < 0 )
 	{
 		PyErr_Format(
 		 PyExc_ValueError,
-		 "%s: invalid physical volumes object - invalid number of items.",
+		 "%s: invalid sequence object - invalid number of items.",
 		 function );
 
 		return( NULL );
 	}
-	if( physical_volumes_object->current_index >= physical_volumes_object->number_of_items )
+	if( sequence_object->current_index >= sequence_object->number_of_items )
 	{
 		PyErr_SetNone(
 		 PyExc_StopIteration );
 
 		return( NULL );
 	}
-	physical_volume_object = physical_volumes_object->get_item_by_index(
-	                          physical_volumes_object->parent_object,
-	                          physical_volumes_object->current_index );
+	physical_volume_object = sequence_object->get_item_by_index(
+	                          sequence_object->parent_object,
+	                          sequence_object->current_index );
 
 	if( physical_volume_object != NULL )
 	{
-		physical_volumes_object->current_index++;
+		sequence_object->current_index++;
 	}
 	return( physical_volume_object );
 }

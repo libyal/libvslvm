@@ -248,8 +248,10 @@ int libvslvm_handle_open(
      int access_flags,
      libcerror_error_t **error )
 {
-	libbfio_handle_t *file_io_handle = NULL;
-	static char *function            = "libvslvm_handle_open";
+	libbfio_handle_t *file_io_handle            = NULL;
+	libvslvm_internal_handle_t *internal_handle = NULL;
+	static char *function                       = "libvslvm_handle_open";
+	size_t filename_length                      = 0;
 
 	if( handle == NULL )
 	{
@@ -262,6 +264,8 @@ int libvslvm_handle_open(
 
 		return( -1 );
 	}
+	internal_handle = (libvslvm_internal_handle_t *) handle;
+
 	if( filename == NULL )
 	{
 		libcerror_error_set(
@@ -280,7 +284,7 @@ int libvslvm_handle_open(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
 		 LIBCERROR_ARGUMENT_ERROR_UNSUPPORTED_VALUE,
-		 "%s: unsupported access flags.",
+		 "%s: unsupported accesss flags.",
 		 function );
 
 		return( -1 );
@@ -325,11 +329,13 @@ int libvslvm_handle_open(
 		goto on_error;
 	}
 #endif
+	filename_length = narrow_string_length(
+	                   filename );
+
 	if( libbfio_file_set_name(
 	     file_io_handle,
 	     filename,
-	     narrow_string_length(
-	      filename ) + 1,
+	     filename_length + 1,
 	     error ) != 1 )
 	{
                 libcerror_error_set(
@@ -339,7 +345,7 @@ int libvslvm_handle_open(
                  "%s: unable to set filename in file IO handle.",
                  function );
 
-		goto on_error;
+                goto on_error;
 	}
 	if( libvslvm_handle_open_file_io_handle(
 	     handle,
@@ -351,25 +357,14 @@ int libvslvm_handle_open(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_IO,
 		 LIBCERROR_IO_ERROR_OPEN_FAILED,
-		 "%s: unable to open file: %s.",
+		 "%s: unable to open handle: %s.",
 		 function,
 		 filename );
 
-		goto on_error;
+                goto on_error;
 	}
-	if( libbfio_handle_free(
-	     &file_io_handle,
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
-		 "%s: unable to free file IO handle.",
-		 function );
+	internal_handle->file_io_handle_created_in_library = 1;
 
-		goto on_error;
-	}
 	return( 1 );
 
 on_error:
@@ -393,8 +388,10 @@ int libvslvm_handle_open_wide(
      int access_flags,
      libcerror_error_t **error )
 {
-	libbfio_handle_t *file_io_handle = NULL;
-	static char *function            = "libvslvm_handle_open_wide";
+	libbfio_handle_t *file_io_handle            = NULL;
+	libvslvm_internal_handle_t *internal_handle = NULL;
+	static char *function                       = "libvslvm_handle_open_wide";
+	size_t filename_length                      = 0;
 
 	if( handle == NULL )
 	{
@@ -407,6 +404,8 @@ int libvslvm_handle_open_wide(
 
 		return( -1 );
 	}
+	internal_handle = (libvslvm_internal_handle_t *) handle;
+
 	if( filename == NULL )
 	{
 		libcerror_error_set(
@@ -470,11 +469,13 @@ int libvslvm_handle_open_wide(
 		goto on_error;
 	}
 #endif
+	filename_length = wide_string_length(
+	                   filename );
+
 	if( libbfio_file_set_name_wide(
 	     file_io_handle,
 	     filename,
-	     wide_string_length(
-	      filename ) + 1,
+	     filename_length + 1,
 	     error ) != 1 )
 	{
                 libcerror_error_set(
@@ -502,19 +503,8 @@ int libvslvm_handle_open_wide(
 
 		goto on_error;
 	}
-	if( libbfio_handle_free(
-	     &file_io_handle,
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
-		 "%s: unable to free file IO handle.",
-		 function );
+	internal_handle->file_io_handle_created_in_library = 1;
 
-		goto on_error;
-	}
 	return( 1 );
 
 on_error:
@@ -557,24 +547,24 @@ int libvslvm_handle_open_file_io_handle(
 	}
 	internal_handle = (libvslvm_internal_handle_t *) handle;
 
-	if( internal_handle->metadata != NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid internal handle - metadata already set.",
-		 function );
-
-		return( -1 );
-	}
-	if( internal_handle->physical_volume_file_io_pool != NULL )
+	if( internal_handle->file_io_handle != NULL )
 	{
 		libcerror_error_set(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
-		 "%s: invalid handle - physical volume file IO pool already exists.",
+		 "%s: invalid handle - file IO handle already set.",
+		 function );
+
+		return( -1 );
+	}
+	if( file_io_handle == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid file IO handle.",
 		 function );
 
 		return( -1 );
@@ -639,7 +629,7 @@ int libvslvm_handle_open_file_io_handle(
 		}
 		file_io_handle_opened_in_library = 1;
 	}
-	if( libvslvm_handle_open_read(
+	if( libvslvm_internal_handle_open_read(
 	     internal_handle,
 	     file_io_handle,
 	     error ) != 1 )
@@ -648,38 +638,23 @@ int libvslvm_handle_open_file_io_handle(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_IO,
 		 LIBCERROR_IO_ERROR_READ_FAILED,
-		 "%s: unable to read from handle.",
+		 "%s: unable to read from file IO handle.",
 		 function );
 
 		goto on_error;
 	}
-	if( file_io_handle_opened_in_library != 0 )
-	{
-		if( libbfio_handle_close(
-		     file_io_handle,
-		     error ) != 0 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_IO,
-			 LIBCERROR_IO_ERROR_CLOSE_FAILED,
-			 "%s: unable to close file IO handle.",
-			 function );
-
-			goto on_error;
-		}
-		file_io_handle_opened_in_library = 0;
-	}
-	internal_handle->access_flags = access_flags;
+	internal_handle->file_io_handle                   = file_io_handle;
+	internal_handle->file_io_handle_opened_in_library = file_io_handle_opened_in_library;
 
 	return( 1 );
 
 on_error:
-	if( file_io_handle_opened_in_library != 0 )
+	if( ( file_io_handle_is_open == 0 )
+	 && ( file_io_handle_opened_in_library != 0 ) )
 	{
 		libbfio_handle_close(
 		 file_io_handle,
-		 NULL );
+		 error );
 	}
 	return( -1 );
 }
@@ -842,7 +817,7 @@ int libvslvm_handle_open_physical_volume_files(
 			goto on_error;
 		}
 	}
-	if( libvslvm_handle_open_read_data_area_table(
+	if( libvslvm_internal_handle_open_read_data_area_table(
 	     internal_handle,
 	     file_io_pool,
 	     error ) != 1 )
@@ -1034,7 +1009,7 @@ int libvslvm_handle_open_physical_volume_files_wide(
 			goto on_error;
 		}
 	}
-	if( libvslvm_handle_open_read_data_area_table(
+	if( libvslvm_internal_handle_open_read_data_area_table(
 	     internal_handle,
 	     file_io_pool,
 	     error ) != 1 )
@@ -1189,7 +1164,7 @@ int libvslvm_handle_open_physical_volume_files_file_io_pool(
 
 		return( -1 );
 	}
-	if( libvslvm_handle_open_read_data_area_table(
+	if( libvslvm_internal_handle_open_read_data_area_table(
 	     internal_handle,
 	     file_io_pool,
 	     error ) != 1 )
@@ -1554,14 +1529,14 @@ on_error:
 /* Reads the data area table
  * Returns 1 if successful or -1 on error
  */
-int libvslvm_handle_open_read_data_area_table(
+int libvslvm_internal_handle_open_read_data_area_table(
      libvslvm_internal_handle_t *internal_handle,
      libbfio_pool_t *file_io_pool,
      libcerror_error_t **error )
 {
 	libvslvm_physical_volume_t *physical_volume = NULL;
 	libvslvm_volume_group_t *volume_group       = NULL;
-	static char *function                       = "libvslvm_handle_open_read_data_area_table";
+	static char *function                       = "libvslvm_internal_handle_open_read_data_area_table";
 	off64_t file_offset                         = 0;
 	int number_of_file_io_handles               = 0;
 	int number_of_data_area_descriptors         = 0;
@@ -1764,6 +1739,74 @@ int libvslvm_handle_close(
 	}
 	internal_handle = (libvslvm_internal_handle_t *) handle;
 
+	if( internal_handle->file_io_handle == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: invalid handle - missing file IO handle.",
+		 function );
+
+		return( -1 );
+	}
+#if defined( HAVE_DEBUG_OUTPUT )
+	if( libcnotify_verbose != 0 )
+	{
+		if( internal_handle->file_io_handle_created_in_library != 0 )
+		{
+			if( libvslvm_debug_print_read_offsets(
+			     internal_handle->file_io_handle,
+			     error ) != 1 )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_PRINT_FAILED,
+				 "%s: unable to print the read offsets.",
+				 function );
+
+				result = -1;
+			}
+		}
+	}
+#endif
+	if( internal_handle->file_io_handle_opened_in_library != 0 )
+	{
+		if( libbfio_handle_close(
+		     internal_handle->file_io_handle,
+		     error ) != 0 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_IO,
+			 LIBCERROR_IO_ERROR_CLOSE_FAILED,
+			 "%s: unable to close file IO handle.",
+			 function );
+
+			result = -1;
+		}
+		internal_handle->file_io_handle_opened_in_library = 0;
+	}
+	if( internal_handle->file_io_handle_created_in_library != 0 )
+	{
+		if( libbfio_handle_free(
+		     &( internal_handle->file_io_handle ),
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+			 "%s: unable to free file IO handle.",
+			 function );
+
+			result = -1;
+		}
+		internal_handle->file_io_handle_created_in_library = 0;
+	}
+	internal_handle->file_io_handle = NULL;
+
 	if( internal_handle->physical_volume_file_io_pool_created_in_library != 0 )
 	{
 		if( libbfio_pool_close_all(
@@ -1831,7 +1874,7 @@ int libvslvm_handle_close(
 /* Opens a handle for reading
  * Returns 1 if successful or -1 on error
  */
-int libvslvm_handle_open_read(
+int libvslvm_internal_handle_open_read(
      libvslvm_internal_handle_t *internal_handle,
      libbfio_handle_t *file_io_handle,
      libcerror_error_t **error )
@@ -1841,7 +1884,7 @@ int libvslvm_handle_open_read(
 	libvslvm_metadata_area_t *metadata_area                     = NULL;
 	libvslvm_physical_volume_t *physical_volume                 = NULL;
 	libvslvm_raw_location_descriptor_t *raw_location_descriptor = NULL;
-	static char *function                                       = "libvslvm_handle_open_read";
+	static char *function                                       = "libvslvm_internal_handle_open_read";
 	off64_t file_offset                                         = 0;
 	off64_t data_area_offset                                    = 0;
 	off64_t metadata_offset                                     = 0;
