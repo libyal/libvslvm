@@ -303,6 +303,17 @@ int libvslvm_logical_volume_values_set_name(
 
 		return( -1 );
 	}
+	if( logical_volume_values->name != NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
+		 "%s: invalid logical volume values - name value already set.",
+		 function );
+
+		return( -1 );
+	}
 	if( name == NULL )
 	{
 		libcerror_error_set(
@@ -314,24 +325,17 @@ int libvslvm_logical_volume_values_set_name(
 
 		return( -1 );
 	}
-	if( name_size > (size_t) SSIZE_MAX )
+	if( ( name_size == 0 )
+	 || ( name_size > (size_t) MEMORY_MAXIMUM_ALLOCATION_SIZE ) )
 	{
 		libcerror_error_set(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBCERROR_ARGUMENT_ERROR_VALUE_EXCEEDS_MAXIMUM,
-		 "%s: name size value exceeds maximum.",
+		 LIBCERROR_ARGUMENT_ERROR_VALUE_OUT_OF_BOUNDS,
+		 "%s: invalid name size value out of bounds.",
 		 function );
 
 		return( -1 );
-	}
-	if( logical_volume_values->name != NULL )
-	{
-		memory_free(
-		 logical_volume_values->name );
-
-		logical_volume_values->name      = NULL;
-		logical_volume_values->name_size = 0;
 	}
 	logical_volume_values->name = (char *) memory_allocate(
 	                                        sizeof( char ) * name_size );

@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>libvslvm</id>
+    <version>20200814</version>
+    <authors>Joachim Metz</authors>
+    <owners>joachimmetz</owners>
+    <licenseUrl>https://raw.githubusercontent.com/libyal/libvslvm/master/COPYING.LESSER</licenseUrl>
+    <projectUrl>https://github.com/libyal/libvslvm</projectUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <title>libvslvm</title>
+    <description>Library to access the Linux Logical Volume Manager (LVM) volume system</description>
+    <releaseNotes>Release of libvslvm 20200814</releaseNotes>
+    <copyright>Copyright (C) 2014-2020</copyright>
+    <tags>native</tags>
+  </metadata>
+  <files>
+    <file src="include\*.h" target="lib\native\include\" />
+    <file src="include\libvslvm\*.h" target="lib\native\include\libvslvm\" />
+    <file src="msvscpp\Release\Win32\libvslvm.dll" target="lib\native\lib\Win32\" />
+    <file src="msvscpp\Release\Win32\libvslvm.lib" target="lib\native\lib\Win32\" />
+    <file src="msvscpp\Release\Win32\libvslvm.pdb" target="lib\native\lib\Win32\" />
+    <file src="msvscpp\Release\x64\libvslvm.dll" target="lib\native\lib\x64\" />
+    <file src="msvscpp\Release\x64\libvslvm.lib" target="lib\native\lib\x64\" />
+    <file src="msvscpp\Release\x64\libvslvm.pdb" target="lib\native\lib\x64\" />
+  </files>
+</package>

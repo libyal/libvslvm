@@ -72,8 +72,8 @@ int libvslvm_internal_segment_free(
      libvslvm_internal_segment_t **internal_segment,
      libcerror_error_t **error );
 
-int libvslvm_segment_set_name(
-     libvslvm_segment_t *segment,
+int libvslvm_internal_segment_set_name(
+     libvslvm_internal_segment_t *internal_segment,
      const char *name,
      size_t name_size,
      libcerror_error_t **error );

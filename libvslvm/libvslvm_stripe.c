@@ -283,16 +283,15 @@ int libvslvm_stripe_get_physical_volume_name(
 /* Sets the physical volume name
  * Returns 1 if successful or -1 on error
  */
-int libvslvm_stripe_set_physical_volume_name(
-     libvslvm_stripe_t *stripe,
+int libvslvm_internal_stripe_set_physical_volume_name(
+     libvslvm_internal_stripe_t *internal_stripe,
      const char *physical_volume_name,
      size_t physical_volume_name_size,
      libcerror_error_t **error )
 {
-	libvslvm_internal_stripe_t *internal_stripe = NULL;
-	static char *function                       = "libvslvm_stripe_set_physical_volume_name";
+	static char *function = "libvslvm_internal_stripe_set_physical_volume_name";
 
-	if( stripe == NULL )
+	if( internal_stripe == NULL )
 	{
 		libcerror_error_set(
 		 error,
@@ -303,8 +302,17 @@ int libvslvm_stripe_set_physical_volume_name(
 
 		return( -1 );
 	}
-	internal_stripe = (libvslvm_internal_stripe_t *) stripe;
+	if( internal_stripe->physical_volume_name != NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
+		 "%s: invalid stripe - physical volume name value already set.",
+		 function );
 
+		return( -1 );
+	}
 	if( physical_volume_name == NULL )
 	{
 		libcerror_error_set(
@@ -316,24 +324,17 @@ int libvslvm_stripe_set_physical_volume_name(
 
 		return( -1 );
 	}
-	if( physical_volume_name_size > (size_t) SSIZE_MAX )
+	if( ( physical_volume_name_size == 0 )
+	 || ( physical_volume_name_size > (size_t) MEMORY_MAXIMUM_ALLOCATION_SIZE ) )
 	{
 		libcerror_error_set(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBCERROR_ARGUMENT_ERROR_VALUE_EXCEEDS_MAXIMUM,
-		 "%s: physical volume name size value exceeds maximum.",
+		 LIBCERROR_ARGUMENT_ERROR_VALUE_OUT_OF_BOUNDS,
+		 "%s: invalid physical volume name size value out of bounds.",
 		 function );
 
 		return( -1 );
-	}
-	if( internal_stripe->physical_volume_name != NULL )
-	{
-		memory_free(
-		 internal_stripe->physical_volume_name );
-
-		internal_stripe->physical_volume_name      = NULL;
-		internal_stripe->physical_volume_name_size = 0;
 	}
 	internal_stripe->physical_volume_name = (char *) memory_allocate(
 	                                                  sizeof( char ) * physical_volume_name_size );

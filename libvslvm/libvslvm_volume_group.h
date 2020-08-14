@@ -123,8 +123,8 @@ int libvslvm_volume_group_get_name(
      size_t name_size,
      libcerror_error_t **error );
 
-int libvslvm_volume_group_set_name(
-     libvslvm_volume_group_t *volume_group,
+int libvslvm_internal_volume_group_set_name(
+     libvslvm_internal_volume_group_t *internal_volume_group,
      const char *name,
      size_t name_size,
      libcerror_error_t **error );

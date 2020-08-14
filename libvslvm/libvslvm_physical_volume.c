@@ -401,13 +401,14 @@ int libvslvm_physical_volume_set_name(
 
 		return( -1 );
 	}
-	if( name_size > (size_t) SSIZE_MAX )
+	if( ( name_size == 0 )
+	 || ( name_size > (size_t) MEMORY_MAXIMUM_ALLOCATION_SIZE ) )
 	{
 		libcerror_error_set(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBCERROR_ARGUMENT_ERROR_VALUE_EXCEEDS_MAXIMUM,
-		 "%s: name size value exceeds maximum.",
+		 LIBCERROR_ARGUMENT_ERROR_VALUE_OUT_OF_BOUNDS,
+		 "%s: invalid name size value out of bounds.",
 		 function );
 
 		return( -1 );
@@ -867,13 +868,14 @@ int libvslvm_physical_volume_set_device_path(
 
 		return( -1 );
 	}
-	if( device_path_size > (size_t) SSIZE_MAX )
+	if( ( device_path_size == 0 )
+	 || ( device_path_size > (size_t) MEMORY_MAXIMUM_ALLOCATION_SIZE ) )
 	{
 		libcerror_error_set(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBCERROR_ARGUMENT_ERROR_VALUE_EXCEEDS_MAXIMUM,
-		 "%s: device path size value exceeds maximum.",
+		 LIBCERROR_ARGUMENT_ERROR_VALUE_OUT_OF_BOUNDS,
+		 "%s: invalid device path size value out of bounds.",
 		 function );
 
 		return( -1 );
@@ -1747,7 +1749,7 @@ int libvslvm_physical_volume_read_element_data(
      libfdata_cache_t *cache,
      int file_io_pool_entry,
      off64_t physical_volume_offset,
-     size64_t physical_volume_size,
+     size64_t physical_volume_size LIBVSLVM_ATTRIBUTE_UNUSED,
      uint32_t element_flags LIBVSLVM_ATTRIBUTE_UNUSED,
      uint8_t read_flags LIBVSLVM_ATTRIBUTE_UNUSED,
      libcerror_error_t **error )
@@ -1758,6 +1760,7 @@ int libvslvm_physical_volume_read_element_data(
 	int result                                  = 0;
 
 	LIBVSLVM_UNREFERENCED_PARAMETER( data_handle )
+	LIBVSLVM_UNREFERENCED_PARAMETER( physical_volume_size )
 	LIBVSLVM_UNREFERENCED_PARAMETER( element_flags )
 	LIBVSLVM_UNREFERENCED_PARAMETER( read_flags )
 

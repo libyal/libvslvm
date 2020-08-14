@@ -200,16 +200,15 @@ int libvslvm_internal_segment_free(
 /* Sets the name
  * Returns 1 if successful or -1 on error
  */
-int libvslvm_segment_set_name(
-     libvslvm_segment_t *segment,
+int libvslvm_internal_segment_set_name(
+     libvslvm_internal_segment_t *internal_segment,
      const char *name,
      size_t name_size,
      libcerror_error_t **error )
 {
-	libvslvm_internal_segment_t *internal_segment = NULL;
-	static char *function                         = "libvslvm_segment_set_name";
+	static char *function = "libvslvm_internal_segment_set_name";
 
-	if( segment == NULL )
+	if( internal_segment == NULL )
 	{
 		libcerror_error_set(
 		 error,
@@ -220,8 +219,17 @@ int libvslvm_segment_set_name(
 
 		return( -1 );
 	}
-	internal_segment = (libvslvm_internal_segment_t *) segment;
+	if( internal_segment->name != NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
+		 "%s: invalid segment - name value already set.",
+		 function );
 
+		return( -1 );
+	}
 	if( name == NULL )
 	{
 		libcerror_error_set(
@@ -233,24 +241,17 @@ int libvslvm_segment_set_name(
 
 		return( -1 );
 	}
-	if( name_size > (size_t) SSIZE_MAX )
+	if( ( name_size == 0 )
+	 || ( name_size > (size_t) MEMORY_MAXIMUM_ALLOCATION_SIZE ) )
 	{
 		libcerror_error_set(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBCERROR_ARGUMENT_ERROR_VALUE_EXCEEDS_MAXIMUM,
-		 "%s: name size value exceeds maximum.",
+		 LIBCERROR_ARGUMENT_ERROR_VALUE_OUT_OF_BOUNDS,
+		 "%s: invalid name size value out of bounds.",
 		 function );
 
 		return( -1 );
-	}
-	if( internal_segment->name != NULL )
-	{
-		memory_free(
-		 internal_segment->name );
-
-		internal_segment->name      = NULL;
-		internal_segment->name_size = 0;
 	}
 	internal_segment->name = (char *) memory_allocate(
 	                                   sizeof( char ) * name_size );

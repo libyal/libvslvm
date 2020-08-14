@@ -1587,7 +1587,7 @@ int libvslvm_internal_handle_open_read_data_area_table(
 		 "%s: unable to retrieve number of physical volumes.",
 		 function );
 
-		goto on_error;
+		return( -1 );
 	}
 	if( number_of_physical_volumes == 0 )
 	{
@@ -1598,7 +1598,7 @@ int libvslvm_internal_handle_open_read_data_area_table(
 		 "%s: missing physical volumes.",
 		 function );
 
-		goto on_error;
+		return( -1 );
 	}
 	if( libbfio_pool_get_number_of_handles(
 	     file_io_pool,
@@ -1623,7 +1623,7 @@ int libvslvm_internal_handle_open_read_data_area_table(
 		 "%s: mismatch between number of file IO handles in pool and physical volumes in metadata.",
 		 function );
 
-		goto on_error;
+		return( -1 );
 	}
 	for( physical_volume_index = 0;
 	     physical_volume_index < number_of_physical_volumes;
@@ -1643,7 +1643,7 @@ int libvslvm_internal_handle_open_read_data_area_table(
 			 function,
 			 physical_volume_index );
 
-			goto on_error;
+			return( -1 );
 		}
 		/* The physical volume label can be stored in one of the first 4 sectors
 		 */
@@ -1668,7 +1668,7 @@ int libvslvm_internal_handle_open_read_data_area_table(
 				 function,
 				 file_offset );
 
-				goto on_error;
+				return( -1 );
 			}
 			else if( result != 0 )
 			{
@@ -1688,7 +1688,7 @@ int libvslvm_internal_handle_open_read_data_area_table(
 			 "%s: unable to retrieve number of data area descriptors from array.",
 			 function );
 
-			goto on_error;
+			return( -1 );
 		}
 		if( number_of_data_area_descriptors <= 0 )
 		{
@@ -1699,20 +1699,11 @@ int libvslvm_internal_handle_open_read_data_area_table(
 			 "%s: unsupported number of data area descriptors.",
 			 function );
 
-			goto on_error;
+			return( -1 );
 		}
 	}
 /* TODO build data area table */
 	return( 1 );
-
-on_error:
-	if( physical_volume != NULL )
-	{
-		libvslvm_internal_physical_volume_free(
-		 (libvslvm_internal_physical_volume_t **) &physical_volume,
-		 NULL );
-	}
-	return( -1 );
 }
 
 /* Closes a handle

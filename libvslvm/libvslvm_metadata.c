@@ -223,7 +223,8 @@ int libvslvm_metadata_read(
 
 		goto on_error;
 	}
-	if( metadata_size > (size64_t) SSIZE_MAX )
+	if( ( metadata_size == 0 )
+	 || ( metadata_size > (size64_t) MEMORY_MAXIMUM_ALLOCATION_SIZE ) )
 	{
 		libcerror_error_set(
 		 error,
@@ -294,7 +295,7 @@ int libvslvm_metadata_read(
 		 stored_checksum,
 		 calculated_checksum );
 
-		return( -1 );
+		goto on_error;
 	}
 */
 #if defined( HAVE_DEBUG_OUTPUT )
@@ -493,21 +494,24 @@ int libvslvm_metadata_read_volume_group(
 	}
 	/* Ignore trailing white space
 	 */
-	line_string_segment_index = line_string_segment_size - 2;
-
-	while( line_string_segment_index > 0 )
+	if( line_string_segment_size >= 2 )
 	{
-		if( ( line_string_segment[ line_string_segment_index ] != '\t' )
-		 && ( line_string_segment[ line_string_segment_index ] != '\n' )
-		 && ( line_string_segment[ line_string_segment_index ] != '\f' )
-		 && ( line_string_segment[ line_string_segment_index ] != '\v' )
-		 && ( line_string_segment[ line_string_segment_index ] != '\r' )
-		 && ( line_string_segment[ line_string_segment_index ] != ' ' ) )
+		line_string_segment_index = line_string_segment_size - 2;
+
+		while( line_string_segment_index > 0 )
 		{
-			break;
+			if( ( line_string_segment[ line_string_segment_index ] != '\t' )
+			 && ( line_string_segment[ line_string_segment_index ] != '\n' )
+			 && ( line_string_segment[ line_string_segment_index ] != '\f' )
+			 && ( line_string_segment[ line_string_segment_index ] != '\v' )
+			 && ( line_string_segment[ line_string_segment_index ] != '\r' )
+			 && ( line_string_segment[ line_string_segment_index ] != ' ' ) )
+			{
+				break;
+			}
+			line_string_segment_index--;
+			line_string_segment_size--;
 		}
-		line_string_segment_index--;
-		line_string_segment_size--;
 	}
 	/* Ignore leading white space
 	 */
@@ -554,10 +558,22 @@ int libvslvm_metadata_read_volume_group(
 	}
 	internal_volume_group = (libvslvm_internal_volume_group_t *) metadata->volume_group;
 
-	if( libvslvm_volume_group_set_name(
-	     metadata->volume_group,
+	if( ( line_string_segment_size < 2 )
+	 || ( line_string_segment_index >= ( line_string_segment_size - 2 ) ) )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_VALUE_OUT_OF_BOUNDS,
+		 "%s: invalid line string segment size value out of bounds.",
+		 function );
+
+		goto on_error;
+	}
+	if( libvslvm_internal_volume_group_set_name(
+	     (libvslvm_internal_volume_group_t *) metadata->volume_group,
 	     &( line_string_segment[ line_string_segment_index ] ),
-	     line_string_segment_size - 2,
+	     line_string_segment_size - ( line_string_segment_index + 2 ),
 	     error ) != 1 )
 	{
 		libcerror_error_set(
@@ -613,21 +629,24 @@ int libvslvm_metadata_read_volume_group(
 		}
 		/* Ignore trailing white space
 		 */
-		line_string_segment_index = line_string_segment_size - 2;
-
-		while( line_string_segment_index > 0 )
+		if( line_string_segment_size >= 2 )
 		{
-			if( ( line_string_segment[ line_string_segment_index ] != '\t' )
-			 && ( line_string_segment[ line_string_segment_index ] != '\n' )
-			 && ( line_string_segment[ line_string_segment_index ] != '\f' )
-			 && ( line_string_segment[ line_string_segment_index ] != '\v' )
-			 && ( line_string_segment[ line_string_segment_index ] != '\r' )
-			 && ( line_string_segment[ line_string_segment_index ] != ' ' ) )
+			line_string_segment_index = line_string_segment_size - 2;
+
+			while( line_string_segment_index > 0 )
 			{
-				break;
+				if( ( line_string_segment[ line_string_segment_index ] != '\t' )
+				 && ( line_string_segment[ line_string_segment_index ] != '\n' )
+				 && ( line_string_segment[ line_string_segment_index ] != '\f' )
+				 && ( line_string_segment[ line_string_segment_index ] != '\v' )
+				 && ( line_string_segment[ line_string_segment_index ] != '\r' )
+				 && ( line_string_segment[ line_string_segment_index ] != ' ' ) )
+				{
+					break;
+				}
+				line_string_segment_index--;
+				line_string_segment_size--;
 			}
-			line_string_segment_index--;
-			line_string_segment_size--;
 		}
 		/* Ignore leading white space
 		 */
@@ -1164,21 +1183,24 @@ int libvslvm_metadata_read_physical_volumes(
 	}
 	/* Ignore trailing white space
 	 */
-	line_string_segment_index = line_string_segment_size - 2;
-
-	while( line_string_segment_index > 0 )
+	if( line_string_segment_size >= 2 )
 	{
-		if( ( line_string_segment[ line_string_segment_index ] != '\t' )
-		 && ( line_string_segment[ line_string_segment_index ] != '\n' )
-		 && ( line_string_segment[ line_string_segment_index ] != '\f' )
-		 && ( line_string_segment[ line_string_segment_index ] != '\v' )
-		 && ( line_string_segment[ line_string_segment_index ] != '\r' )
-		 && ( line_string_segment[ line_string_segment_index ] != ' ' ) )
+		line_string_segment_index = line_string_segment_size - 2;
+
+		while( line_string_segment_index > 0 )
 		{
-			break;
+			if( ( line_string_segment[ line_string_segment_index ] != '\t' )
+			 && ( line_string_segment[ line_string_segment_index ] != '\n' )
+			 && ( line_string_segment[ line_string_segment_index ] != '\f' )
+			 && ( line_string_segment[ line_string_segment_index ] != '\v' )
+			 && ( line_string_segment[ line_string_segment_index ] != '\r' )
+			 && ( line_string_segment[ line_string_segment_index ] != ' ' ) )
+			{
+				break;
+			}
+			line_string_segment_index--;
+			line_string_segment_size--;
 		}
-		line_string_segment_index--;
-		line_string_segment_size--;
 	}
 	/* Ignore leading white space
 	 */
@@ -1247,21 +1269,24 @@ int libvslvm_metadata_read_physical_volumes(
 		}
 		/* Ignore trailing white space
 		 */
-		line_string_segment_index = line_string_segment_size - 2;
-
-		while( line_string_segment_index > 0 )
+		if( line_string_segment_size >= 2 )
 		{
-			if( ( line_string_segment[ line_string_segment_index ] != '\t' )
-			 && ( line_string_segment[ line_string_segment_index ] != '\n' )
-			 && ( line_string_segment[ line_string_segment_index ] != '\f' )
-			 && ( line_string_segment[ line_string_segment_index ] != '\v' )
-			 && ( line_string_segment[ line_string_segment_index ] != '\r' )
-			 && ( line_string_segment[ line_string_segment_index ] != ' ' ) )
+			line_string_segment_index = line_string_segment_size - 2;
+
+			while( line_string_segment_index > 0 )
 			{
-				break;
+				if( ( line_string_segment[ line_string_segment_index ] != '\t' )
+				 && ( line_string_segment[ line_string_segment_index ] != '\n' )
+				 && ( line_string_segment[ line_string_segment_index ] != '\f' )
+				 && ( line_string_segment[ line_string_segment_index ] != '\v' )
+				 && ( line_string_segment[ line_string_segment_index ] != '\r' )
+				 && ( line_string_segment[ line_string_segment_index ] != ' ' ) )
+				{
+					break;
+				}
+				line_string_segment_index--;
+				line_string_segment_size--;
 			}
-			line_string_segment_index--;
-			line_string_segment_size--;
 		}
 		/* Ignore leading white space
 		 */
@@ -1440,21 +1465,24 @@ int libvslvm_metadata_read_physical_volume(
 	}
 	/* Ignore trailing white space
 	 */
-	line_string_segment_index = line_string_segment_size - 2;
-
-	while( line_string_segment_index > 0 )
+	if( line_string_segment_size >= 2 )
 	{
-		if( ( line_string_segment[ line_string_segment_index ] != '\t' )
-		 && ( line_string_segment[ line_string_segment_index ] != '\n' )
-		 && ( line_string_segment[ line_string_segment_index ] != '\f' )
-		 && ( line_string_segment[ line_string_segment_index ] != '\v' )
-		 && ( line_string_segment[ line_string_segment_index ] != '\r' )
-		 && ( line_string_segment[ line_string_segment_index ] != ' ' ) )
+		line_string_segment_index = line_string_segment_size - 2;
+
+		while( line_string_segment_index > 0 )
 		{
-			break;
+			if( ( line_string_segment[ line_string_segment_index ] != '\t' )
+			 && ( line_string_segment[ line_string_segment_index ] != '\n' )
+			 && ( line_string_segment[ line_string_segment_index ] != '\f' )
+			 && ( line_string_segment[ line_string_segment_index ] != '\v' )
+			 && ( line_string_segment[ line_string_segment_index ] != '\r' )
+			 && ( line_string_segment[ line_string_segment_index ] != ' ' ) )
+			{
+				break;
+			}
+			line_string_segment_index--;
+			line_string_segment_size--;
 		}
-		line_string_segment_index--;
-		line_string_segment_size--;
 	}
 	/* Ignore leading white space
 	 */
@@ -1499,10 +1527,22 @@ int libvslvm_metadata_read_physical_volume(
 
 		goto on_error;
 	}
+	if( ( line_string_segment_size < 2 )
+	 || ( line_string_segment_index >= ( line_string_segment_size - 2 ) ) )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_VALUE_OUT_OF_BOUNDS,
+		 "%s: invalid line string segment size value out of bounds.",
+		 function );
+
+		goto on_error;
+	}
 	if( libvslvm_physical_volume_set_name(
 	     physical_volume,
 	     &( line_string_segment[ line_string_segment_index ] ),
-	     line_string_segment_size - 2,
+	     line_string_segment_size - ( line_string_segment_index + 2 ),
 	     error ) != 1 )
 	{
 		libcerror_error_set(
@@ -1561,21 +1601,24 @@ int libvslvm_metadata_read_physical_volume(
 		}
 		/* Ignore trailing white space
 		 */
-		line_string_segment_index = line_string_segment_size - 2;
-
-		while( line_string_segment_index > 0 )
+		if( line_string_segment_size >= 2 )
 		{
-			if( ( line_string_segment[ line_string_segment_index ] != '\t' )
-			 && ( line_string_segment[ line_string_segment_index ] != '\n' )
-			 && ( line_string_segment[ line_string_segment_index ] != '\f' )
-			 && ( line_string_segment[ line_string_segment_index ] != '\v' )
-			 && ( line_string_segment[ line_string_segment_index ] != '\r' )
-			 && ( line_string_segment[ line_string_segment_index ] != ' ' ) )
+			line_string_segment_index = line_string_segment_size - 2;
+
+			while( line_string_segment_index > 0 )
 			{
-				break;
+				if( ( line_string_segment[ line_string_segment_index ] != '\t' )
+				 && ( line_string_segment[ line_string_segment_index ] != '\n' )
+				 && ( line_string_segment[ line_string_segment_index ] != '\f' )
+				 && ( line_string_segment[ line_string_segment_index ] != '\v' )
+				 && ( line_string_segment[ line_string_segment_index ] != '\r' )
+				 && ( line_string_segment[ line_string_segment_index ] != ' ' ) )
+				{
+					break;
+				}
+				line_string_segment_index--;
+				line_string_segment_size--;
 			}
-			line_string_segment_index--;
-			line_string_segment_size--;
 		}
 		/* Ignore leading white space
 		 */
@@ -2033,21 +2076,24 @@ int libvslvm_metadata_read_logical_volumes(
 	}
 	/* Ignore trailing white space
 	 */
-	line_string_segment_index = line_string_segment_size - 2;
-
-	while( line_string_segment_index > 0 )
+	if( line_string_segment_size >= 2 )
 	{
-		if( ( line_string_segment[ line_string_segment_index ] != '\t' )
-		 && ( line_string_segment[ line_string_segment_index ] != '\n' )
-		 && ( line_string_segment[ line_string_segment_index ] != '\f' )
-		 && ( line_string_segment[ line_string_segment_index ] != '\v' )
-		 && ( line_string_segment[ line_string_segment_index ] != '\r' )
-		 && ( line_string_segment[ line_string_segment_index ] != ' ' ) )
+		line_string_segment_index = line_string_segment_size - 2;
+
+		while( line_string_segment_index > 0 )
 		{
-			break;
+			if( ( line_string_segment[ line_string_segment_index ] != '\t' )
+			 && ( line_string_segment[ line_string_segment_index ] != '\n' )
+			 && ( line_string_segment[ line_string_segment_index ] != '\f' )
+			 && ( line_string_segment[ line_string_segment_index ] != '\v' )
+			 && ( line_string_segment[ line_string_segment_index ] != '\r' )
+			 && ( line_string_segment[ line_string_segment_index ] != ' ' ) )
+			{
+				break;
+			}
+			line_string_segment_index--;
+			line_string_segment_size--;
 		}
-		line_string_segment_index--;
-		line_string_segment_size--;
 	}
 	/* Ignore leading white space
 	 */
@@ -2116,21 +2162,24 @@ int libvslvm_metadata_read_logical_volumes(
 		}
 		/* Ignore trailing white space
 		 */
-		line_string_segment_index = line_string_segment_size - 2;
-
-		while( line_string_segment_index > 0 )
+		if( line_string_segment_size >= 2 )
 		{
-			if( ( line_string_segment[ line_string_segment_index ] != '\t' )
-			 && ( line_string_segment[ line_string_segment_index ] != '\n' )
-			 && ( line_string_segment[ line_string_segment_index ] != '\f' )
-			 && ( line_string_segment[ line_string_segment_index ] != '\v' )
-			 && ( line_string_segment[ line_string_segment_index ] != '\r' )
-			 && ( line_string_segment[ line_string_segment_index ] != ' ' ) )
+			line_string_segment_index = line_string_segment_size - 2;
+
+			while( line_string_segment_index > 0 )
 			{
-				break;
+				if( ( line_string_segment[ line_string_segment_index ] != '\t' )
+				 && ( line_string_segment[ line_string_segment_index ] != '\n' )
+				 && ( line_string_segment[ line_string_segment_index ] != '\f' )
+				 && ( line_string_segment[ line_string_segment_index ] != '\v' )
+				 && ( line_string_segment[ line_string_segment_index ] != '\r' )
+				 && ( line_string_segment[ line_string_segment_index ] != ' ' ) )
+				{
+					break;
+				}
+				line_string_segment_index--;
+				line_string_segment_size--;
 			}
-			line_string_segment_index--;
-			line_string_segment_size--;
 		}
 		/* Ignore leading white space
 		 */
@@ -2308,21 +2357,24 @@ int libvslvm_metadata_read_logical_volume(
 	}
 	/* Ignore trailing white space
 	 */
-	line_string_segment_index = line_string_segment_size - 2;
-
-	while( line_string_segment_index > 0 )
+	if( line_string_segment_size >= 2 )
 	{
-		if( ( line_string_segment[ line_string_segment_index ] != '\t' )
-		 && ( line_string_segment[ line_string_segment_index ] != '\n' )
-		 && ( line_string_segment[ line_string_segment_index ] != '\f' )
-		 && ( line_string_segment[ line_string_segment_index ] != '\v' )
-		 && ( line_string_segment[ line_string_segment_index ] != '\r' )
-		 && ( line_string_segment[ line_string_segment_index ] != ' ' ) )
+		line_string_segment_index = line_string_segment_size - 2;
+
+		while( line_string_segment_index > 0 )
 		{
-			break;
+			if( ( line_string_segment[ line_string_segment_index ] != '\t' )
+			 && ( line_string_segment[ line_string_segment_index ] != '\n' )
+			 && ( line_string_segment[ line_string_segment_index ] != '\f' )
+			 && ( line_string_segment[ line_string_segment_index ] != '\v' )
+			 && ( line_string_segment[ line_string_segment_index ] != '\r' )
+			 && ( line_string_segment[ line_string_segment_index ] != ' ' ) )
+			{
+				break;
+			}
+			line_string_segment_index--;
+			line_string_segment_size--;
 		}
-		line_string_segment_index--;
-		line_string_segment_size--;
 	}
 	/* Ignore leading white space
 	 */
@@ -2367,10 +2419,22 @@ int libvslvm_metadata_read_logical_volume(
 
 		goto on_error;
 	}
+	if( ( line_string_segment_size < 2 )
+	 || ( line_string_segment_index >= ( line_string_segment_size - 2 ) ) )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_VALUE_OUT_OF_BOUNDS,
+		 "%s: invalid line string segment size value out of bounds.",
+		 function );
+
+		goto on_error;
+	}
 	if( libvslvm_logical_volume_values_set_name(
 	     logical_volume_values,
 	     &( line_string_segment[ line_string_segment_index ] ),
-	     line_string_segment_size - 2,
+	     line_string_segment_size - ( line_string_segment_index + 2 ),
 	     error ) != 1 )
 	{
 		libcerror_error_set(
@@ -2429,21 +2493,24 @@ int libvslvm_metadata_read_logical_volume(
 		}
 		/* Ignore trailing white space
 		 */
-		line_string_segment_index = line_string_segment_size - 2;
-
-		while( line_string_segment_index > 0 )
+		if( line_string_segment_size >= 2 )
 		{
-			if( ( line_string_segment[ line_string_segment_index ] != '\t' )
-			 && ( line_string_segment[ line_string_segment_index ] != '\n' )
-			 && ( line_string_segment[ line_string_segment_index ] != '\f' )
-			 && ( line_string_segment[ line_string_segment_index ] != '\v' )
-			 && ( line_string_segment[ line_string_segment_index ] != '\r' )
-			 && ( line_string_segment[ line_string_segment_index ] != ' ' ) )
+			line_string_segment_index = line_string_segment_size - 2;
+
+			while( line_string_segment_index > 0 )
 			{
-				break;
+				if( ( line_string_segment[ line_string_segment_index ] != '\t' )
+				 && ( line_string_segment[ line_string_segment_index ] != '\n' )
+				 && ( line_string_segment[ line_string_segment_index ] != '\f' )
+				 && ( line_string_segment[ line_string_segment_index ] != '\v' )
+				 && ( line_string_segment[ line_string_segment_index ] != '\r' )
+				 && ( line_string_segment[ line_string_segment_index ] != ' ' ) )
+				{
+					break;
+				}
+				line_string_segment_index--;
+				line_string_segment_size--;
 			}
-			line_string_segment_index--;
-			line_string_segment_size--;
 		}
 		/* Ignore leading white space
 		 */
@@ -2505,7 +2572,7 @@ int libvslvm_metadata_read_logical_volume(
 				 "%s: unable to read segment.",
 				 function );
 
-				return( -1 );
+				goto on_error;
 			}
 			continue;
 		}
@@ -2790,7 +2857,7 @@ int libvslvm_metadata_read_segment(
 		 "%s: invalid metadata - missing volume group.",
 		 function );
 
-		goto on_error;
+		return( -1 );
 	}
 	internal_volume_group = (libvslvm_internal_volume_group_t *) metadata->volume_group;
 
@@ -2870,21 +2937,24 @@ int libvslvm_metadata_read_segment(
 	}
 	/* Ignore trailing white space
 	 */
-	line_string_segment_index = line_string_segment_size - 2;
-
-	while( line_string_segment_index > 0 )
+	if( line_string_segment_size >= 2 )
 	{
-		if( ( line_string_segment[ line_string_segment_index ] != '\t' )
-		 && ( line_string_segment[ line_string_segment_index ] != '\n' )
-		 && ( line_string_segment[ line_string_segment_index ] != '\f' )
-		 && ( line_string_segment[ line_string_segment_index ] != '\v' )
-		 && ( line_string_segment[ line_string_segment_index ] != '\r' )
-		 && ( line_string_segment[ line_string_segment_index ] != ' ' ) )
+		line_string_segment_index = line_string_segment_size - 2;
+
+		while( line_string_segment_index > 0 )
 		{
-			break;
+			if( ( line_string_segment[ line_string_segment_index ] != '\t' )
+			 && ( line_string_segment[ line_string_segment_index ] != '\n' )
+			 && ( line_string_segment[ line_string_segment_index ] != '\f' )
+			 && ( line_string_segment[ line_string_segment_index ] != '\v' )
+			 && ( line_string_segment[ line_string_segment_index ] != '\r' )
+			 && ( line_string_segment[ line_string_segment_index ] != ' ' ) )
+			{
+				break;
+			}
+			line_string_segment_index--;
+			line_string_segment_size--;
 		}
-		line_string_segment_index--;
-		line_string_segment_size--;
 	}
 	/* Ignore leading white space
 	 */
@@ -2933,10 +3003,22 @@ int libvslvm_metadata_read_segment(
 
 		goto on_error;
 	}
-	if( libvslvm_segment_set_name(
-	     segment,
+	if( ( line_string_segment_size < 2 )
+	 || ( line_string_segment_index >= ( line_string_segment_size - 2 ) ) )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_VALUE_OUT_OF_BOUNDS,
+		 "%s: invalid line string segment size value out of bounds.",
+		 function );
+
+		goto on_error;
+	}
+	if( libvslvm_internal_segment_set_name(
+	     (libvslvm_internal_segment_t *) segment,
 	     &( line_string_segment[ line_string_segment_index ] ),
-	     line_string_segment_size - 2,
+	     line_string_segment_size - ( line_string_segment_index + 2 ),
 	     error ) != 1 )
 	{
 		libcerror_error_set(
@@ -2995,21 +3077,24 @@ int libvslvm_metadata_read_segment(
 		}
 		/* Ignore trailing white space
 		 */
-		line_string_segment_index = line_string_segment_size - 2;
-
-		while( line_string_segment_index > 0 )
+		if( line_string_segment_size >= 2 )
 		{
-			if( ( line_string_segment[ line_string_segment_index ] != '\t' )
-			 && ( line_string_segment[ line_string_segment_index ] != '\n' )
-			 && ( line_string_segment[ line_string_segment_index ] != '\f' )
-			 && ( line_string_segment[ line_string_segment_index ] != '\v' )
-			 && ( line_string_segment[ line_string_segment_index ] != '\r' )
-			 && ( line_string_segment[ line_string_segment_index ] != ' ' ) )
+			line_string_segment_index = line_string_segment_size - 2;
+
+			while( line_string_segment_index > 0 )
 			{
-				break;
+				if( ( line_string_segment[ line_string_segment_index ] != '\t' )
+				 && ( line_string_segment[ line_string_segment_index ] != '\n' )
+				 && ( line_string_segment[ line_string_segment_index ] != '\f' )
+				 && ( line_string_segment[ line_string_segment_index ] != '\v' )
+				 && ( line_string_segment[ line_string_segment_index ] != '\r' )
+				 && ( line_string_segment[ line_string_segment_index ] != ' ' ) )
+				{
+					break;
+				}
+				line_string_segment_index--;
+				line_string_segment_size--;
 			}
-			line_string_segment_index--;
-			line_string_segment_size--;
 		}
 		/* Ignore leading white space
 		 */
@@ -3214,7 +3299,7 @@ int libvslvm_metadata_read_segment(
 					 "%s: unable to read stripes list.",
 					 function );
 
-					return( -1 );
+					goto on_error;
 				}
 /* TODO validate number of stripes */
 			}
@@ -3414,7 +3499,7 @@ int libvslvm_metadata_read_stripes_list(
 		 "%s: invalid metadata - missing volume group.",
 		 function );
 
-		goto on_error;
+		return( -1 );
 	}
 	internal_volume_group = (libvslvm_internal_volume_group_t *) metadata->volume_group;
 
@@ -3487,21 +3572,24 @@ int libvslvm_metadata_read_stripes_list(
 		}
 		/* Ignore trailing white space
 		 */
-		line_string_segment_index = line_string_segment_size - 2;
-
-		while( line_string_segment_index > 0 )
+		if( line_string_segment_size >= 2 )
 		{
-			if( ( line_string_segment[ line_string_segment_index ] != '\t' )
-			 && ( line_string_segment[ line_string_segment_index ] != '\n' )
-			 && ( line_string_segment[ line_string_segment_index ] != '\f' )
-			 && ( line_string_segment[ line_string_segment_index ] != '\v' )
-			 && ( line_string_segment[ line_string_segment_index ] != '\r' )
-			 && ( line_string_segment[ line_string_segment_index ] != ' ' ) )
+			line_string_segment_index = line_string_segment_size - 2;
+
+			while( line_string_segment_index > 0 )
 			{
-				break;
+				if( ( line_string_segment[ line_string_segment_index ] != '\t' )
+				 && ( line_string_segment[ line_string_segment_index ] != '\n' )
+				 && ( line_string_segment[ line_string_segment_index ] != '\f' )
+				 && ( line_string_segment[ line_string_segment_index ] != '\v' )
+				 && ( line_string_segment[ line_string_segment_index ] != '\r' )
+				 && ( line_string_segment[ line_string_segment_index ] != ' ' ) )
+				{
+					break;
+				}
+				line_string_segment_index--;
+				line_string_segment_size--;
 			}
-			line_string_segment_index--;
-			line_string_segment_size--;
 		}
 		/* Ignore leading white space
 		 */
@@ -3701,8 +3789,8 @@ int libvslvm_metadata_read_stripes_list(
 
 			goto on_error;
 		}
-		if( libvslvm_stripe_set_physical_volume_name(
-		     stripe,
+		if( libvslvm_internal_stripe_set_physical_volume_name(
+		     (libvslvm_internal_stripe_t *) stripe,
 		     value_identifier,
 		     value_identifier_length + 1,
 		     error ) != 1 )

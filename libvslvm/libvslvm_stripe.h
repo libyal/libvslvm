@@ -76,8 +76,8 @@ int libvslvm_stripe_get_physical_volume_name(
      size_t physical_volume_name_size,
      libcerror_error_t **error );
 
-int libvslvm_stripe_set_physical_volume_name(
-     libvslvm_stripe_t *stripe,
+int libvslvm_internal_stripe_set_physical_volume_name(
+     libvslvm_internal_stripe_t *internal_stripe,
      const char *physical_volume_name,
      size_t physical_volume_name_size,
      libcerror_error_t **error );

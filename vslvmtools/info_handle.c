@@ -36,14 +36,14 @@
 
 #if !defined( LIBVSLVM_HAVE_BFIO )
 
-extern \
+LIBVSLVM_EXTERN \
 int libvslvm_handle_open_file_io_handle(
      libvslvm_handle_t *handle,
      libbfio_handle_t *file_io_handle,
      int access_flags,
      libvslvm_error_t **error );
 
-extern \
+LIBVSLVM_EXTERN \
 int libvslvm_handle_open_physical_volume_files_file_io_pool(
      libvslvm_handle_t *handle,
      libbfio_pool_t *file_io_pool,
