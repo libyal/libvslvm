@@ -215,7 +215,7 @@ on_error:
 	return( NULL );
 }
 
-/* Intializes a logical volumes sequence and iterator object
+/* Initializes a logical volumes sequence and iterator object
  * Returns 0 if successful or -1 on error
  */
 int pyvslvm_logical_volumes_init(

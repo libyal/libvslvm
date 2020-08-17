@@ -2549,9 +2549,10 @@ int libvslvm_metadata_read_logical_volume(
 		}
 		/* Check for the start of a sub section
 		 */
-		if( ( line_string_segment_size >= ( 7 + 3 ) )
+		if( ( line_string_segment_size >= 3 )
 		 && ( line_string_segment[ line_string_segment_size - 3 ] == ' ' )
 		 && ( line_string_segment[ line_string_segment_size - 2 ] == '{' )
+		 && ( ( line_string_segment_size - line_string_segment_index ) >= 7 )
 		 && ( narrow_string_compare(
 		       &( line_string_segment[ line_string_segment_index ] ),
 		       "segment",

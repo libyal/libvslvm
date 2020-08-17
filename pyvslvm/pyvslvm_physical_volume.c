@@ -255,7 +255,7 @@ on_error:
 	return( NULL );
 }
 
-/* Intializes a physical volume object
+/* Initializes a physical volume object
  * Returns 0 if successful or -1 on error
  */
 int pyvslvm_physical_volume_init(

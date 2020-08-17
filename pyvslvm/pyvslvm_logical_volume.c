@@ -332,7 +332,7 @@ on_error:
 	return( NULL );
 }
 
-/* Intializes a logical volume object
+/* Initializes a logical volume object
  * Returns 0 if successful or -1 on error
  */
 int pyvslvm_logical_volume_init(

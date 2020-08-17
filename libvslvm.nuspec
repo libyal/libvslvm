@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>libvslvm</id>
-    <version>20200814</version>
+    <version>20200817</version>
     <authors>Joachim Metz</authors>
     <owners>joachimmetz</owners>
     <licenseUrl>https://raw.githubusercontent.com/libyal/libvslvm/master/COPYING.LESSER</licenseUrl>
@@ -10,7 +10,7 @@
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <title>libvslvm</title>
     <description>Library to access the Linux Logical Volume Manager (LVM) volume system</description>
-    <releaseNotes>Release of libvslvm 20200814</releaseNotes>
+    <releaseNotes>Release of libvslvm 20200817</releaseNotes>
     <copyright>Copyright (C) 2014-2020</copyright>
     <tags>native</tags>
   </metadata>

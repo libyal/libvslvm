@@ -201,7 +201,7 @@ on_error:
 	return( NULL );
 }
 
-/* Intializes a segment object
+/* Initializes a segment object
  * Returns 0 if successful or -1 on error
  */
 int pyvslvm_segment_init(

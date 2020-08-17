@@ -293,7 +293,7 @@ on_error:
 	return( NULL );
 }
 
-/* Intializes a volume group object
+/* Initializes a volume group object
  * Returns 0 if successful or -1 on error
  */
 int pyvslvm_volume_group_init(

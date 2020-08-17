@@ -215,7 +215,7 @@ on_error:
 	return( NULL );
 }
 
-/* Intializes a segments sequence and iterator object
+/* Initializes a segments sequence and iterator object
  * Returns 0 if successful or -1 on error
  */
 int pyvslvm_segments_init(
