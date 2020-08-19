@@ -2862,6 +2862,17 @@ int libvslvm_metadata_read_segment(
 	}
 	internal_volume_group = (libvslvm_internal_volume_group_t *) metadata->volume_group;
 
+	if( internal_volume_group->extent_size == 0 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_VALUE_OUT_OF_BOUNDS,
+		 "%s: invalid volume group - extent size value out of bounds.",
+		 function );
+
+		return( -1 );
+	}
 	if( logical_volume_values == NULL )
 	{
 		libcerror_error_set(
@@ -3504,6 +3515,17 @@ int libvslvm_metadata_read_stripes_list(
 	}
 	internal_volume_group = (libvslvm_internal_volume_group_t *) metadata->volume_group;
 
+	if( internal_volume_group->extent_size == 0 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_VALUE_OUT_OF_BOUNDS,
+		 "%s: invalid volume group - extent size value out of bounds.",
+		 function );
+
+		return( -1 );
+	}
 	if( line_index == NULL )
 	{
 		libcerror_error_set(
