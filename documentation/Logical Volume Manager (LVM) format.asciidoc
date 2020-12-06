@@ -7,6 +7,7 @@ Analysis of the Logical Volume Manager format
 :numbered!:
 [abstract]
 == Summary
+
 The Logical Volume Manager (LVM) is a volume manager for Linux, although the
 term is used for other Unix implementations as well.
 
@@ -16,6 +17,7 @@ tooling to be able to process this file type.
 
 [preface]
 == Document information
+
 [cols="1,5"]
 |===
 | Author(s): | Joachim Metz <joachim.metz@gmail.com>
@@ -26,8 +28,9 @@ tooling to be able to process this file type.
 
 [preface]
 == License
+
 ....
-Copyright (C) 2013-2018, Joachim Metz <joachim.metz@gmail.com>.
+Copyright (C) 2013-2020, Joachim Metz <joachim.metz@gmail.com>.
 Permission is granted to copy, distribute and/or modify this document under the
 terms of the GNU Free Documentation License, Version 1.3 or any later version
 published by the Free Software Foundation; with no Invariant Sections, no
@@ -37,6 +40,7 @@ in the section entitled "GNU Free Documentation License".
 
 [preface]
 == Revision history
+
 [cols="1,1,1,5",options="header"]
 |===
 | Version | Author | Date | Comments
@@ -46,10 +50,12 @@ in the section entitled "GNU Free Documentation License".
 | 0.0.4 | J.B. Metz | November 2014 | Switched to asccidoc format.
 | 0.0.5 | J.B. Metz | January 2016 | Additional information.
 | 0.0.6 | J.B. Metz | February 2018 | Removed trailing whitespace.
+| 0.0.7 | J.B. Metz | December 2020 | Format changes and additional information with thanks to B. Veigel.
 |===
 
 :numbered:
 == Overview
+
 The Logical Volume Manager (LVM) is a volume manager for Linux, although the
 term is used for other Unix implementations as well.
 
@@ -66,6 +72,7 @@ term is used for other Unix implementations as well.
 |===
 
 === Layout
+
 An LVM volume consist of:
 
 * Volume group
@@ -91,12 +98,14 @@ An Physical volume consist of:
 |===
 
 === Test version
+
 The following version of programs were used to test the information within this
 document:
 
 * lvm2
 
 == Physical volume label
+
 The physical volume label is stored in the second sector of the physical
 volume. The physical volume label consists of:
 
@@ -108,6 +117,7 @@ According to [REDHAT] the physical volume label can be stored in any of the
 first four sectors.
 
 === Physical volume label header
+
 The physical volume label header (struct label_header) is 32 bytes in size and
 consist of:
 
@@ -124,7 +134,11 @@ The offset, in bytes, relative from the start of the physical volume label heade
 | 24 | 8 | "LVM2\x20001" | Type indicator
 |===
 
+The checksum is calculated using weak CRC-32 (CRC without XOR with 0xffffffff)
+using the polynominal 0xedb88320 and initial value 0xf597a6cf.
+
 === Physical volume header
+
 The physical volume header (struct pv_header) is variable in size and consist
 of:
 
@@ -163,6 +177,7 @@ Value in bytes
 |===
 
 == The metadata area
+
 The metadata area consist of:
 
 * Metadata area header
@@ -174,7 +189,8 @@ updated. The metadata area, therefore, can contain copies of older versions of
 the metadata.
 
 === Metadata area header
-The metadata area header (struct mda_header) is variable in size and consist of:
+
+The metadata area header (struct mda_header) is 512 bytes in size and consist of:
 
 [cols="1,1,1,5",options="header"]
 |===
@@ -188,12 +204,17 @@ Value in bytes +
 The offset, in bytes, of the metadata area relative from the start of the physical volume
 | 32 | 8 | | Metadata area size +
 The size of the metadata area in bytes
-| 40 | ...  | | List of raw location descriptors +
+| 40 | 4 x 24 = 96 | | List of raw location descriptors +
 The last descriptor in the list is terminator and consists of 0-byte values. +
 See section: <<raw_location_descriptor,Raw location descriptor>>
+| 136 | 376 | 0 | [yellow-background]*Unknown (unused)*
 |===
 
+The checksum is calculated using weak CRC-32 (CRC without XOR with 0xffffffff)
+using the polynominal 0xedb88320 and initial value 0xf597a6cf.
+
 ==== [[raw_location_descriptor]]Raw location descriptor
+
 The raw location descriptor (struct raw_locn) is 24 bytes in size and consist of:
 
 [cols="1,1,1,5",options="header"]
@@ -204,10 +225,13 @@ The offset, in bytes, relative from the start of the metadata area
 | 8 | 8 | | Data area size +
 Value in bytes
 | 16 | 4 | | Checksum +
-CRC-32 of [yellow-background]*TODO (metadata?)*
+CRC-32 of the data area described by the raw location descriptor
 | 20 | 4 | | Flags +
 See section: <<raw_location_descriptor_flags,Raw location descriptor flags>>
 |===
+
+The checksum is calculated using weak CRC-32 (CRC without XOR with 0xffffffff)
+using the polynominal 0xedb88320 and initial value 0xf597a6cf.
 
 [NOTE]
 The data area size can be 0. It is assumed it represents the remaining
@@ -222,6 +246,7 @@ available data.
 |===
 
 == Metadata
+
 The metadata consist of:
 
 * Volume group main section
@@ -239,9 +264,11 @@ group. The metadata is stored as ASCII.
 The metadata can also be stored in a stand-alone file.
 
 === Parameter definitions
+
 The metadata sections are textual and use the following parameter definitions.
 
 A parameter is defined as:
+
 ....
 <identifier> = <value>
 ....
@@ -266,7 +293,9 @@ The # character is used for comments. A comment continues to the end-of-line.
 For now it is assumed that the # character is not allowed to be used in any of the values.
 
 === Volume group main section
+
 The volume group main section is defined as:
+
 ....
 <name> {
 <parameters>
@@ -293,7 +322,7 @@ Contains a list of strings. See section: <<status_flags,Status flags>>
 Contains a list of strings. See section: <<flags,Flags>>
 | extent_size | The size of an extent +
 The value contains the number of sectors +
-[yellow-background]*Note that the sector size is currently assumed to be 512 bytes.*
+According to `[REDHAT]` the sector size should be 512 bytes
 | max_lv | Maximum number of logical volumes
 | max_pv | Maximum number of physical volumes
 | metadata_copies | [yellow-background]*The number of metadata copies?*
@@ -309,7 +338,9 @@ The value contains the number of sectors +
 |===
 
 === Physical volumes sub section
+
 The physical volumes sub section is defined as:
+
 ....
 physical_volumes {
 <sub sections>
@@ -328,7 +359,9 @@ Where # is a place holder for a the physical volume number e.g. pv0. 0 appears t
 |===
 
 === Physical volume sub section
+
 Each physical volume sub section is defined as:
+
 ....
 pv# {
 <parameters>
@@ -351,14 +384,16 @@ Contains an ASCII string e.g. /dev/dm-0
 Contains a list of strings. See section: <<status_flags,Status flags>>
 | dev_size | The physical volume size including non-usable space +
 The value contains the number of sectors +
-[yellow-background]*Note that the sector size is currently assumed to be 512 bytes.*
+According to `[REDHAT]` the sector size should be 512 bytes
 | pe_start | The start extent +
-[yellow-background]*TODO: what is this value used for?*
+Ths start extent of the physical volume, contains an offset relative to the start of the physical volume
 | pe_count | The number of (allocated) extents in the physical volume
 |===
 
 === Logical volumes sub section
+
 The logical volumes sub section is defined as:
+
 ....
 logical_volumes {
 <sub sections>
@@ -377,7 +412,9 @@ Where <name> is a place holder for a the logical volume name
 |===
 
 === Logical volume sub section
+
 Each logical volume sub section is defined as:
+
 ....
 <name> {
 <parameters>
@@ -416,7 +453,9 @@ Where # is a place holder for the segment number e.g. segment1. 1 appears to be 
 |===
 
 === Segment sub section
+
 Each segment sub section is defined as:
+
 ....
 segment# {
 <parameters>
@@ -448,10 +487,47 @@ See section: <<segment_types,Segment types>>
 [cols="1,3",options="header"]
 |===
 | Value | Description
+| cache |
+| cache-pool |
+| error | 
+| free | 
+| linear |
+| mirror | 
+| raid0 |
+| raid0_meta |
+| raid1 | 
+| raid10 | 
+| raid10_near |
+| raid4 | 
+| raid5 | 
+| raid5_la | 
+| raid5_ls | 
+| raid5_n |
+| raid5_ra | 
+| raid5_rs | 
+| raid6 | 
+| raid6_la_6 |
+| raid6_n_6 |
+| raid6_nc | 
+| raid6_nr | 
+| raid6_ra_6 |
+| raid6_rs_6 |
+| raid6_zr | 
+| snapshot | 
 | striped | Is striped
+| thin | 
+| thin-pool | 
+| vdo |
+| vdo-pool |
+| writecache |
+| zero | 
 |===
 
+[NOTE]
+This list can be retrieved using `lvm segtypes`.
+
 === Stripes list
+
 ....
 stripes = [
 <physical volume name>, <start extent number>
@@ -505,6 +581,7 @@ Can have a trailing comment that contains the creation time as a ctime (function
 |===
 
 === Comments
+
 Some of the comment in the metadata can be interesting for forensic analysis
 e.g. the version of LVM used.
 
@@ -513,6 +590,7 @@ e.g. the version of LVM used.
 ....
 
 == Notes
+
 === Tools
 
 * vgdisplay
@@ -520,12 +598,15 @@ e.g. the version of LVM used.
 * lvdisplay
 
 === Mapping modes
+
 http://www.tldp.org/HOWTO/LVM-HOWTO/mapmode.html
 
 === Snapshots
+
 http://www.tldp.org/HOWTO/LVM-HOWTO/snapshotintro.html
 
 === Metadata
+
 ....
 1 sector: metadata area header – pointer to metadata
 circular buffer, text format (at least 2 versions of metadata)
@@ -535,6 +616,7 @@ checksum, redundancy, autorepair
 ....
 
 === Metadata sample
+
 ....
 # Generated by LVM2: Tue Jan 30 16:28:15 2007
 
@@ -631,6 +713,7 @@ myvg {
 ....
 
 === Building a test file
+
 ....
 dd if=/dev/zero of=image.raw bs=512 count=$(( 256 * 1024 * 2 ))
 
@@ -677,6 +760,14 @@ sudo losetup -d /dev/loop1
 | URL: | http://lvb.sti.fce.vutbr.cz/public/LinuxAlt_2009/2009_11_08_LA_04_LVM/2009_11_08_LA_04_LVM.pdf
 |===
 
+`[PVDISSECT]`
+
+[cols="1,5",options="header"]
+|===
+| Title: | pvdissect
+| URL: | https://wiki.syslinux.org/wiki/index.php?title=Development/LVM_support/pvdissect
+|===
+
 `[REDHAT]`
 
 [cols="1,5",options="header"]
@@ -688,6 +779,7 @@ sudo losetup -d /dev/loop1
 
 [appendix]
 == GNU Free Documentation License
+
 Version 1.3, 3 November 2008
 Copyright © 2000, 2001, 2002, 2007, 2008 Free Software Foundation, Inc.
 <http://fsf.org/>
@@ -696,6 +788,7 @@ Everyone is permitted to copy and distribute verbatim copies of this license
 document, but changing it is not allowed.
 
 === 0. PREAMBLE
+
 The purpose of this License is to make a manual, textbook, or other functional
 and useful document "free" in the sense of freedom: to assure everyone the
 effective freedom to copy and redistribute it, with or without modifying it,
@@ -716,6 +809,7 @@ recommend this License principally for works whose purpose is instruction or
 reference.
 
 === 1. APPLICABILITY AND DEFINITIONS
+
 This License applies to any manual or other work, in any medium, that contains
 a notice placed by the copyright holder saying it can be distributed under the
 terms of this License. Such a notice grants a world-wide, royalty-free license,
@@ -794,6 +888,7 @@ disclaiming warranties: any other implication that these Warranty Disclaimers
 may have is void and has no effect on the meaning of this License.
 
 === 2. VERBATIM COPYING
+
 You may copy and distribute the Document in any medium, either commercially or
 noncommercially, provided that this License, the copyright notices, and the
 license notice saying this License applies to the Document are reproduced in
@@ -807,6 +902,7 @@ You may also lend copies, under the same conditions stated above, and you may
 publicly display copies.
 
 === 3. COPYING IN QUANTITY
+
 If you publish printed copies (or copies in media that commonly have printed
 covers) of the Document, numbering more than 100, and the Document's license
 notice requires Cover Texts, you must enclose the copies in covers that carry,
@@ -840,6 +936,7 @@ well before redistributing any large number of copies, to give them a chance to
 provide you with an updated version of the Document.
 
 === 4. MODIFICATIONS
+
 You may copy and distribute a Modified Version of the Document under the
 conditions of sections 2 and 3 above, provided that you release the Modified
 Version under precisely this License, with the Modified Version filling the
@@ -932,6 +1029,7 @@ permission to use their names for publicity for or to assert or imply
 endorsement of any Modified Version.
 
 === 5. COMBINING DOCUMENTS
+
 You may combine the Document with other documents released under this License,
 under the terms defined in section 4 above for modified versions, provided that
 you include in the combination all of the Invariant Sections of all of the
@@ -953,6 +1051,7 @@ combine any sections Entitled "Acknowledgements", and any sections Entitled
 "Dedications". You must delete all sections Entitled "Endorsements".
 
 === 6. COLLECTIONS OF DOCUMENTS
+
 You may make a collection consisting of the Document and other documents
 released under this License, and replace the individual copies of this License
 in the various documents with a single copy that is included in the collection,
@@ -965,6 +1064,7 @@ into the extracted document, and follow this License in all other respects
 regarding verbatim copying of that document.
 
 === 7. AGGREGATION WITH INDEPENDENT WORKS
+
 A compilation of the Document or its derivatives with other separate and
 independent documents or works, in or on a volume of a storage or distribution
 medium, is called an "aggregate" if the copyright resulting from the
@@ -981,6 +1081,7 @@ in electronic form. Otherwise they must appear on printed covers that bracket
 the whole aggregate.
 
 === 8. TRANSLATION
+
 Translation is considered a kind of modification, so you may distribute
 translations of the Document under the terms of section 4. Replacing Invariant
 Sections with translations requires special permission from their copyright
@@ -998,6 +1099,7 @@ If a section in the Document is Entitled "Acknowledgements", "Dedications", or
 typically require changing the actual title.
 
 === 9. TERMINATION
+
 You may not copy, modify, sublicense, or distribute the Document except as
 expressly provided under this License. Any attempt otherwise to copy, modify,
 sublicense, or distribute it is void, and will automatically terminate your
@@ -1021,6 +1123,7 @@ your rights have been terminated and not permanently reinstated, receipt of a
 copy of some or all of the same material does not give you any rights to use it.
 
 === 10. FUTURE REVISIONS OF THIS LICENSE
+
 The Free Software Foundation may publish new, revised versions of the GNU Free
 Documentation License from time to time. Such new versions will be similar in
 spirit to the present version, but may differ in detail to address new problems
@@ -1038,6 +1141,7 @@ License can be used, that proxy's public statement of acceptance of a version
 permanently authorizes you to choose that version for the Document.
 
 === 11. RELICENSING
+
 "Massive Multiauthor Collaboration Site" (or "MMC Site") means any World Wide
 Web server that publishes copyrightable works and also provides prominent
 facilities for anybody to edit those works. A public wiki that anybody can edit

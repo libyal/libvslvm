@@ -50,7 +50,14 @@ int libvslvm_metadata_area_free(
      libvslvm_metadata_area_t **metadata_area,
      libcerror_error_t **error );
 
-int libvslvm_metadata_area_read(
+int libvslvm_metadata_area_read_data(
+     libvslvm_metadata_area_t *metadata_area,
+     const uint8_t *data,
+     size_t data_size,
+     off64_t file_offset,
+     libcerror_error_t **error );
+
+int libvslvm_metadata_area_read_file_io_handle(
      libvslvm_metadata_area_t *metadata_area,
      libbfio_handle_t *file_io_handle,
      off64_t file_offset,

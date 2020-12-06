@@ -169,20 +169,16 @@ int libvslvm_metadata_free(
 /* Reads the metadata
  * Returns 1 if successful or -1 on error
  */
-int libvslvm_metadata_read(
+int libvslvm_metadata_read_data(
      libvslvm_metadata_t *metadata,
-     libbfio_handle_t *file_io_handle,
-     off64_t file_offset,
-     size64_t metadata_size,
+     const uint8_t *data,
+     size_t data_size,
+     uint32_t stored_checksum,
      libcerror_error_t **error )
 {
 	libcsplit_narrow_split_string_t *lines = NULL;
-	uint8_t *data                          = NULL;
-	static char *function                  = "libvslvm_metadata_read";
-	ssize_t read_count                     = 0;
-/* TODO add checksum support
+	static char *function                  = "libvslvm_metadata_read_data";
 	uint32_t calculated_checksum           = 0;
-*/
 	int line_index                         = 0;
 	int number_of_lines                    = 0;
 
@@ -197,81 +193,34 @@ int libvslvm_metadata_read(
 
 		return( -1 );
 	}
-#if defined( HAVE_DEBUG_OUTPUT )
-	if( libcnotify_verbose != 0 )
-	{
-		libcnotify_printf(
-		 "%s: reading metadata at offset: %" PRIi64 "\n",
-		 function,
-		 file_offset );
-	}
-#endif
-	if( libbfio_handle_seek_offset(
-	     file_io_handle,
-	     file_offset,
-	     SEEK_SET,
-	     error ) == -1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_IO,
-		 LIBCERROR_IO_ERROR_SEEK_FAILED,
-		 "%s: unable to seek offset: %" PRIi64 " (0x%08" PRIx64 ").",
-		 function,
-		 file_offset,
-		 file_offset );
-
-		goto on_error;
-	}
-	if( ( metadata_size == 0 )
-	 || ( metadata_size > (size64_t) MEMORY_MAXIMUM_ALLOCATION_SIZE ) )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
-		 "%s: metadata size value out of bounds.",
-		 function );
-
-		goto on_error;
-	}
-	data = (uint8_t *) memory_allocate(
-	                    (size_t) metadata_size );
-
 	if( data == NULL )
 	{
 		libcerror_error_set(
 		 error,
-		 LIBCERROR_ERROR_DOMAIN_MEMORY,
-		 LIBCERROR_MEMORY_ERROR_INSUFFICIENT,
-		 "%s: unable to create data.",
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid data.",
 		 function );
 
-		goto on_error;
+		return( -1 );
 	}
-	read_count = libbfio_handle_read_buffer(
-	              file_io_handle,
-	              data,
-	              (size_t) metadata_size,
-	              error );
-
-	if( read_count != (ssize_t) metadata_size )
+	if( ( data_size == 0 )
+	 || ( data_size > (size_t) SSIZE_MAX ) )
 	{
 		libcerror_error_set(
 		 error,
-		 LIBCERROR_ERROR_DOMAIN_IO,
-		 LIBCERROR_IO_ERROR_READ_FAILED,
-		 "%s: unable to read metadata.",
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_VALUE_OUT_OF_BOUNDS,
+		 "%s: invalid data size value out of bounds.",
 		 function );
 
-		goto on_error;
+		return( -1 );
 	}
-/* TODO add checksum support
-	if( libvslvm_checksum_calculate_crc32(
+	if( libvslvm_checksum_calculate_weak_crc32(
 	     &calculated_checksum,
 	     data,
-	     (size_t) metadata_size,
-	     0,
+	     data_size,
+	     0xf597a6cfUL,
 	     error ) != 1 )
 	{
 		libcerror_error_set(
@@ -297,7 +246,6 @@ int libvslvm_metadata_read(
 
 		goto on_error;
 	}
-*/
 #if defined( HAVE_DEBUG_OUTPUT )
 	if( libcnotify_verbose != 0 )
 	{
@@ -309,7 +257,7 @@ int libvslvm_metadata_read(
 #endif
 	if( libcsplit_narrow_string_split(
 	     (char *) data,
-	     (size_t) metadata_size,
+	     data_size,
 	     '\n',
 	     &lines,
 	     error ) != 1 )
@@ -366,9 +314,6 @@ int libvslvm_metadata_read(
 
 		goto on_error;
 	}
-	memory_free(
-	 data );
-
 	return( 1 );
 
 on_error:
@@ -378,6 +323,113 @@ on_error:
 		 &lines,
 		 NULL );
 	}
+	return( -1 );
+}
+
+/* Reads the metadata
+ * Returns 1 if successful or -1 on error
+ */
+int libvslvm_metadata_read_file_io_handle(
+     libvslvm_metadata_t *metadata,
+     libbfio_handle_t *file_io_handle,
+     off64_t file_offset,
+     size64_t metadata_size,
+     uint32_t stored_checksum,
+     libcerror_error_t **error )
+{
+	uint8_t *data         = NULL;
+	static char *function = "libvslvm_metadata_read_file_io_handle";
+	ssize_t read_count    = 0;
+
+	if( metadata == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid metadata.",
+		 function );
+
+		return( -1 );
+	}
+	if( ( metadata_size == 0 )
+	 || ( metadata_size > (size64_t) MEMORY_MAXIMUM_ALLOCATION_SIZE ) )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_VALUE_OUT_OF_BOUNDS,
+		 "%s: invalid metadata size value out of bounds.",
+		 function );
+
+		goto on_error;
+	}
+#if defined( HAVE_DEBUG_OUTPUT )
+	if( libcnotify_verbose != 0 )
+	{
+		libcnotify_printf(
+		 "%s: reading metadata at offset: %" PRIi64 " (0x%08" PRIx64 ")\n",
+		 function,
+		 file_offset,
+		 file_offset );
+	}
+#endif
+	data = (uint8_t *) memory_allocate(
+	                    (size_t) metadata_size );
+
+	if( data == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_MEMORY,
+		 LIBCERROR_MEMORY_ERROR_INSUFFICIENT,
+		 "%s: unable to create data.",
+		 function );
+
+		goto on_error;
+	}
+	read_count = libbfio_handle_read_buffer_at_offset(
+	              file_io_handle,
+	              data,
+	              (size_t) metadata_size,
+	              file_offset,
+	              error );
+
+	if( read_count != (ssize_t) metadata_size )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_IO,
+		 LIBCERROR_IO_ERROR_READ_FAILED,
+		 "%s: unable to read metadata at offset: %" PRIi64 " (0x%08" PRIx64 ").",
+		 function,
+		 file_offset,
+		 file_offset );
+
+		goto on_error;
+	}
+	if( libvslvm_metadata_read_data(
+	     metadata,
+	     data,
+	     (size_t) metadata_size,
+	     stored_checksum,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_IO,
+		 LIBCERROR_IO_ERROR_READ_FAILED,
+		 "%s: unable to read metadata.",
+		 function );
+
+		goto on_error;
+	}
+	memory_free(
+	 data );
+
+	return( 1 );
+
+on_error:
 	if( data != NULL )
 	{
 		memory_free(

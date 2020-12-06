@@ -24,6 +24,7 @@
 #include <memory.h>
 #include <types.h>
 
+#include "libvslvm_checksum.h"
 #include "libvslvm_definitions.h"
 #include "libvslvm_libbfio.h"
 #include "libvslvm_libcdata.h"
@@ -183,23 +184,24 @@ int libvslvm_metadata_area_free(
 /* Reads the metadata area
  * Returns 1 if successful or -1 on error
  */
-int libvslvm_metadata_area_read(
+int libvslvm_metadata_area_read_data(
      libvslvm_metadata_area_t *metadata_area,
-     libbfio_handle_t *file_io_handle,
+     const uint8_t *data,
+     size_t data_size,
      off64_t file_offset,
      libcerror_error_t **error )
 {
-	vslvm_raw_location_descriptor_t raw_location_descriptor_data;
-	vslvm_metadata_area_header_t metadata_area_header;
-
 	libvslvm_raw_location_descriptor_t *raw_location_descriptor = NULL;
-	static char *function                                       = "libvslvm_metadata_area_read";
-	ssize_t read_count                                          = 0;
+	static char *function                                       = "libvslvm_metadata_area_read_data";
+	size_t data_offset                                          = 0;
 	uint64_t offset                                             = 0;
 	uint64_t size                                               = 0;
+	uint32_t calculated_checksum                                = 0;
 	uint32_t checksum                                           = 0;
 	uint32_t flags                                              = 0;
+	uint32_t stored_checksum                                    = 0;
 	int entry_index                                             = 0;
+	int raw_location_descriptor_index                           = 0;
 	int result                                                  = 0;
 
 #if defined( HAVE_DEBUG_OUTPUT )
@@ -218,48 +220,27 @@ int libvslvm_metadata_area_read(
 
 		return( -1 );
 	}
-#if defined( HAVE_DEBUG_OUTPUT )
-	if( libcnotify_verbose != 0 )
-	{
-		libcnotify_printf(
-		 "%s: reading metadata area at offset: %" PRIi64 "\n",
-		 function,
-		 file_offset );
-	}
-#endif
-	if( libbfio_handle_seek_offset(
-	     file_io_handle,
-	     file_offset,
-	     SEEK_SET,
-	     error ) == -1 )
+	if( data == NULL )
 	{
 		libcerror_error_set(
 		 error,
-		 LIBCERROR_ERROR_DOMAIN_IO,
-		 LIBCERROR_IO_ERROR_SEEK_FAILED,
-		 "%s: unable to seek offset: %" PRIi64 " (0x%08" PRIx64 ").",
-		 function,
-		 file_offset,
-		 file_offset );
-
-		goto on_error;
-	}
-	read_count = libbfio_handle_read_buffer(
-	              file_io_handle,
-	              (uint8_t *) &metadata_area_header,
-	              sizeof( vslvm_metadata_area_header_t ),
-	              error );
-
-	if( read_count != (ssize_t) sizeof( vslvm_metadata_area_header_t ) )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_IO,
-		 LIBCERROR_IO_ERROR_READ_FAILED,
-		 "%s: unable to read metadata area header.",
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid data.",
 		 function );
 
-		goto on_error;
+		return( -1 );
+	}
+	if( data_size != 512 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_VALUE_OUT_OF_BOUNDS,
+		 "%s: invalid data size value out of bounds.",
+		 function );
+
+		return( -1 );
 	}
 #if defined( HAVE_DEBUG_OUTPUT )
 	if( libcnotify_verbose != 0 )
@@ -268,13 +249,13 @@ int libvslvm_metadata_area_read(
 		 "%s: metadata area header data:\n",
 		 function );
 		libcnotify_print_data(
-		 (uint8_t *) &metadata_area_header,
+		 data,
 		 sizeof( vslvm_metadata_area_header_t ),
 		 0 );
 	}
 #endif
 	if( memory_compare(
-	     metadata_area_header.signature,
+	     ( (vslvm_metadata_area_header_t *) data )->signature,
 	     vslvm_metadata_area_signature,
 	     8 ) != 0 )
 	{
@@ -287,47 +268,48 @@ int libvslvm_metadata_area_read(
 
 		goto on_error;
 	}
+	byte_stream_copy_to_uint32_little_endian(
+	 data,
+	 stored_checksum );
+
 #if defined( HAVE_DEBUG_OUTPUT )
 	if( libcnotify_verbose != 0 )
 	{
-		byte_stream_copy_to_uint32_little_endian(
-		 metadata_area_header.checksum,
-		 value_32bit );
 		libcnotify_printf(
-		 "%s: checksum\t\t\t\t\t: 0x%08" PRIx32 "\n",
+		 "%s: checksum\t\t\t\t: 0x%08" PRIx32 "\n",
 		 function,
-		 value_32bit );
+		 stored_checksum );
 
 		libcnotify_printf(
-		 "%s: signature\t\t\t\t\t: %c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c\n",
+		 "%s: signature\t\t\t\t: %c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c\n",
 		 function,
-		 metadata_area_header.signature[ 0 ],
-		 metadata_area_header.signature[ 1 ],
-		 metadata_area_header.signature[ 2 ],
-		 metadata_area_header.signature[ 3 ],
-		 metadata_area_header.signature[ 4 ],
-		 metadata_area_header.signature[ 5 ],
-		 metadata_area_header.signature[ 6 ],
-		 metadata_area_header.signature[ 7 ],
-		 metadata_area_header.signature[ 8 ],
-		 metadata_area_header.signature[ 9 ],
-		 metadata_area_header.signature[ 10 ],
-		 metadata_area_header.signature[ 11 ],
-		 metadata_area_header.signature[ 12 ],
-		 metadata_area_header.signature[ 13 ],
-		 metadata_area_header.signature[ 14 ],
-		 metadata_area_header.signature[ 15 ] );
+		 ( (vslvm_metadata_area_header_t *) data )->signature[ 0 ],
+		 ( (vslvm_metadata_area_header_t *) data )->signature[ 1 ],
+		 ( (vslvm_metadata_area_header_t *) data )->signature[ 2 ],
+		 ( (vslvm_metadata_area_header_t *) data )->signature[ 3 ],
+		 ( (vslvm_metadata_area_header_t *) data )->signature[ 4 ],
+		 ( (vslvm_metadata_area_header_t *) data )->signature[ 5 ],
+		 ( (vslvm_metadata_area_header_t *) data )->signature[ 6 ],
+		 ( (vslvm_metadata_area_header_t *) data )->signature[ 7 ],
+		 ( (vslvm_metadata_area_header_t *) data )->signature[ 8 ],
+		 ( (vslvm_metadata_area_header_t *) data )->signature[ 9 ],
+		 ( (vslvm_metadata_area_header_t *) data )->signature[ 10 ],
+		 ( (vslvm_metadata_area_header_t *) data )->signature[ 11 ],
+		 ( (vslvm_metadata_area_header_t *) data )->signature[ 12 ],
+		 ( (vslvm_metadata_area_header_t *) data )->signature[ 13 ],
+		 ( (vslvm_metadata_area_header_t *) data )->signature[ 14 ],
+		 ( (vslvm_metadata_area_header_t *) data )->signature[ 15 ] );
 
 		byte_stream_copy_to_uint32_little_endian(
-		 metadata_area_header.version,
+		 ( (vslvm_metadata_area_header_t *) data )->version,
 		 value_32bit );
 		libcnotify_printf(
-		 "%s: version\t\t\t\t\t: %" PRIu32 "\n",
+		 "%s: version\t\t\t\t: %" PRIu32 "\n",
 		 function,
 		 value_32bit );
 
 		byte_stream_copy_to_uint64_little_endian(
-		 metadata_area_header.data_offset,
+		 ( (vslvm_metadata_area_header_t *) data )->data_offset,
 		 value_64bit );
 		libcnotify_printf(
 		 "%s: data offset\t\t\t\t: 0x%08" PRIx64 "\n",
@@ -335,78 +317,95 @@ int libvslvm_metadata_area_read(
 		 value_64bit );
 
 		byte_stream_copy_to_uint64_little_endian(
-		 metadata_area_header.data_size,
+		 ( (vslvm_metadata_area_header_t *) data )->data_size,
 		 value_64bit );
 		libcnotify_printf(
-		 "%s: data size\t\t\t\t\t: %" PRIu64 "\n",
+		 "%s: data size\t\t\t\t: %" PRIu64 "\n",
 		 function,
 		 value_64bit );
 
 		libcnotify_printf(
 		 "\n" );
 	}
-#endif
-/* TODO calculate checksum */
+#endif /* defined( HAVE_DEBUG_OUTPUT ) */
 
-	do
+	if( libvslvm_checksum_calculate_weak_crc32(
+	     &calculated_checksum,
+	     &( data[ 4 ] ),
+	     data_size - 4,
+	     0xf597a6cfUL,
+	     error ) != 1 )
 	{
-		read_count = libbfio_handle_read_buffer(
-		              file_io_handle,
-		              (uint8_t *) &raw_location_descriptor_data,
-		              sizeof( vslvm_raw_location_descriptor_t ),
-		              error );
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
+		 "%s: unable to calculate CRC-32.",
+		 function );
 
-		if( read_count != (ssize_t) sizeof( vslvm_raw_location_descriptor_t ) )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_IO,
-			 LIBCERROR_IO_ERROR_READ_FAILED,
-			 "%s: unable to read raw location descriptor.",
-			 function );
+		goto on_error;
+	}
+	if( ( stored_checksum != 0 )
+	 && ( stored_checksum != calculated_checksum ) )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_INPUT,
+		 LIBCERROR_INPUT_ERROR_CHECKSUM_MISMATCH,
+		 "%s: mismatch in checksum ( 0x%08" PRIx32 " != 0x%08" PRIx32 " ).",
+		 function,
+		 stored_checksum,
+		 calculated_checksum );
 
-			goto on_error;
-		}
+		goto on_error;
+	}
+	data_offset = sizeof( vslvm_metadata_area_header_t );
+
+	for( raw_location_descriptor_index = 0;
+	     raw_location_descriptor_index < 4;
+	     raw_location_descriptor_index++ )
+	{
 #if defined( HAVE_DEBUG_OUTPUT )
 		if( libcnotify_verbose != 0 )
 		{
 			libcnotify_printf(
-			 "%s: raw location descriptor data:\n",
-			 function );
+			 "%s: raw location descriptor: %d data:\n",
+			 function,
+			 raw_location_descriptor_index );
 			libcnotify_print_data(
-			 (uint8_t *) &raw_location_descriptor_data,
+			 &( data[ data_offset ] ),
 			 sizeof( vslvm_raw_location_descriptor_t ),
 			 0 );
 		}
 #endif
 		result = memory_compare(
-		          (uint8_t *) &raw_location_descriptor_data,
+		          &( data[ data_offset ] ),
 		          vslvm_empty_raw_location_descriptor,
 		          sizeof( vslvm_raw_location_descriptor_t ) );
 
 		if( result != 0 )
 		{
 			byte_stream_copy_to_uint64_little_endian(
-			 raw_location_descriptor_data.offset,
+			 ( (vslvm_raw_location_descriptor_t *) &( data[ data_offset ] ) )->offset,
 			 offset );
 
 			byte_stream_copy_to_uint64_little_endian(
-			 raw_location_descriptor_data.size,
+			 ( (vslvm_raw_location_descriptor_t *) &( data[ data_offset ] ) )->size,
 			 size );
 
 			byte_stream_copy_to_uint32_little_endian(
-			 raw_location_descriptor_data.checksum,
+			 ( (vslvm_raw_location_descriptor_t *) &( data[ data_offset ] ) )->checksum,
 			 checksum );
 
 			byte_stream_copy_to_uint32_little_endian(
-			 raw_location_descriptor_data.flags,
+			 ( (vslvm_raw_location_descriptor_t *) &( data[ data_offset ] ) )->flags,
 			 flags );
 
 #if defined( HAVE_DEBUG_OUTPUT )
 			if( libcnotify_verbose != 0 )
 			{
 				libcnotify_printf(
-				 "%s: offset\t\t\t\t\t: 0x%08" PRIx64 "\n",
+				 "%s: offset\t\t\t\t: 0x%08" PRIx64 "\n",
 				 function,
 				 offset );
 
@@ -416,7 +415,7 @@ int libvslvm_metadata_area_read(
 				 size );
 
 				libcnotify_printf(
-				 "%s: checksum\t\t\t\t\t: 0x%08" PRIx32 "\n",
+				 "%s: checksum\t\t\t\t: 0x%08" PRIx32 "\n",
 				 function,
 				 checksum );
 
@@ -428,7 +427,8 @@ int libvslvm_metadata_area_read(
 				libcnotify_printf(
 				 "\n" );
 			}
-#endif
+#endif /* defined( HAVE_DEBUG_OUTPUT ) */
+
 			if( ( flags & LIBVSLVM_RAW_LOCATION_DESCRIPTOR_FLAG_IGNORE ) == 0 )
 			{
 				if( libvslvm_raw_location_descriptor_initialize(
@@ -479,9 +479,8 @@ int libvslvm_metadata_area_read(
 				raw_location_descriptor = NULL;
 			}
 		}
+		data_offset += sizeof( vslvm_raw_location_descriptor_t );
 	}
-	while( result != 0 );
-
 	return( 1 );
 
 on_error:
@@ -497,5 +496,79 @@ on_error:
 	 NULL );
 
 	return( -1 );
+}
+
+/* Reads the metadata area
+ * Returns 1 if successful or -1 on error
+ */
+int libvslvm_metadata_area_read_file_io_handle(
+     libvslvm_metadata_area_t *metadata_area,
+     libbfio_handle_t *file_io_handle,
+     off64_t file_offset,
+     libcerror_error_t **error )
+{
+	uint8_t metadata_area_header_data[ 512 ];
+
+	static char *function = "libvslvm_metadata_area_read_file_io_handle";
+	ssize_t read_count    = 0;
+
+	if( metadata_area == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid metadata area.",
+		 function );
+
+		return( -1 );
+	}
+#if defined( HAVE_DEBUG_OUTPUT )
+	if( libcnotify_verbose != 0 )
+	{
+		libcnotify_printf(
+		 "%s: reading metadata area at offset: %" PRIi64 " (0x%08" PRIx64 ")\n",
+		 function,
+		 file_offset,
+		 file_offset );
+	}
+#endif
+	read_count = libbfio_handle_read_buffer_at_offset(
+	              file_io_handle,
+	              metadata_area_header_data,
+	              512,
+	              file_offset,
+	              error );
+
+	if( read_count != (ssize_t) 512 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_IO,
+		 LIBCERROR_IO_ERROR_READ_FAILED,
+		 "%s: unable to read metadata area header at offset: %" PRIi64 " (0x%08" PRIx64 ").",
+		 function,
+		 file_offset,
+		 file_offset );
+
+		return( -1 );
+	}
+	if( libvslvm_metadata_area_read_data(
+	     metadata_area,
+	     metadata_area_header_data,
+	     512,
+	     file_offset,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_IO,
+		 LIBCERROR_IO_ERROR_READ_FAILED,
+		 "%s: unable to read metadata area header.",
+		 function );
+
+		return( -1 );
+	}
+	return( 1 );
 }
 

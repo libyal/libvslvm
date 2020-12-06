@@ -53,11 +53,19 @@ int libvslvm_metadata_free(
      libvslvm_metadata_t **metadata,
      libcerror_error_t **error );
 
-int libvslvm_metadata_read(
+int libvslvm_metadata_read_data(
+     libvslvm_metadata_t *metadata,
+     const uint8_t *data,
+     size_t data_size,
+     uint32_t stored_checksum,
+     libcerror_error_t **error );
+
+int libvslvm_metadata_read_file_io_handle(
      libvslvm_metadata_t *metadata,
      libbfio_handle_t *file_io_handle,
      off64_t file_offset,
      size64_t metadata_size,
+     uint32_t stored_checksum,
      libcerror_error_t **error );
 
 int libvslvm_metadata_read_volume_group(

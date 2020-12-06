@@ -1876,13 +1876,13 @@ int libvslvm_internal_handle_open_read(
 	libvslvm_physical_volume_t *physical_volume                 = NULL;
 	libvslvm_raw_location_descriptor_t *raw_location_descriptor = NULL;
 	static char *function                                       = "libvslvm_internal_handle_open_read";
-	off64_t file_offset                                         = 0;
-	off64_t data_area_offset                                    = 0;
-	off64_t metadata_offset                                     = 0;
 	size64_t data_area_size                                     = 0;
 	size64_t metadata_size                                      = 0;
-	uint32_t raw_location_descriptor_checksum                   = 0;
+	off64_t data_area_offset                                    = 0;
+	off64_t file_offset                                         = 0;
+	off64_t metadata_offset                                     = 0;
 	uint32_t raw_location_descriptor_flags                      = 0;
+	uint32_t stored_checksum                                    = 0;
 	int number_of_data_area_descriptors                         = 0;
 	int number_of_raw_location_descriptors                      = 0;
 	int result                                                  = 0;
@@ -2082,7 +2082,7 @@ int libvslvm_internal_handle_open_read(
 
 		goto on_error;
 	}
-	if( libvslvm_metadata_area_read(
+	if( libvslvm_metadata_area_read_file_io_handle(
 	     metadata_area,
 	     file_io_handle,
 	     data_area_offset,
@@ -2142,7 +2142,7 @@ int libvslvm_internal_handle_open_read(
 	     raw_location_descriptor,
 	     &metadata_offset,
 	     &metadata_size,
-	     &raw_location_descriptor_checksum,
+	     &stored_checksum,
 	     &raw_location_descriptor_flags,
 	     error ) != 1 )
 	{
@@ -2183,11 +2183,12 @@ int libvslvm_internal_handle_open_read(
 
 		goto on_error;
 	}
-	if( libvslvm_metadata_read(
+	if( libvslvm_metadata_read_file_io_handle(
 	     internal_handle->metadata,
 	     file_io_handle,
 	     metadata_offset,
 	     metadata_size,
+	     stored_checksum,
 	     error ) != 1 )
 	{
 		libcerror_error_set(
