@@ -30,7 +30,11 @@
 
 #include <libvslvm/extern.h>
 
+#if defined( __CYGWIN__ ) || defined( __MINGW32__ )
+#define LIBVSLVM_EXTERN_VARIABLE	extern
+#else
 #define LIBVSLVM_EXTERN_VARIABLE	LIBVSLVM_EXTERN
+#endif
 
 #else
 #define LIBVSLVM_EXTERN		/* extern */
