@@ -1651,7 +1651,7 @@ int libvslvm_internal_handle_open_read_data_area_table(
 
 		while( file_offset < 2048 )
 		{
-			result = libvslvm_physical_volume_read_label(
+			result = libvslvm_physical_volume_read_label_file_io_pool(
 				  physical_volume,
 				  file_io_pool,
 				  physical_volume_index,
@@ -1957,7 +1957,7 @@ int libvslvm_internal_handle_open_read(
 	 */
 	while( file_offset < 2048 )
 	{
-		result = libvslvm_physical_volume_read_label(
+		result = libvslvm_physical_volume_read_label_file_io_pool(
 		          physical_volume,
 		          file_io_pool,
 		          0,

@@ -186,7 +186,13 @@ int libvslvm_physical_volume_get_metadata_area_descriptor(
      libvslvm_data_area_descriptor_t **data_area_descriptor,
      libcerror_error_t **error );
 
-int libvslvm_physical_volume_read_label(
+int libvslvm_internal_physical_volume_read_label_data(
+     libvslvm_internal_physical_volume_t *internal_physical_volume,
+     const uint8_t *data,
+     size_t data_size,
+     libcerror_error_t **error );
+
+int libvslvm_physical_volume_read_label_file_io_pool(
      libvslvm_physical_volume_t *physical_volume,
      libbfio_pool_t *file_io_pool,
      int file_io_pool_entry,

@@ -1250,36 +1250,33 @@ int libvslvm_physical_volume_get_metadata_area_descriptor(
 	return( 1 );
 }
 
+/* TODO move function into libvslvm_physical_volume_label.c */
+
 /* Reads a physical volume label
  * Returns 1 if successful, 0 if not found or -1 on error
  */
-int libvslvm_physical_volume_read_label(
-     libvslvm_physical_volume_t *physical_volume,
-     libbfio_pool_t *file_io_pool,
-     int file_io_pool_entry,
-     off64_t file_offset,
+int libvslvm_internal_physical_volume_read_label_data(
+     libvslvm_internal_physical_volume_t *internal_physical_volume,
+     const uint8_t *data,
+     size_t data_size,
      libcerror_error_t **error )
 {
-	uint8_t physical_volume_label_data[ 512 ];
-
-	libvslvm_data_area_descriptor_t *data_area_descriptor         = NULL;
-	libvslvm_internal_physical_volume_t *internal_physical_volume = NULL;
-	static char *function                                         = "libvslvm_physical_volume_read_label";
-	size_t data_offset                                            = 0;
-	ssize_t read_count                                            = 0;
-	uint64_t offset                                               = 0;
-	uint64_t size                                                 = 0;
-	uint32_t calculated_checksum                                  = 0;
-	uint32_t stored_checksum                                      = 0;
-	int entry_index                                               = 0;
-	int result                                                    = 0;
+	libvslvm_data_area_descriptor_t *data_area_descriptor = NULL;
+	static char *function                                 = "libvslvm_internal_physical_volume_read_label_data";
+	size_t data_offset                                    = 0;
+	uint64_t offset                                       = 0;
+	uint64_t size                                         = 0;
+	uint32_t calculated_checksum                          = 0;
+	uint32_t stored_checksum                              = 0;
+	int entry_index                                       = 0;
+	int result                                            = 0;
 
 #if defined( HAVE_DEBUG_OUTPUT )
-	uint64_t value_64bit                                          = 0;
-	uint32_t value_32bit                                          = 0;
+	uint64_t value_64bit                                  = 0;
+	uint32_t value_32bit                                  = 0;
 #endif
 
-	if( physical_volume == NULL )
+	if( internal_physical_volume == NULL )
 	{
 		libcerror_error_set(
 		 error,
@@ -1290,38 +1287,28 @@ int libvslvm_physical_volume_read_label(
 
 		return( -1 );
 	}
-	internal_physical_volume = (libvslvm_internal_physical_volume_t *) physical_volume;
-
-#if defined( HAVE_DEBUG_OUTPUT )
-	if( libcnotify_verbose != 0 )
-	{
-		libcnotify_printf(
-		 "%s: reading physical volume label at offset: %" PRIi64 " (0x%08" PRIx64 ")\n",
-		 function,
-		 file_offset,
-		 file_offset );
-	}
-#endif
-	read_count = libbfio_pool_read_buffer_at_offset(
-	              file_io_pool,
-	              file_io_pool_entry,
-	              physical_volume_label_data,
-	              512,
-	              file_offset,
-	              error );
-
-	if( read_count != (ssize_t) 512 )
+	if( data == NULL )
 	{
 		libcerror_error_set(
 		 error,
-		 LIBCERROR_ERROR_DOMAIN_IO,
-		 LIBCERROR_IO_ERROR_READ_FAILED,
-		 "%s: unable to read physical volume label header at offset %" PRIi64 " (0x%08" PRIx64 ").",
-		 function,
-		 file_offset,
-		 file_offset );
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid data.",
+		 function );
 
-		goto on_error;
+		return( -1 );
+	}
+	if( ( data_size == 0 )
+	 || ( data_size > (size_t) SSIZE_MAX ) )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_VALUE_OUT_OF_BOUNDS,
+		 "%s: invalid data size value out of bounds.",
+		 function );
+
+		return( -1 );
 	}
 #if defined( HAVE_DEBUG_OUTPUT )
 	if( libcnotify_verbose != 0 )
@@ -1330,7 +1317,7 @@ int libvslvm_physical_volume_read_label(
 		 "%s: physical volume label data:\n",
 		 function );
 		libcnotify_print_data(
-		 physical_volume_label_data,
+		 data,
 		 512,
 		 0 );
 	}
@@ -1342,20 +1329,20 @@ int libvslvm_physical_volume_read_label(
 		 "%s: physical volume label header:\n",
 		 function );
 		libcnotify_print_data(
-		 physical_volume_label_data,
+		 data,
 		 sizeof( vslvm_physical_volume_label_header_t ),
 		 0 );
 	}
 #endif
 	if( memory_compare(
-	     ( (vslvm_physical_volume_label_header_t *) physical_volume_label_data )->signature,
+	     ( (vslvm_physical_volume_label_header_t *) data )->signature,
 	     vslvm_physical_volume_label_signature,
 	     8 ) != 0 )
 	{
 		return( 0 );
 	}
 	byte_stream_copy_to_uint32_little_endian(
-	 ( (vslvm_physical_volume_label_header_t *) physical_volume_label_data )->checksum,
+	 ( (vslvm_physical_volume_label_header_t *) data )->checksum,
 	 stored_checksum );
 
 #if defined( HAVE_DEBUG_OUTPUT )
@@ -1364,17 +1351,17 @@ int libvslvm_physical_volume_read_label(
 		libcnotify_printf(
 		 "%s: signature\t\t\t\t: %c%c%c%c%c%c%c%c\n",
 		 function,
-		 ( (vslvm_physical_volume_label_header_t *) physical_volume_label_data )->signature[ 0 ],
-		 ( (vslvm_physical_volume_label_header_t *) physical_volume_label_data )->signature[ 1 ],
-		 ( (vslvm_physical_volume_label_header_t *) physical_volume_label_data )->signature[ 2 ],
-		 ( (vslvm_physical_volume_label_header_t *) physical_volume_label_data )->signature[ 3 ],
-		 ( (vslvm_physical_volume_label_header_t *) physical_volume_label_data )->signature[ 4 ],
-		 ( (vslvm_physical_volume_label_header_t *) physical_volume_label_data )->signature[ 5 ],
-		 ( (vslvm_physical_volume_label_header_t *) physical_volume_label_data )->signature[ 6 ],
-		 ( (vslvm_physical_volume_label_header_t *) physical_volume_label_data )->signature[ 7 ] );
+		 ( (vslvm_physical_volume_label_header_t *) data )->signature[ 0 ],
+		 ( (vslvm_physical_volume_label_header_t *) data )->signature[ 1 ],
+		 ( (vslvm_physical_volume_label_header_t *) data )->signature[ 2 ],
+		 ( (vslvm_physical_volume_label_header_t *) data )->signature[ 3 ],
+		 ( (vslvm_physical_volume_label_header_t *) data )->signature[ 4 ],
+		 ( (vslvm_physical_volume_label_header_t *) data )->signature[ 5 ],
+		 ( (vslvm_physical_volume_label_header_t *) data )->signature[ 6 ],
+		 ( (vslvm_physical_volume_label_header_t *) data )->signature[ 7 ] );
 
 		byte_stream_copy_to_uint64_little_endian(
-		 ( (vslvm_physical_volume_label_header_t *) physical_volume_label_data )->sector_number,
+		 ( (vslvm_physical_volume_label_header_t *) data )->sector_number,
 		 value_64bit );
 		libcnotify_printf(
 		 "%s: sector number\t\t\t: %" PRIu64 "\n",
@@ -1387,7 +1374,7 @@ int libvslvm_physical_volume_read_label(
 		 stored_checksum );
 
 		byte_stream_copy_to_uint32_little_endian(
-		 ( (vslvm_physical_volume_label_header_t *) physical_volume_label_data )->data_offset,
+		 ( (vslvm_physical_volume_label_header_t *) data )->data_offset,
 		 value_32bit );
 		libcnotify_printf(
 		 "%s: data offset\t\t\t: 0x%08" PRIx32 "\n",
@@ -1397,14 +1384,14 @@ int libvslvm_physical_volume_read_label(
 		libcnotify_printf(
 		 "%s: type indicator\t\t\t: %c%c%c%c%c%c%c%c\n",
 		 function,
-		 ( (vslvm_physical_volume_label_header_t *) physical_volume_label_data )->type_indicator[ 0 ],
-		 ( (vslvm_physical_volume_label_header_t *) physical_volume_label_data )->type_indicator[ 1 ],
-		 ( (vslvm_physical_volume_label_header_t *) physical_volume_label_data )->type_indicator[ 2 ],
-		 ( (vslvm_physical_volume_label_header_t *) physical_volume_label_data )->type_indicator[ 3 ],
-		 ( (vslvm_physical_volume_label_header_t *) physical_volume_label_data )->type_indicator[ 4 ],
-		 ( (vslvm_physical_volume_label_header_t *) physical_volume_label_data )->type_indicator[ 5 ],
-		 ( (vslvm_physical_volume_label_header_t *) physical_volume_label_data )->type_indicator[ 6 ],
-		 ( (vslvm_physical_volume_label_header_t *) physical_volume_label_data )->type_indicator[ 7 ] );
+		 ( (vslvm_physical_volume_label_header_t *) data )->type_indicator[ 0 ],
+		 ( (vslvm_physical_volume_label_header_t *) data )->type_indicator[ 1 ],
+		 ( (vslvm_physical_volume_label_header_t *) data )->type_indicator[ 2 ],
+		 ( (vslvm_physical_volume_label_header_t *) data )->type_indicator[ 3 ],
+		 ( (vslvm_physical_volume_label_header_t *) data )->type_indicator[ 4 ],
+		 ( (vslvm_physical_volume_label_header_t *) data )->type_indicator[ 5 ],
+		 ( (vslvm_physical_volume_label_header_t *) data )->type_indicator[ 6 ],
+		 ( (vslvm_physical_volume_label_header_t *) data )->type_indicator[ 7 ] );
 
 		libcnotify_printf(
 		 "\n" );
@@ -1413,7 +1400,7 @@ int libvslvm_physical_volume_read_label(
 
 	if( libvslvm_checksum_calculate_weak_crc32(
 	     &calculated_checksum,
-	     &( physical_volume_label_data[ 20 ] ),
+	     &( data[ 20 ] ),
 	     512 - 20,
 	     0xf597a6cfUL,
 	     error ) != 1 )
@@ -1450,7 +1437,7 @@ int libvslvm_physical_volume_read_label(
 		 "%s: physical volume header data:\n",
 		 function );
 		libcnotify_print_data(
-		 &( physical_volume_label_data[ data_offset ] ),
+		 &( data[ data_offset ] ),
 		 sizeof( vslvm_physical_volume_header_t ),
 		 0 );
 	}
@@ -1461,41 +1448,41 @@ int libvslvm_physical_volume_read_label(
 		libcnotify_printf(
 		 "%s: identifier\t\t\t\t: %c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c\n",
 		 function,
-		 ( (vslvm_physical_volume_header_t *) &( physical_volume_label_data[ data_offset ] ) )->identifier[ 0 ],
-		 ( (vslvm_physical_volume_header_t *) &( physical_volume_label_data[ data_offset ] ) )->identifier[ 1 ],
-		 ( (vslvm_physical_volume_header_t *) &( physical_volume_label_data[ data_offset ] ) )->identifier[ 2 ],
-		 ( (vslvm_physical_volume_header_t *) &( physical_volume_label_data[ data_offset ] ) )->identifier[ 3 ],
-		 ( (vslvm_physical_volume_header_t *) &( physical_volume_label_data[ data_offset ] ) )->identifier[ 4 ],
-		 ( (vslvm_physical_volume_header_t *) &( physical_volume_label_data[ data_offset ] ) )->identifier[ 5 ],
-		 ( (vslvm_physical_volume_header_t *) &( physical_volume_label_data[ data_offset ] ) )->identifier[ 6 ],
-		 ( (vslvm_physical_volume_header_t *) &( physical_volume_label_data[ data_offset ] ) )->identifier[ 7 ],
-		 ( (vslvm_physical_volume_header_t *) &( physical_volume_label_data[ data_offset ] ) )->identifier[ 8 ],
-		 ( (vslvm_physical_volume_header_t *) &( physical_volume_label_data[ data_offset ] ) )->identifier[ 9 ],
-		 ( (vslvm_physical_volume_header_t *) &( physical_volume_label_data[ data_offset ] ) )->identifier[ 10 ],
-		 ( (vslvm_physical_volume_header_t *) &( physical_volume_label_data[ data_offset ] ) )->identifier[ 11 ],
-		 ( (vslvm_physical_volume_header_t *) &( physical_volume_label_data[ data_offset ] ) )->identifier[ 12 ],
-		 ( (vslvm_physical_volume_header_t *) &( physical_volume_label_data[ data_offset ] ) )->identifier[ 13 ],
-		 ( (vslvm_physical_volume_header_t *) &( physical_volume_label_data[ data_offset ] ) )->identifier[ 14 ],
-		 ( (vslvm_physical_volume_header_t *) &( physical_volume_label_data[ data_offset ] ) )->identifier[ 15 ],
-		 ( (vslvm_physical_volume_header_t *) &( physical_volume_label_data[ data_offset ] ) )->identifier[ 16 ],
-		 ( (vslvm_physical_volume_header_t *) &( physical_volume_label_data[ data_offset ] ) )->identifier[ 17 ],
-		 ( (vslvm_physical_volume_header_t *) &( physical_volume_label_data[ data_offset ] ) )->identifier[ 18 ],
-		 ( (vslvm_physical_volume_header_t *) &( physical_volume_label_data[ data_offset ] ) )->identifier[ 19 ],
-		 ( (vslvm_physical_volume_header_t *) &( physical_volume_label_data[ data_offset ] ) )->identifier[ 20 ],
-		 ( (vslvm_physical_volume_header_t *) &( physical_volume_label_data[ data_offset ] ) )->identifier[ 21 ],
-		 ( (vslvm_physical_volume_header_t *) &( physical_volume_label_data[ data_offset ] ) )->identifier[ 22 ],
-		 ( (vslvm_physical_volume_header_t *) &( physical_volume_label_data[ data_offset ] ) )->identifier[ 23 ],
-		 ( (vslvm_physical_volume_header_t *) &( physical_volume_label_data[ data_offset ] ) )->identifier[ 24 ],
-		 ( (vslvm_physical_volume_header_t *) &( physical_volume_label_data[ data_offset ] ) )->identifier[ 25 ],
-		 ( (vslvm_physical_volume_header_t *) &( physical_volume_label_data[ data_offset ] ) )->identifier[ 26 ],
-		 ( (vslvm_physical_volume_header_t *) &( physical_volume_label_data[ data_offset ] ) )->identifier[ 27 ],
-		 ( (vslvm_physical_volume_header_t *) &( physical_volume_label_data[ data_offset ] ) )->identifier[ 28 ],
-		 ( (vslvm_physical_volume_header_t *) &( physical_volume_label_data[ data_offset ] ) )->identifier[ 29 ],
-		 ( (vslvm_physical_volume_header_t *) &( physical_volume_label_data[ data_offset ] ) )->identifier[ 30 ],
-		 ( (vslvm_physical_volume_header_t *) &( physical_volume_label_data[ data_offset ] ) )->identifier[ 31 ] );
+		 ( (vslvm_physical_volume_header_t *) &( data[ data_offset ] ) )->identifier[ 0 ],
+		 ( (vslvm_physical_volume_header_t *) &( data[ data_offset ] ) )->identifier[ 1 ],
+		 ( (vslvm_physical_volume_header_t *) &( data[ data_offset ] ) )->identifier[ 2 ],
+		 ( (vslvm_physical_volume_header_t *) &( data[ data_offset ] ) )->identifier[ 3 ],
+		 ( (vslvm_physical_volume_header_t *) &( data[ data_offset ] ) )->identifier[ 4 ],
+		 ( (vslvm_physical_volume_header_t *) &( data[ data_offset ] ) )->identifier[ 5 ],
+		 ( (vslvm_physical_volume_header_t *) &( data[ data_offset ] ) )->identifier[ 6 ],
+		 ( (vslvm_physical_volume_header_t *) &( data[ data_offset ] ) )->identifier[ 7 ],
+		 ( (vslvm_physical_volume_header_t *) &( data[ data_offset ] ) )->identifier[ 8 ],
+		 ( (vslvm_physical_volume_header_t *) &( data[ data_offset ] ) )->identifier[ 9 ],
+		 ( (vslvm_physical_volume_header_t *) &( data[ data_offset ] ) )->identifier[ 10 ],
+		 ( (vslvm_physical_volume_header_t *) &( data[ data_offset ] ) )->identifier[ 11 ],
+		 ( (vslvm_physical_volume_header_t *) &( data[ data_offset ] ) )->identifier[ 12 ],
+		 ( (vslvm_physical_volume_header_t *) &( data[ data_offset ] ) )->identifier[ 13 ],
+		 ( (vslvm_physical_volume_header_t *) &( data[ data_offset ] ) )->identifier[ 14 ],
+		 ( (vslvm_physical_volume_header_t *) &( data[ data_offset ] ) )->identifier[ 15 ],
+		 ( (vslvm_physical_volume_header_t *) &( data[ data_offset ] ) )->identifier[ 16 ],
+		 ( (vslvm_physical_volume_header_t *) &( data[ data_offset ] ) )->identifier[ 17 ],
+		 ( (vslvm_physical_volume_header_t *) &( data[ data_offset ] ) )->identifier[ 18 ],
+		 ( (vslvm_physical_volume_header_t *) &( data[ data_offset ] ) )->identifier[ 19 ],
+		 ( (vslvm_physical_volume_header_t *) &( data[ data_offset ] ) )->identifier[ 20 ],
+		 ( (vslvm_physical_volume_header_t *) &( data[ data_offset ] ) )->identifier[ 21 ],
+		 ( (vslvm_physical_volume_header_t *) &( data[ data_offset ] ) )->identifier[ 22 ],
+		 ( (vslvm_physical_volume_header_t *) &( data[ data_offset ] ) )->identifier[ 23 ],
+		 ( (vslvm_physical_volume_header_t *) &( data[ data_offset ] ) )->identifier[ 24 ],
+		 ( (vslvm_physical_volume_header_t *) &( data[ data_offset ] ) )->identifier[ 25 ],
+		 ( (vslvm_physical_volume_header_t *) &( data[ data_offset ] ) )->identifier[ 26 ],
+		 ( (vslvm_physical_volume_header_t *) &( data[ data_offset ] ) )->identifier[ 27 ],
+		 ( (vslvm_physical_volume_header_t *) &( data[ data_offset ] ) )->identifier[ 28 ],
+		 ( (vslvm_physical_volume_header_t *) &( data[ data_offset ] ) )->identifier[ 29 ],
+		 ( (vslvm_physical_volume_header_t *) &( data[ data_offset ] ) )->identifier[ 30 ],
+		 ( (vslvm_physical_volume_header_t *) &( data[ data_offset ] ) )->identifier[ 31 ] );
 
 		byte_stream_copy_to_uint64_little_endian(
-		 ( (vslvm_physical_volume_header_t *) &( physical_volume_label_data[ data_offset ] ) )->volume_size,
+		 ( (vslvm_physical_volume_header_t *) &( data[ data_offset ] ) )->volume_size,
 		 value_64bit );
 		libcnotify_printf(
 		 "%s: volume size\t\t\t: %" PRIu64 "\n",
@@ -1511,6 +1498,17 @@ int libvslvm_physical_volume_read_label(
 
 	do
 	{
+		if( data_offset >= ( data_size - sizeof( vslvm_data_area_descriptor_t ) ) )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+			 LIBCERROR_ARGUMENT_ERROR_VALUE_OUT_OF_BOUNDS,
+			 "%s: invalid data offset value out of bounds.",
+			 function );
+
+			goto on_error;
+		}
 #if defined( HAVE_DEBUG_OUTPUT )
 		if( libcnotify_verbose != 0 )
 		{
@@ -1518,24 +1516,24 @@ int libvslvm_physical_volume_read_label(
 			 "%s: data area descriptor data:\n",
 			 function );
 			libcnotify_print_data(
-			 &( physical_volume_label_data[ data_offset ] ),
+			 &( data[ data_offset ] ),
 			 sizeof( vslvm_data_area_descriptor_t ),
 			 0 );
 		}
 #endif
 		result = memory_compare(
-		          &( physical_volume_label_data[ data_offset ] ),
+		          &( data[ data_offset ] ),
 		          vslvm_empty_data_area_descriptor,
 		          sizeof( vslvm_data_area_descriptor_t ) );
 
 		if( result != 0 )
 		{
 			byte_stream_copy_to_uint64_little_endian(
-			 ( (vslvm_data_area_descriptor_t *) &( physical_volume_label_data[ data_offset ] ) )->offset,
+			 ( (vslvm_data_area_descriptor_t *) &( data[ data_offset ] ) )->offset,
 			 offset );
 
 			byte_stream_copy_to_uint64_little_endian(
-			 ( (vslvm_data_area_descriptor_t *) &( physical_volume_label_data[ data_offset ] ) )->size,
+			 ( (vslvm_data_area_descriptor_t *) &( data[ data_offset ] ) )->size,
 			 size );
 
 #if defined( HAVE_DEBUG_OUTPUT )
@@ -1607,6 +1605,17 @@ int libvslvm_physical_volume_read_label(
 
 	do
 	{
+		if( data_offset >= ( data_size - sizeof( vslvm_data_area_descriptor_t ) ) )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+			 LIBCERROR_ARGUMENT_ERROR_VALUE_OUT_OF_BOUNDS,
+			 "%s: invalid data offset value out of bounds.",
+			 function );
+
+			goto on_error;
+		}
 #if defined( HAVE_DEBUG_OUTPUT )
 		if( libcnotify_verbose != 0 )
 		{
@@ -1614,24 +1623,24 @@ int libvslvm_physical_volume_read_label(
 			 "%s: metadata area descriptor data:\n",
 			 function );
 			libcnotify_print_data(
-			 &( physical_volume_label_data[ data_offset ] ),
+			 &( data[ data_offset ] ),
 			 sizeof( vslvm_data_area_descriptor_t ),
 			 0 );
 		}
 #endif
 		result = memory_compare(
-		          &( physical_volume_label_data[ data_offset ] ),
+		          &( data[ data_offset ] ),
 		          vslvm_empty_data_area_descriptor,
 		          sizeof( vslvm_data_area_descriptor_t ) );
 
 		if( result != 0 )
 		{
 			byte_stream_copy_to_uint64_little_endian(
-			 ( (vslvm_data_area_descriptor_t *) &( physical_volume_label_data[ data_offset ] ) )->offset,
+			 ( (vslvm_data_area_descriptor_t *) &( data[ data_offset ] ) )->offset,
 			 offset );
 
 			byte_stream_copy_to_uint64_little_endian(
-			 ( (vslvm_data_area_descriptor_t *) &( physical_volume_label_data[ data_offset ] ) )->size,
+			 ( (vslvm_data_area_descriptor_t *) &( data[ data_offset ] ) )->size,
 			 size );
 
 #if defined( HAVE_DEBUG_OUTPUT )
@@ -1650,7 +1659,8 @@ int libvslvm_physical_volume_read_label(
 				libcnotify_printf(
 				 "\n" );
 			}
-#endif
+#endif /* defined( HAVE_DEBUG_OUTPUT ) */
+
 			if( libvslvm_data_area_descriptor_initialize(
 			     &data_area_descriptor,
 			     error ) != 1 )
@@ -1722,6 +1732,87 @@ on_error:
 	return( -1 );
 }
 
+/* Reads a physical volume label
+ * Returns 1 if successful, 0 if not found or -1 on error
+ */
+int libvslvm_physical_volume_read_label_file_io_pool(
+     libvslvm_physical_volume_t *physical_volume,
+     libbfio_pool_t *file_io_pool,
+     int file_io_pool_entry,
+     off64_t file_offset,
+     libcerror_error_t **error )
+{
+	uint8_t physical_volume_label_data[ 512 ];
+
+	libvslvm_internal_physical_volume_t *internal_physical_volume = NULL;
+	static char *function                                         = "libvslvm_physical_volume_read_label_file_io_pool";
+	ssize_t read_count                                            = 0;
+	int result                                                    = 0;
+
+	if( physical_volume == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid physical volume.",
+		 function );
+
+		return( -1 );
+	}
+	internal_physical_volume = (libvslvm_internal_physical_volume_t *) physical_volume;
+
+#if defined( HAVE_DEBUG_OUTPUT )
+	if( libcnotify_verbose != 0 )
+	{
+		libcnotify_printf(
+		 "%s: reading physical volume label at offset: %" PRIi64 " (0x%08" PRIx64 ")\n",
+		 function,
+		 file_offset,
+		 file_offset );
+	}
+#endif
+	read_count = libbfio_pool_read_buffer_at_offset(
+	              file_io_pool,
+	              file_io_pool_entry,
+	              physical_volume_label_data,
+	              512,
+	              file_offset,
+	              error );
+
+	if( read_count != (ssize_t) 512 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_IO,
+		 LIBCERROR_IO_ERROR_READ_FAILED,
+		 "%s: unable to read physical volume label at offset %" PRIi64 " (0x%08" PRIx64 ").",
+		 function,
+		 file_offset,
+		 file_offset );
+
+		return( -1 );
+	}
+	result = libvslvm_internal_physical_volume_read_label_data(
+	          internal_physical_volume,
+	          physical_volume_label_data,
+	          512,
+	          error );
+
+	if( result == -1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_IO,
+		 LIBCERROR_IO_ERROR_READ_FAILED,
+		 "%s: unable to read physical volume label.",
+		 function );
+
+		return( -1 );
+	}
+	return( result );
+}
+
 /* Reads the physical volume
  * Callback function for the physical volume files list
  * Returns 1 if successful or -1 on error
@@ -1767,7 +1858,7 @@ int libvslvm_physical_volume_read_element_data(
 
 	while( label_offset < 2048 )
 	{
-		result = libvslvm_physical_volume_read_label(
+		result = libvslvm_physical_volume_read_label_file_io_pool(
 			  physical_volume,
 			  file_io_pool,
 			  file_io_pool_entry,

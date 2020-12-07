@@ -9,11 +9,12 @@ Analysis of the Logical Volume Manager format
 == Summary
 
 The Logical Volume Manager (LVM) is a volume manager for Linux, although the
-term is used for other Unix implementations as well.
+term is used for other Unix implementations as well. This specification is
+based on publicly availble work on the format and was enhanced by analyzing
+test data.
 
-This document is intended as a working document for the Logical Volume Manager
-(LVM) format specification. Which should allow existing Open Source forensic
-tooling to be able to process this file type.
+This document is intended as a working document of the data format specification
+for the libvslvm project.
 
 [preface]
 == Document information
@@ -106,8 +107,8 @@ document:
 
 == Physical volume label
 
-The physical volume label is stored in the second sector of the physical
-volume. The physical volume label consists of:
+The physical volume label is stored in the second sector of the physical volume.
+The physical volume label is currently 512 bytes of size and consists of:
 
 * physical volume label header
 * physical volume header
