@@ -10,7 +10,7 @@ Analysis of the Logical Volume Manager format
 
 The Logical Volume Manager (LVM) is a volume manager for Linux, although the
 term is used for other Unix implementations as well. This specification is
-based on publicly availble work on the format and was enhanced by analyzing
+based on publicly available work on the format and was enhanced by analyzing
 test data.
 
 This document is intended as a working document of the data format specification
