@@ -29,6 +29,9 @@ MSVSCPP_FILES = \
 	vslvm_test_segment/vslvm_test_segment.vcproj \
 	vslvm_test_stripe/vslvm_test_stripe.vcproj \
 	vslvm_test_support/vslvm_test_support.vcproj \
+	vslvm_test_tools_info_handle/vslvm_test_tools_info_handle.vcproj \
+	vslvm_test_tools_output/vslvm_test_tools_output.vcproj \
+	vslvm_test_tools_signal/vslvm_test_tools_signal.vcproj \
 	vslvm_test_volume_group/vslvm_test_volume_group.vcproj \
 	vslvminfo/vslvminfo.vcproj \
 	vslvmmount/vslvmmount.vcproj \

@@ -24,6 +24,7 @@ endif
 
 TESTS = \
 	test_library.sh \
+	test_tools.sh \
 	test_vslvminfo.sh \
 	$(TESTS_PYVSLVM)
 
@@ -33,6 +34,7 @@ check_SCRIPTS = \
 	test_manpage.sh \
 	test_python_module.sh \
 	test_runner.sh \
+	test_tools.sh \
 	test_vslvminfo.sh
 
 EXTRA_DIST = \
@@ -54,6 +56,9 @@ check_PROGRAMS = \
 	vslvm_test_segment \
 	vslvm_test_stripe \
 	vslvm_test_support \
+	vslvm_test_tools_info_handle \
+	vslvm_test_tools_output \
+	vslvm_test_tools_signal \
 	vslvm_test_volume_group
 
 vslvm_test_chunk_data_SOURCES = \
@@ -260,6 +265,49 @@ vslvm_test_support_LDADD = \
 	@LIBCNOTIFY_LIBADD@ \
 	@LIBCLOCALE_LIBADD@ \
 	@LIBCDATA_LIBADD@ \
+	../libvslvm/libvslvm.la \
+	@LIBCERROR_LIBADD@
+
+vslvm_test_tools_info_handle_SOURCES = \
+	../vslvmtools/byte_size_string.c ../vslvmtools/byte_size_string.h \
+	../vslvmtools/info_handle.c ../vslvmtools/info_handle.h \
+	vslvm_test_libcerror.h \
+	vslvm_test_macros.h \
+	vslvm_test_memory.c vslvm_test_memory.h \
+	vslvm_test_tools_info_handle.c \
+	vslvm_test_unused.h
+
+vslvm_test_tools_info_handle_LDADD = \
+	@LIBBFIO_LIBADD@ \
+	@LIBCPATH_LIBADD@ \
+	@LIBCFILE_LIBADD@ \
+	@LIBUNA_LIBADD@ \
+	@LIBCSPLIT_LIBADD@ \
+	@LIBCNOTIFY_LIBADD@ \
+	@LIBCLOCALE_LIBADD@ \
+	@LIBCDATA_LIBADD@ \
+	../libvslvm/libvslvm.la \
+	@LIBCERROR_LIBADD@
+
+vslvm_test_tools_output_SOURCES = \
+	../vslvmtools/vslvmtools_output.c ../vslvmtools/vslvmtools_output.h \
+	vslvm_test_libcerror.h \
+	vslvm_test_macros.h \
+	vslvm_test_tools_output.c \
+	vslvm_test_unused.h
+
+vslvm_test_tools_output_LDADD = \
+	../libvslvm/libvslvm.la \
+	@LIBCERROR_LIBADD@
+
+vslvm_test_tools_signal_SOURCES = \
+	../vslvmtools/vslvmtools_signal.c ../vslvmtools/vslvmtools_signal.h \
+	vslvm_test_libcerror.h \
+	vslvm_test_macros.h \
+	vslvm_test_tools_signal.c \
+	vslvm_test_unused.h
+
+vslvm_test_tools_signal_LDADD = \
 	../libvslvm/libvslvm.la \
 	@LIBCERROR_LIBADD@
 

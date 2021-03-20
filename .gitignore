@@ -145,6 +145,9 @@ stamp-h[1-9]
 /tests/vslvm_test_segment
 /tests/vslvm_test_stripe
 /tests/vslvm_test_support
+/tests/vslvm_test_tools_info_handle
+/tests/vslvm_test_tools_output
+/tests/vslvm_test_tools_signal
 /tests/vslvm_test_volume_group
 
 # Local library dependencies specific files
