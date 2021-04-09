@@ -1319,7 +1319,7 @@ int libvslvm_internal_physical_volume_read_label_data(
 		libcnotify_print_data(
 		 data,
 		 512,
-		 0 );
+		 LIBCNOTIFY_PRINT_DATA_FLAG_GROUP_DATA );
 	}
 #endif
 #if defined( HAVE_DEBUG_OUTPUT )
