@@ -38,15 +38,16 @@ class HandleTypeTests(unittest.TestCase):
 
   def test_open(self):
     """Tests the open function."""
-    if not unittest.source:
+    test_source = unittest.source
+    if not test_source:
       raise unittest.SkipTest("missing source")
 
     vslvm_handle = pyvslvm.handle()
 
-    vslvm_handle.open(unittest.source)
+    vslvm_handle.open(test_source)
 
     with self.assertRaises(IOError):
-      vslvm_handle.open(unittest.source)
+      vslvm_handle.open(test_source)
 
     vslvm_handle.close()
 
@@ -54,19 +55,20 @@ class HandleTypeTests(unittest.TestCase):
       vslvm_handle.open(None)
 
     with self.assertRaises(ValueError):
-      vslvm_handle.open(unittest.source, mode="w")
+      vslvm_handle.open(test_source, mode="w")
 
   def test_open_file_object(self):
     """Tests the open_file_object function."""
-    if not unittest.source:
+    test_source = unittest.source
+    if not test_source:
       raise unittest.SkipTest("missing source")
 
-    if not os.path.isfile(unittest.source):
+    if not os.path.isfile(test_source):
       raise unittest.SkipTest("source not a regular file")
 
     vslvm_handle = pyvslvm.handle()
 
-    with open(unittest.source, "rb") as file_object:
+    with open(test_source, "rb") as file_object:
 
       vslvm_handle.open_file_object(file_object)
 
@@ -83,7 +85,8 @@ class HandleTypeTests(unittest.TestCase):
 
   def test_close(self):
     """Tests the close function."""
-    if not unittest.source:
+    test_source = unittest.source
+    if not test_source:
       raise unittest.SkipTest("missing source")
 
     vslvm_handle = pyvslvm.handle()
@@ -93,21 +96,22 @@ class HandleTypeTests(unittest.TestCase):
 
   def test_open_close(self):
     """Tests the open and close functions."""
-    if not unittest.source:
+    test_source = unittest.source
+    if not test_source:
       return
 
     vslvm_handle = pyvslvm.handle()
 
     # Test open and close.
-    vslvm_handle.open(unittest.source)
+    vslvm_handle.open(test_source)
     vslvm_handle.close()
 
     # Test open and close a second time to validate clean up on close.
-    vslvm_handle.open(unittest.source)
+    vslvm_handle.open(test_source)
     vslvm_handle.close()
 
-    if os.path.isfile(unittest.source):
-      with open(unittest.source, "rb") as file_object:
+    if os.path.isfile(test_source):
+      with open(test_source, "rb") as file_object:
 
         # Test open_file_object and close.
         vslvm_handle.open_file_object(file_object)
@@ -124,12 +128,13 @@ class HandleTypeTests(unittest.TestCase):
 
   def test_get_volume_group(self):
     """Tests the get_volume_group function."""
-    if not unittest.source:
+    test_source = unittest.source
+    if not test_source:
       raise unittest.SkipTest("missing source")
 
     vslvm_handle = pyvslvm.handle()
 
-    vslvm_handle.open(unittest.source)
+    vslvm_handle.open(test_source)
 
     volume_group = vslvm_handle.get_volume_group()
     self.assertIsNotNone(volume_group)
