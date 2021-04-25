@@ -1349,7 +1349,7 @@ int libvslvm_internal_physical_volume_read_label_data(
 	if( libcnotify_verbose != 0 )
 	{
 		libcnotify_printf(
-		 "%s: signature\t\t\t\t: %c%c%c%c%c%c%c%c\n",
+		 "%s: signature\t\t: %c%c%c%c%c%c%c%c\n",
 		 function,
 		 ( (vslvm_physical_volume_label_header_t *) data )->signature[ 0 ],
 		 ( (vslvm_physical_volume_label_header_t *) data )->signature[ 1 ],
@@ -1364,12 +1364,12 @@ int libvslvm_internal_physical_volume_read_label_data(
 		 ( (vslvm_physical_volume_label_header_t *) data )->sector_number,
 		 value_64bit );
 		libcnotify_printf(
-		 "%s: sector number\t\t\t: %" PRIu64 "\n",
+		 "%s: sector number\t: %" PRIu64 "\n",
 		 function,
 		 value_64bit );
 
 		libcnotify_printf(
-		 "%s: checksum\t\t\t\t: 0x%08" PRIx32 "\n",
+		 "%s: checksum\t\t: 0x%08" PRIx32 "\n",
 		 function,
 		 stored_checksum );
 
@@ -1377,12 +1377,12 @@ int libvslvm_internal_physical_volume_read_label_data(
 		 ( (vslvm_physical_volume_label_header_t *) data )->data_offset,
 		 value_32bit );
 		libcnotify_printf(
-		 "%s: data offset\t\t\t: 0x%08" PRIx32 "\n",
+		 "%s: data offset\t\t: 0x%08" PRIx32 "\n",
 		 function,
 		 value_32bit );
 
 		libcnotify_printf(
-		 "%s: type indicator\t\t\t: %c%c%c%c%c%c%c%c\n",
+		 "%s: type indicator\t: %c%c%c%c%c%c%c%c\n",
 		 function,
 		 ( (vslvm_physical_volume_label_header_t *) data )->type_indicator[ 0 ],
 		 ( (vslvm_physical_volume_label_header_t *) data )->type_indicator[ 1 ],
@@ -1446,7 +1446,7 @@ int libvslvm_internal_physical_volume_read_label_data(
 	if( libcnotify_verbose != 0 )
 	{
 		libcnotify_printf(
-		 "%s: identifier\t\t\t\t: %c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c\n",
+		 "%s: identifier\t\t: %c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c\n",
 		 function,
 		 ( (vslvm_physical_volume_header_t *) &( data[ data_offset ] ) )->identifier[ 0 ],
 		 ( (vslvm_physical_volume_header_t *) &( data[ data_offset ] ) )->identifier[ 1 ],
@@ -1485,7 +1485,7 @@ int libvslvm_internal_physical_volume_read_label_data(
 		 ( (vslvm_physical_volume_header_t *) &( data[ data_offset ] ) )->volume_size,
 		 value_64bit );
 		libcnotify_printf(
-		 "%s: volume size\t\t\t: %" PRIu64 "\n",
+		 "%s: volume size\t\t: %" PRIu64 "\n",
 		 function,
 		 value_64bit );
 
@@ -1540,12 +1540,12 @@ int libvslvm_internal_physical_volume_read_label_data(
 			if( libcnotify_verbose != 0 )
 			{
 				libcnotify_printf(
-				 "%s: data area offset\t\t\t: 0x%08" PRIx64 "\n",
+				 "%s: data area offset\t: 0x%08" PRIx64 "\n",
 				 function,
 				 offset );
 
 				libcnotify_printf(
-				 "%s: data area size\t\t\t: %" PRIu64 "\n",
+				 "%s: data area size\t: %" PRIu64 "\n",
 				 function,
 				 size );
 
@@ -1647,12 +1647,12 @@ int libvslvm_internal_physical_volume_read_label_data(
 			if( libcnotify_verbose != 0 )
 			{
 				libcnotify_printf(
-				 "%s: metadata area offset\t\t: 0x%08" PRIx64 "\n",
+				 "%s: metadata area offset\t: 0x%08" PRIx64 "\n",
 				 function,
 				 offset );
 
 				libcnotify_printf(
-				 "%s: metadata area size\t\t\t: %" PRIu64 "\n",
+				 "%s: metadata area size\t: %" PRIu64 "\n",
 				 function,
 				 size );
 
