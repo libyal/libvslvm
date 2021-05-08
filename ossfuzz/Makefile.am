@@ -12,14 +12,33 @@ AM_CPPFLAGS = \
 	@LIBBFIO_CPPFLAGS@
 
 bin_PROGRAMS = \
-	handle_fuzzer
+	handle_fuzzer \
+	logical_volume_fuzzer
 
 handle_fuzzer_SOURCES = \
+	handle_fuzzer.cc \
 	ossfuzz_libbfio.h \
-	ossfuzz_libvslvm.h \
-	handle_fuzzer.cc
+	ossfuzz_libvslvm.h
 
 handle_fuzzer_LDADD = \
+	@LIB_FUZZING_ENGINE@ \
+	@LIBBFIO_LIBADD@ \
+	@LIBCPATH_LIBADD@ \
+	@LIBCFILE_LIBADD@ \
+	@LIBUNA_LIBADD@ \
+	@LIBCDATA_LIBADD@ \
+	../libvslvm/libvslvm.la \
+	@LIBCNOTIFY_LIBADD@ \
+	@LIBCLOCALE_LIBADD@ \
+	@LIBCERROR_LIBADD@ \
+	@LIBINTL@
+
+logical_volume_fuzzer_SOURCES = \
+	logical_volume_fuzzer.cc \
+	ossfuzz_libbfio.h \
+	ossfuzz_libvslvm.h
+
+logical_volume_fuzzer_LDADD = \
 	@LIB_FUZZING_ENGINE@ \
 	@LIBBFIO_LIBADD@ \
 	@LIBCPATH_LIBADD@ \
@@ -42,4 +61,6 @@ distclean: clean
 splint:
 	@echo "Running splint on handle_fuzzer ..."
 	-splint -preproc -redef $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(handle_fuzzer_SOURCES)
+	@echo "Running splint on logical_volume_fuzzer ..."
+	-splint -preproc -redef $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(logical_volume_fuzzer_SOURCES)
 
