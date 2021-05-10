@@ -1,7 +1,7 @@
 /*
  * OSS-Fuzz target for libvslvm handle type
  *
- * Copyright (C) 2014-2020, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (C) 2014-2021, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *

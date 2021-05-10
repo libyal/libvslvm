@@ -26,6 +26,7 @@
 #include <types.h>
 
 #include "libvslvm_extern.h"
+#include "libvslvm_libbfio.h"
 #include "libvslvm_libcerror.h"
 
 #if defined( __cplusplus )
