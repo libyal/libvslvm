@@ -27,6 +27,7 @@
 #include <stdio.h>
 
 #include "libvslvm_definitions.h"
+#include "libvslvm_libbfio.h"
 #include "libvslvm_libcerror.h"
 #include "libvslvm_libclocale.h"
 #include "libvslvm_physical_volume.h"
