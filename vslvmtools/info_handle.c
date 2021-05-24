@@ -221,7 +221,12 @@ int info_handle_initialize(
 		 "%s: unable to clear info handle.",
 		 function );
 
-		goto on_error;
+		memory_free(
+		 *info_handle );
+
+		*info_handle = NULL;
+
+		return( -1 );
 	}
 /* TODO control maximum number of handles */
 	if( libbfio_pool_initialize(
