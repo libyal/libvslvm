@@ -297,6 +297,16 @@ void pyvslvm_handle_free(
 
 		return;
 	}
+	if( ( pyvslvm_handle->file_io_handle != NULL )
+	 || ( pyvslvm_handle->file_io_pool != NULL ) )
+	{
+		if( pyvslvm_handle_close(
+		     pyvslvm_handle,
+		     NULL ) == NULL )
+		{
+			return;
+		}
+	}
 	if( pyvslvm_handle->handle != NULL )
 	{
 		Py_BEGIN_ALLOW_THREADS

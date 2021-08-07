@@ -132,6 +132,13 @@ int pyvslvm_file_objects_pool_initialize(
 
 			goto on_error;
 		}
+		/* Remove the reference created by PySequence_GetItem
+		 */
+		Py_DecRef(
+		 (PyObject *) file_object );
+
+		file_object = NULL;
+
 		if( libbfio_pool_append_handle(
 		     *pool,
 		     &file_io_pool_entry,
@@ -153,6 +160,11 @@ int pyvslvm_file_objects_pool_initialize(
 	return( 1 );
 
 on_error:
+	if( file_object != NULL )
+	{
+		Py_DecRef(
+		 (PyObject *) file_object );
+	}
 	if( file_io_handle != NULL )
 	{
 		libbfio_handle_free(
