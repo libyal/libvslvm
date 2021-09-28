@@ -45,6 +45,7 @@ int pyvslvm_file_objects_pool_initialize(
 	int element_index                = 0;
 	int file_io_pool_entry           = 0;
 	int number_of_elements           = 0;
+	int result                       = 0;
 
 	if( pool == NULL )
 	{
@@ -114,6 +115,40 @@ int pyvslvm_file_objects_pool_initialize(
 			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 			 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
 			 "%s: missing file object IO handle.",
+			 function );
+
+			goto on_error;
+		}
+		PyErr_Clear();
+
+		result = PyObject_HasAttrString(
+		          file_object,
+		          "read" );
+
+		if( result != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+			 "%s: unsupported file object - missing read attribute.",
+			 function );
+
+			goto on_error;
+		}
+		PyErr_Clear();
+
+		result = PyObject_HasAttrString(
+		          file_object,
+		          "seek" );
+
+		if( result != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+			 "%s: unsupported file object - missing seek attribute.",
 			 function );
 
 			goto on_error;
