@@ -1,7 +1,7 @@
 /*
  * Python object wrapper of libvslvm_handle_t
  *
- * Copyright (C) 2014-2021, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (C) 2014-2022, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -1112,7 +1112,7 @@ PyObject *pyvslvm_handle_open_physical_volume_files_as_file_objects(
 	{
 		PyErr_Format(
 		 PyExc_ValueError,
-		 "%s: invalid file.",
+		 "%s: invalid handle.",
 		 function );
 
 		return( NULL );

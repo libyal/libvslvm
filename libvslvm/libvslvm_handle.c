@@ -1,7 +1,7 @@
 /*
  * The internal handle functions
  *
- * Copyright (C) 2014-2021, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (C) 2014-2022, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -162,8 +162,8 @@ int libvslvm_handle_free(
 	{
 		internal_handle = (libvslvm_internal_handle_t *) *handle;
 
-		if( ( internal_handle->physical_volume_file_io_pool != NULL )
-		 || ( internal_handle->metadata != NULL ) )
+		if( ( internal_handle->file_io_handle != NULL )
+		 || ( internal_handle->physical_volume_file_io_pool != NULL ) )
 		{
 			if( libvslvm_handle_close(
 			     *handle,
@@ -645,6 +645,7 @@ int libvslvm_handle_open_file_io_handle(
 	}
 	internal_handle->file_io_handle                   = file_io_handle;
 	internal_handle->file_io_handle_opened_in_library = file_io_handle_opened_in_library;
+	internal_handle->access_flags                     = access_flags;
 
 	return( 1 );
 
@@ -690,17 +691,6 @@ int libvslvm_handle_open_physical_volume_files(
 	}
 	internal_handle = (libvslvm_internal_handle_t *) handle;
 
-	if( internal_handle->metadata == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid internal handle - missing metadata.",
-		 function );
-
-		return( -1 );
-	}
 	if( internal_handle->physical_volume_file_io_pool != NULL )
 	{
 		libcerror_error_set(
@@ -799,7 +789,7 @@ int libvslvm_handle_open_physical_volume_files(
 
 			goto on_error;
 		}
-		if( libvslvm_handle_open_physical_volume_file(
+		if( libvslvm_internal_handle_open_physical_volume_file(
 		     internal_handle,
 		     file_io_pool,
 		     physical_volume_index,
@@ -882,17 +872,6 @@ int libvslvm_handle_open_physical_volume_files_wide(
 	}
 	internal_handle = (libvslvm_internal_handle_t *) handle;
 
-	if( internal_handle->metadata == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid internal handle - missing metadata.",
-		 function );
-
-		return( -1 );
-	}
 	if( internal_handle->physical_volume_file_io_pool != NULL )
 	{
 		libcerror_error_set(
@@ -991,7 +970,7 @@ int libvslvm_handle_open_physical_volume_files_wide(
 
 			goto on_error;
 		}
-		if( libvslvm_handle_open_physical_volume_file_wide(
+		if( libvslvm_internal_handle_open_physical_volume_file_wide(
 		     internal_handle,
 		     file_io_pool,
 		     physical_volume_index,
@@ -1072,17 +1051,6 @@ int libvslvm_handle_open_physical_volume_files_file_io_pool(
 	}
 	internal_handle = (libvslvm_internal_handle_t *) handle;
 
-	if( internal_handle->metadata == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid internal handle - missing metadata.",
-		 function );
-
-		return( -1 );
-	}
 	if( internal_handle->physical_volume_file_io_pool != NULL )
 	{
 		libcerror_error_set(
@@ -1186,7 +1154,7 @@ int libvslvm_handle_open_physical_volume_files_file_io_pool(
 /* Opens a specific physical volume file
  * Returns 1 if successful or -1 on error
  */
-int libvslvm_handle_open_physical_volume_file(
+int libvslvm_internal_handle_open_physical_volume_file(
      libvslvm_internal_handle_t *internal_handle,
      libbfio_pool_t *file_io_pool,
      int physical_volume_index,
@@ -1194,7 +1162,7 @@ int libvslvm_handle_open_physical_volume_file(
      libcerror_error_t **error )
 {
 	libbfio_handle_t *file_io_handle = NULL;
-	static char *function            = "libvslvm_handle_open_physical_volume_file";
+	static char *function            = "libvslvm_internal_handle_open_physical_volume_file";
 	size_t filename_length           = 0;
 
 	if( internal_handle == NULL )
@@ -1203,7 +1171,7 @@ int libvslvm_handle_open_physical_volume_file(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
 		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid internal handle.",
+		 "%s: invalid handle.",
 		 function );
 
 		return( -1 );
@@ -1266,7 +1234,7 @@ int libvslvm_handle_open_physical_volume_file(
 
                 goto on_error;
 	}
-	if( libvslvm_handle_open_physical_volume_file_io_handle(
+	if( libvslvm_internal_handle_open_physical_volume_file_io_handle(
 	     internal_handle,
 	     file_io_pool,
 	     physical_volume_index,
@@ -1300,7 +1268,7 @@ on_error:
 /* Opens a specific physical volume file
  * Returns 1 if successful or -1 on error
  */
-int libvslvm_handle_open_physical_volume_file_wide(
+int libvslvm_internal_handle_open_physical_volume_file_wide(
      libvslvm_internal_handle_t *internal_handle,
      libbfio_pool_t *file_io_pool,
      int physical_volume_index,
@@ -1308,7 +1276,7 @@ int libvslvm_handle_open_physical_volume_file_wide(
      libcerror_error_t **error )
 {
 	libbfio_handle_t *file_io_handle = NULL;
-	static char *function            = "libvslvm_handle_open_physical_volume_file_wide";
+	static char *function            = "libvslvm_internal_handle_open_physical_volume_file_wide";
 	size_t filename_length           = 0;
 
 	if( internal_handle == NULL )
@@ -1317,7 +1285,7 @@ int libvslvm_handle_open_physical_volume_file_wide(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
 		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid internal handle.",
+		 "%s: invalid handle.",
 		 function );
 
 		return( -1 );
@@ -1380,7 +1348,7 @@ int libvslvm_handle_open_physical_volume_file_wide(
 
                 goto on_error;
 	}
-	if( libvslvm_handle_open_physical_volume_file_io_handle(
+	if( libvslvm_internal_handle_open_physical_volume_file_io_handle(
 	     internal_handle,
 	     file_io_pool,
 	     physical_volume_index,
@@ -1414,14 +1382,14 @@ on_error:
 /* Opens an physical volume file using a Basic File IO (bfio) handle
  * Returns 1 if successful or -1 on error
  */
-int libvslvm_handle_open_physical_volume_file_io_handle(
+int libvslvm_internal_handle_open_physical_volume_file_io_handle(
      libvslvm_internal_handle_t *internal_handle,
      libbfio_pool_t *file_io_pool,
      int physical_volume_index,
      libbfio_handle_t *file_io_handle,
      libcerror_error_t **error )
 {
-	static char *function                = "libvslvm_handle_open_physical_volume_file_io_handle";
+	static char *function                = "libvslvm_internal_handle_open_physical_volume_file_io_handle";
 	int bfio_access_flags                = 0;
 	int file_io_handle_is_open           = 0;
 	int file_io_handle_opened_in_library = 0;
@@ -1432,7 +1400,7 @@ int libvslvm_handle_open_physical_volume_file_io_handle(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
 		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid internal handle.",
+		 "%s: invalid handle.",
 		 function );
 
 		return( -1 );
@@ -1808,7 +1776,7 @@ int libvslvm_handle_close(
 			 error,
 			 LIBCERROR_ERROR_DOMAIN_IO,
 			 LIBCERROR_IO_ERROR_CLOSE_FAILED,
-			 "%s: unable to close all files.",
+			 "%s: unable to close physical volume file IO pool.",
 			 function );
 
 			result = -1;
@@ -1821,7 +1789,7 @@ int libvslvm_handle_close(
 			 error,
 			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 			 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
-			 "%s: unable to free physical volume data file IO pool.",
+			 "%s: unable to free physical volume file IO pool.",
 			 function );
 
 			result = -1;
@@ -1893,7 +1861,7 @@ int libvslvm_internal_handle_open_read(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
 		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid internal handle.",
+		 "%s: invalid handle.",
 		 function );
 
 		return( -1 );

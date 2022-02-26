@@ -1,7 +1,7 @@
 /*
  * The internal handle functions
  *
- * Copyright (C) 2014-2021, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (C) 2014-2022, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -141,7 +141,7 @@ int libvslvm_handle_open_physical_volume_files_file_io_pool(
      libbfio_pool_t *file_io_pool,
      libcerror_error_t **error );
 
-int libvslvm_handle_open_physical_volume_file(
+int libvslvm_internal_handle_open_physical_volume_file(
      libvslvm_internal_handle_t *internal_handle,
      libbfio_pool_t *file_io_pool,
      int physical_volume_index,
@@ -150,7 +150,7 @@ int libvslvm_handle_open_physical_volume_file(
 
 #if defined( HAVE_WIDE_CHARACTER_TYPE )
 
-int libvslvm_handle_open_physical_volume_file_wide(
+int libvslvm_internal_handle_open_physical_volume_file_wide(
      libvslvm_internal_handle_t *internal_handle,
      libbfio_pool_t *file_io_pool,
      int physical_volume_index,
@@ -159,7 +159,7 @@ int libvslvm_handle_open_physical_volume_file_wide(
 
 #endif /* defined( HAVE_WIDE_CHARACTER_TYPE ) */
 
-int libvslvm_handle_open_physical_volume_file_io_handle(
+int libvslvm_internal_handle_open_physical_volume_file_io_handle(
      libvslvm_internal_handle_t *internal_handle,
      libbfio_pool_t *file_io_pool,
      int physical_volume_index,

@@ -1,7 +1,7 @@
 /*
  * Python object wrapper of libvslvm_handle_t
  *
- * Copyright (C) 2014-2021, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (C) 2014-2022, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -100,5 +100,5 @@ PyObject *pyvslvm_handle_get_volume_group(
 }
 #endif
 
-#endif
+#endif /* !defined( _PYVSLVM_HANDLE_H ) */
 

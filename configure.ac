@@ -2,7 +2,7 @@ AC_PREREQ( 2.59 )
 
 AC_INIT(
  [libvslvm],
- [20211228],
+ [20220226],
  [joachim.metz@gmail.com])
 
 AC_CONFIG_SRCDIR(

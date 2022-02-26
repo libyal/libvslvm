@@ -1,7 +1,7 @@
 /*
  * Info handle
  *
- * Copyright (C) 2014-2021, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (C) 2014-2022, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -228,35 +228,6 @@ int info_handle_initialize(
 
 		return( -1 );
 	}
-/* TODO control maximum number of handles */
-	if( libbfio_pool_initialize(
-	     &( ( *info_handle )->physical_volume_file_io_pool ),
-	     0,
-	     0,
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
-		 "%s: unable to initialize physical volume file IO pool.",
-		 function );
-
-		goto on_error;
-	}
-	if( libvslvm_handle_initialize(
-	     &( ( *info_handle )->input_handle ),
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
-		 "%s: unable to initialize input handle.",
-		 function );
-
-		goto on_error;
-	}
 	( *info_handle )->notify_stream = INFO_HANDLE_NOTIFY_STREAM;
 
 	return( 1 );
@@ -264,12 +235,6 @@ int info_handle_initialize(
 on_error:
 	if( *info_handle != NULL )
 	{
-		if( ( *info_handle )->physical_volume_file_io_pool != NULL )
-		{
-			libbfio_pool_free(
-			 &( ( *info_handle )->physical_volume_file_io_pool ),
-			 NULL );
-		}
 		memory_free(
 		 *info_handle );
 
@@ -301,31 +266,21 @@ int info_handle_free(
 	}
 	if( *info_handle != NULL )
 	{
-		if( libvslvm_handle_free(
-		     &( ( *info_handle )->input_handle ),
-		     error ) != 1 )
+		if( ( *info_handle )->physical_volume_file_io_pool != NULL )
 		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
-			 "%s: unable to free input handle.",
-			 function );
+			if( info_handle_close_input(
+			     *info_handle,
+			     error ) != 0 )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_IO,
+				 LIBCERROR_IO_ERROR_CLOSE_FAILED,
+				 "%s: unable to close input.",
+				 function );
 
-			result = -1;
-		}
-		if( libbfio_pool_free(
-		     &( ( *info_handle )->physical_volume_file_io_pool ),
-		     error ) != 1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
-			 "%s: unable to free physical volume file IO pool.",
-			 function );
-
-			result = -1;
+				result = -1;
+			}
 		}
 		memory_free(
 		 *info_handle );
@@ -446,6 +401,28 @@ int info_handle_open_input(
 
 		return( -1 );
 	}
+	if( info_handle->physical_volume_file_io_pool != NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
+		 "%s: invalid info handle - physical volume file IO pool value already set.",
+		 function );
+
+		return( -1 );
+	}
+	if( info_handle->input_handle != NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
+		 "%s: invalid info handle - input handle value already set.",
+		 function );
+
+		return( -1 );
+	}
 	if( libbfio_file_range_initialize(
 	     &file_io_handle,
 	     error ) != 1 )
@@ -480,7 +457,7 @@ int info_handle_open_input(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_IO,
 		 LIBCERROR_IO_ERROR_OPEN_FAILED,
-		 "%s: unable to open set file name.",
+		 "%s: unable to set name of file IO handle: 0.",
 		 function );
 
 		goto on_error;
@@ -495,7 +472,20 @@ int info_handle_open_input(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_IO,
 		 LIBCERROR_IO_ERROR_OPEN_FAILED,
-		 "%s: unable to open set volume offset.",
+		 "%s: unable to set volume offset of file IO handle: 0.",
+		 function );
+
+		goto on_error;
+	}
+	if( libvslvm_handle_initialize(
+	     &( info_handle->input_handle ),
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+		 "%s: unable to initialize input handle.",
 		 function );
 
 		goto on_error;
@@ -511,6 +501,22 @@ int info_handle_open_input(
 		 LIBCERROR_ERROR_DOMAIN_IO,
 		 LIBCERROR_IO_ERROR_OPEN_FAILED,
 		 "%s: unable to open input handle.",
+		 function );
+
+		goto on_error;
+	}
+/* TODO control maximum number of open handles */
+	if( libbfio_pool_initialize(
+	     &( info_handle->physical_volume_file_io_pool ),
+	     0,
+	     0,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+		 "%s: unable to initialize physical volume file IO pool.",
 		 function );
 
 		goto on_error;
@@ -531,7 +537,7 @@ int info_handle_open_input(
 
 		goto on_error;
 	}
-	/* The takes over management of the file IO handle
+	/* The file IO pool takes over management of the file IO handle
 	 */
 	file_io_handle = NULL;
 
@@ -554,6 +560,20 @@ int info_handle_open_input(
 	return( 1 );
 
 on_error:
+	if( info_handle->input_handle != NULL )
+	{
+		libvslvm_handle_initialize(
+		 &( info_handle->input_handle ),
+		 NULL );
+	}
+	/* The file IO pool must be freed after the input handle
+	 */
+	if( info_handle->physical_volume_file_io_pool != NULL )
+	{
+		libbfio_pool_free(
+		 &( info_handle->physical_volume_file_io_pool ),
+		 NULL );
+	}
 	if( file_io_handle != NULL )
 	{
 		libbfio_handle_free(
@@ -571,6 +591,7 @@ int info_handle_close_input(
      libcerror_error_t **error )
 {
 	static char *function = "info_handle_close_input";
+	int result            = 0;
 
 	if( info_handle == NULL )
 	{
@@ -579,6 +600,28 @@ int info_handle_close_input(
 		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
 		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid info handle.",
+		 function );
+
+		return( -1 );
+	}
+	if( info_handle->physical_volume_file_io_pool == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: invalid info handle - missing physical volume file IO pool.",
+		 function );
+
+		return( -1 );
+	}
+	if( info_handle->input_handle == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: invalid info handle - missing input handle.",
 		 function );
 
 		return( -1 );
@@ -594,9 +637,48 @@ int info_handle_close_input(
 		 "%s: unable to close input handle.",
 		 function );
 
-		return( -1 );
+		result = -1;
 	}
-	return( 0 );
+	if( libvslvm_handle_free(
+	     &( info_handle->input_handle ),
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+		 "%s: unable to free input handle.",
+		 function );
+
+		result = -1;
+	}
+	if( libbfio_pool_close_all(
+	     info_handle->physical_volume_file_io_pool,
+	     error ) != 0 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_IO,
+		 LIBCERROR_IO_ERROR_CLOSE_FAILED,
+		 "%s: unable to close physical volume file IO pool.",
+		 function );
+
+		result = -1;
+	}
+	if( libbfio_pool_free(
+	     &( info_handle->physical_volume_file_io_pool ),
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+		 "%s: unable to free physical volume file IO pool.",
+		 function );
+
+		result = -1;
+	}
+	return( result );
 }
 
 /* Prints the volume group information
@@ -990,7 +1072,7 @@ on_error:
 	return( -1 );
 }
 
-/* Prints the physcial volume information
+/* Prints physcial volume information
  * Returns 1 if successful or -1 on error
  */
 int info_handle_physical_volume_fprint(
@@ -1272,7 +1354,7 @@ on_error:
 	return( -1 );
 }
 
-/* Prints the logical volume information
+/* Prints logical volume information
  * Returns 1 if successful or -1 on error
  */
 int info_handle_logical_volume_fprint(

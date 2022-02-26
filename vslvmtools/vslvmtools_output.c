@@ -1,7 +1,7 @@
 /*
  * Common output functions for the vslvmtools
  *
- * Copyright (C) 2014-2021, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (C) 2014-2022, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -101,7 +101,7 @@ void vslvmtools_output_copyright_fprint(
 	 */
 	fprintf(
 	 stream,
-	 _( "Copyright (C) 2014-2021, %s.\n" ),
+	 _( "Copyright (C) 2014-2022, %s.\n" ),
 	 _( "Joachim Metz" ) );
 
 	fprintf(
