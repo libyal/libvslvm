@@ -29,17 +29,6 @@ Requires: libvslvm = %{version}-%{release}
 %description -n libvslvm-devel
 Header files and libraries for developing applications for libvslvm.
 
-%package -n libvslvm-python2
-Obsoletes: libvslvm-python < %{version}
-Provides: libvslvm-python = %{version}
-Summary: Python 2 bindings for libvslvm
-Group: System Environment/Libraries
-Requires: libvslvm = %{version}-%{release} python2
-BuildRequires: python2-devel
-
-%description -n libvslvm-python2
-Python 2 bindings for libvslvm
-
 %package -n libvslvm-python3
 Summary: Python 3 bindings for libvslvm
 Group: System Environment/Libraries
@@ -62,7 +51,7 @@ Several tools for Several tools for reading Linux Logical Volume Manager (LVM) v
 %setup -q
 
 %build
-%configure --prefix=/usr --libdir=%{_libdir} --mandir=%{_mandir} --enable-python2 --enable-python3
+%configure --prefix=/usr --libdir=%{_libdir} --mandir=%{_mandir} --enable-python3
 make %{?_smp_mflags}
 
 %install
@@ -97,14 +86,6 @@ rm -rf %{buildroot}
 %{_libdir}/pkgconfig/libvslvm.pc
 %{_includedir}/*
 %{_mandir}/man3/*
-
-%files -n libvslvm-python2
-%defattr(644,root,root,755)
-%license COPYING COPYING.LESSER
-%doc AUTHORS README
-%{_libdir}/python2*/site-packages/*.a
-%{_libdir}/python2*/site-packages/*.la
-%{_libdir}/python2*/site-packages/*.so
 
 %files -n libvslvm-python3
 %defattr(644,root,root,755)

@@ -1,7 +1,7 @@
 Source: libvslvm
 Priority: extra
 Maintainer: Joachim Metz <joachim.metz@gmail.com>
-Build-Depends: debhelper (>= 9), dh-autoreconf, pkg-config, python-dev, python-setuptools, python3-dev, python3-setuptools, libfuse-dev
+Build-Depends: debhelper (>= 9), dh-autoreconf, pkg-config, python3-dev, python3-setuptools, libfuse-dev
 Standards-Version: 4.1.4
 Section: libs
 Homepage: https://github.com/libyal/libvslvm
@@ -45,23 +45,6 @@ Architecture: any
 Depends: libvslvm-tools (= ${binary:Version}), ${misc:Depends}
 Description: Debugging symbols for libvslvm-tools
  Debugging symbols for libvslvm-tools.
-
-Package: libvslvm-python
-Section: python
-Architecture: any
-Depends: libvslvm (= ${binary:Version}), ${shlibs:Depends}, ${misc:Depends}
-Conflicts: python-libvslvm
-Replaces: python-libvslvm
-Suggests: libvslvm-python-dbg
-Description: Python 2 bindings for libvslvm
- Python 2 bindings for libvslvm.
-
-Package: libvslvm-python-dbg
-Section: debug
-Architecture: any
-Depends: libvslvm-python (= ${binary:Version}), ${misc:Depends}
-Description: Debugging symbols for libvslvm-python
- Debugging symbols for libvslvm-python.
 
 Package: libvslvm-python3
 Section: python
