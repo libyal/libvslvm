@@ -36,7 +36,6 @@ DPKG_FILES = \
 	dpkg/rules \
 	dpkg/libvslvm.install \
 	dpkg/libvslvm-dev.install \
-	dpkg/libvslvm-python.install \
 	dpkg/libvslvm-python3.install \
 	dpkg/libvslvm-tools.install \
 	dpkg/source/format
