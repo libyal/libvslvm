@@ -31,6 +31,7 @@ TESTS = \
 	$(TESTS_PYVSLVM)
 
 check_SCRIPTS = \
+	pyvslvm_test_handle.py \
 	pyvslvm_test_support.py \
 	test_library.sh \
 	test_manpage.sh \
