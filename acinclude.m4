@@ -1,6 +1,6 @@
 dnl Checks for required headers and functions
 dnl
-dnl Version: 20230214
+dnl Version: 20200713
 
 dnl Function to detect if libvslvm dependencies are available
 AC_DEFUN([AX_LIBVSLVM_CHECK_LOCAL],
