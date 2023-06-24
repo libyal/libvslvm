@@ -1602,11 +1602,6 @@ on_error:
 		memory_free(
 		 value_string );
 	}
-	if( value_string != NULL )
-	{
-		memory_free(
-		 value_string );
-	}
 	return( -1 );
 }
 
