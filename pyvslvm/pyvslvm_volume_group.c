@@ -404,7 +404,6 @@ PyObject *pyvslvm_volume_group_get_name(
 	libcerror_error_t *error = NULL;
 	PyObject *string_object  = NULL;
 	char *name               = NULL;
-	const char *errors       = NULL;
 	static char *function    = "pyvslvm_volume_group_get_name";
 	size_t name_size         = 0;
 	int result               = 0;
@@ -456,7 +455,7 @@ PyObject *pyvslvm_volume_group_get_name(
 	if( name == NULL )
 	{
 		PyErr_Format(
-		 PyExc_IOError,
+		 PyExc_MemoryError,
 		 "%s: unable to create name.",
 		 function );
 
@@ -492,7 +491,7 @@ PyObject *pyvslvm_volume_group_get_name(
 	string_object = PyUnicode_DecodeUTF8(
 			 name,
 			 (Py_ssize_t) name_size - 1,
-			 errors );
+			 NULL );
 
 	PyMem_Free(
 	 name );
@@ -518,7 +517,6 @@ PyObject *pyvslvm_volume_group_get_identifier(
 	libcerror_error_t *error = NULL;
 	PyObject *string_object  = NULL;
 	char *identifier         = NULL;
-	const char *errors       = NULL;
 	static char *function    = "pyvslvm_volume_group_get_identifier";
 	size_t identifier_size   = 0;
 	int result               = 0;
@@ -570,7 +568,7 @@ PyObject *pyvslvm_volume_group_get_identifier(
 	if( identifier == NULL )
 	{
 		PyErr_Format(
-		 PyExc_IOError,
+		 PyExc_MemoryError,
 		 "%s: unable to create identifier.",
 		 function );
 
@@ -606,7 +604,7 @@ PyObject *pyvslvm_volume_group_get_identifier(
 	string_object = PyUnicode_DecodeUTF8(
 			 identifier,
 			 (Py_ssize_t) identifier_size - 1,
-			 errors );
+			 NULL );
 
 	PyMem_Free(
 	 identifier );

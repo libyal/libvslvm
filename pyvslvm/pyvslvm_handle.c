@@ -459,8 +459,14 @@ PyObject *pyvslvm_handle_open(
 		PyErr_Clear();
 
 #if defined( HAVE_WIDE_SYSTEM_CHARACTER )
+#if PY_MAJOR_VERSION >= 3 && PY_MINOR_VERSION >= 3
+		filename_wide = (wchar_t *) PyUnicode_AsWideCharString(
+		                             string_object,
+		                             NULL );
+#else
 		filename_wide = (wchar_t *) PyUnicode_AsUnicode(
 		                             string_object );
+#endif
 		Py_BEGIN_ALLOW_THREADS
 
 		result = libvslvm_handle_open_wide(
@@ -470,6 +476,11 @@ PyObject *pyvslvm_handle_open(
 		          &error );
 
 		Py_END_ALLOW_THREADS
+
+#if PY_MAJOR_VERSION >= 3 && PY_MINOR_VERSION >= 3
+		PyMem_Free(
+		 filename_wide );
+#endif
 #else
 		utf8_string_object = PyUnicode_AsUTF8String(
 		                      string_object );
@@ -736,27 +747,30 @@ PyObject *pyvslvm_handle_open_physical_volume_files(
            PyObject *keywords )
 {
 #if defined( HAVE_WIDE_SYSTEM_CHARACTER )
-	wchar_t **filenames              = NULL;
 	wchar_t *filename                = NULL;
-	const char *errors               = NULL;
+	wchar_t **filenames              = NULL;
 	char *narrow_string              = NULL;
 	size_t narrow_string_size        = 0;
 	int is_unicode_string            = 0;
 #else
-	char **filenames                 = NULL;
 	char *filename                   = NULL;
+	char **filenames                 = NULL;
 #endif
 	PyObject *filename_string_object = NULL;
 	PyObject *sequence_object        = NULL;
 	PyObject *string_object          = NULL;
 	libcerror_error_t *error         = NULL;
-	static char *keyword_list[]      = { "filenames", NULL };
 	static char *function            = "pyvslvm_handle_open_physical_volume_files";
+	static char *keyword_list[]      = { "filenames", NULL };
 	Py_ssize_t sequence_size         = 0;
 	size_t filename_length           = 0;
 	int filename_index               = 0;
 	int number_of_filenames          = 0;
 	int result                       = 0;
+
+#if PY_MAJOR_VERSION >= 3 && PY_MINOR_VERSION >= 3
+	wchar_t *filename_wide           = NULL;
+#endif
 
 	if( pyvslvm_handle == NULL )
 	{
@@ -919,8 +933,16 @@ PyObject *pyvslvm_handle_open_physical_volume_files(
 #if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 		if( is_unicode_string != 0 )
 		{
+#if PY_MAJOR_VERSION >= 3 && PY_MINOR_VERSION >= 3
+			filename_wide = (wchar_t *) PyUnicode_AsWideCharString(
+			                             string_object,
+			                             NULL );
+
+			filename = filename_wide;
+#else
 			filename = (wchar_t *) PyUnicode_AsUnicode(
 			                        string_object );
+#endif
 		}
 		else
 		{
@@ -941,7 +963,7 @@ PyObject *pyvslvm_handle_open_physical_volume_files(
 						  narrow_string,
 						  narrow_string_size,
 						  PyUnicode_GetDefaultEncoding(),
-						  errors );
+						  NULL );
 
 			if( filename_string_object == NULL )
 			{
@@ -953,8 +975,16 @@ PyObject *pyvslvm_handle_open_physical_volume_files(
 
 				goto on_error;
 			}
+#if PY_MAJOR_VERSION >= 3 && PY_MINOR_VERSION >= 3
+			filename_wide = (wchar_t *) PyUnicode_AsWideCharString(
+			                             filename_string_object,
+			                             NULL );
+
+			filename = filename_wide;
+#else
 			filename = (wchar_t *) PyUnicode_AsUnicode(
 			                        filename_string_object );
+#endif
 		}
 		filename_length = wide_string_length(
 		                   filename );
@@ -1011,6 +1041,15 @@ PyObject *pyvslvm_handle_open_physical_volume_files(
 		}
 		( filenames[ filename_index ] )[ filename_length ] = 0;
 
+#if PY_MAJOR_VERSION >= 3 && PY_MINOR_VERSION >= 3
+		if( filename_wide != NULL )
+		{
+			PyMem_Free(
+			 filename_wide );
+
+			filename_wide = NULL;
+		}
+#endif
 		if( filename_string_object != NULL )
 		{
 			Py_DecRef(
@@ -1076,6 +1115,13 @@ on_error:
 		Py_DecRef(
 		 filename_string_object );
 	}
+#if PY_MAJOR_VERSION >= 3 && PY_MINOR_VERSION >= 3
+	if( filename_wide != NULL )
+	{
+		PyMem_Free(
+		 filename_wide );
+	}
+#endif
 	if( string_object != NULL )
 	{
 		Py_DecRef(
