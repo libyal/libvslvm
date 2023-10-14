@@ -747,16 +747,17 @@ PyObject *pyvslvm_handle_open_physical_volume_files(
            PyObject *keywords )
 {
 #if defined( HAVE_WIDE_SYSTEM_CHARACTER )
+	PyObject *filename_string_object = NULL;
 	wchar_t *filename                = NULL;
 	wchar_t **filenames              = NULL;
 	char *narrow_string              = NULL;
 	size_t narrow_string_size        = 0;
 	int is_unicode_string            = 0;
 #else
+	PyObject *utf8_string_object     = NULL;
 	char *filename                   = NULL;
 	char **filenames                 = NULL;
 #endif
-	PyObject *filename_string_object = NULL;
 	PyObject *sequence_object        = NULL;
 	PyObject *string_object          = NULL;
 	libcerror_error_t *error         = NULL;
@@ -991,12 +992,24 @@ PyObject *pyvslvm_handle_open_physical_volume_files(
 #else
 		/* A Unicode string object can be converted into UFT-8 formatted narrow string
 		 */
+		utf8_string_object = PyUnicode_AsUTF8String(
+		                      string_object );
+
+		if( utf8_string_object == NULL )
+		{
+			pyvslvm_error_fetch_and_raise(
+			 PyExc_RuntimeError,
+			 "%s: unable to convert unicode string to UTF-8.",
+			 function );
+
+			goto on_error;
+		}
 #if PY_MAJOR_VERSION >= 3
 		filename = PyBytes_AsString(
-		            string_object );
+		            utf8_string_object );
 #else
 		filename = PyString_AsString(
-		            string_object );
+		            utf8_string_object );
 #endif
 		filename_length = narrow_string_length(
 		                   filename );
@@ -1041,6 +1054,7 @@ PyObject *pyvslvm_handle_open_physical_volume_files(
 		}
 		( filenames[ filename_index ] )[ filename_length ] = 0;
 
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 #if PY_MAJOR_VERSION >= 3 && PY_MINOR_VERSION >= 3
 		if( filename_wide != NULL )
 		{
@@ -1057,6 +1071,15 @@ PyObject *pyvslvm_handle_open_physical_volume_files(
 
 			filename_string_object = NULL;
 		}
+#else
+		if( utf8_string_object != NULL )
+		{
+			Py_DecRef(
+			 utf8_string_object );
+
+			utf8_string_object = NULL;
+		}
+#endif
 		/* The string object was reference by PySequence_GetItem
 		 */
 		Py_DecRef(
@@ -1110,6 +1133,7 @@ PyObject *pyvslvm_handle_open_physical_volume_files(
 	return( Py_None );
 
 on_error:
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 	if( filename_string_object != NULL )
 	{
 		Py_DecRef(
@@ -1121,6 +1145,7 @@ on_error:
 		PyMem_Free(
 		 filename_wide );
 	}
+#endif
 #endif
 	if( string_object != NULL )
 	{
