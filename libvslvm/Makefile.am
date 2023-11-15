@@ -83,11 +83,13 @@ MAINTAINERCLEANFILES = \
 	Makefile.in
 
 distclean: clean
-	/bin/rm -f libvslvm_definitions.h
-	/bin/rm -f libvslvm.rc
-	/bin/rm -f Makefile
+	-rm -f libvslvm_definitions.h
+	-rm -f libvslvm.rc
+	-rm -f Makefile
 
-splint:
+sources-local: $(BUILT_SOURCES)
+
+splint-local:
 	@echo "Running splint on libvslvm ..."
 	-splint -preproc -redef $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(libvslvm_la_SOURCES)
 

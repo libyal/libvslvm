@@ -19,9 +19,9 @@ MAINTAINERCLEANFILES = \
 	Makefile.in
 
 distclean: clean
-	/bin/rm -f libvslvm.h
-	/bin/rm -f libvslvm/definitions.h
-	/bin/rm -f libvslvm/features.h
-	/bin/rm -f libvslvm/types.h
-	/bin/rm -f Makefile
+	-rm -f libvslvm.h
+	-rm -f libvslvm/definitions.h
+	-rm -f libvslvm/features.h
+	-rm -f libvslvm/types.h
+	-rm -f Makefile
 

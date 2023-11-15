@@ -40,7 +40,7 @@ void (*vslvmtools_signal_signal_handler)( vslvmtools_signal_t ) = NULL;
 /* Signal handler for Ctrl+C or Ctrl+Break signals
  */
 BOOL WINAPI vslvmtools_signal_handler(
-             unsigned long signal )
+             vslvmtools_signal_t signal )
 {
 	static char *function = "vslvmtools_signal_handler";
 
@@ -112,7 +112,7 @@ int vslvmtools_signal_attach(
 	vslvmtools_signal_signal_handler = signal_handler;
 
 	if( SetConsoleCtrlHandler(
-	     vslvmtools_signal_handler,
+	     (PHANDLER_ROUTINE) vslvmtools_signal_handler,
 	     TRUE ) == 0 )
 	{
 		libcerror_error_set(
@@ -179,7 +179,7 @@ int vslvmtools_signal_detach(
 	static char *function = "vslvmtools_signal_detach";
 
 	if( SetConsoleCtrlHandler(
-	     vslvmtools_signal_handler,
+	     (PHANDLER_ROUTINE) vslvmtools_signal_handler,
 	     FALSE ) == 0 )
 	{
 		libcerror_error_set(

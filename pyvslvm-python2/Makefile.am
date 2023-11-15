@@ -70,8 +70,8 @@ MAINTAINERCLEANFILES = \
 	Makefile.in
 
 clean-local:
-	/bin/rm -f pyvslvm*.[ch]
+	-rm -f pyvslvm*.[ch]
 
 distclean: clean
-	/bin/rm -f Makefile
+	-rm -f Makefile
 
