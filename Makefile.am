@@ -19,8 +19,6 @@ SUBDIRS = \
 	libvslvm \
 	vslvmtools \
 	pyvslvm \
-	pyvslvm-python2 \
-	pyvslvm-python3 \
 	po \
 	manuals \
 	tests \

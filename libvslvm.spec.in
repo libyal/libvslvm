@@ -32,7 +32,7 @@ Header files and libraries for developing applications for libvslvm.
 Summary: Python 3 bindings for libvslvm
 Group: System Environment/Libraries
 Requires: libvslvm = %{version}-%{release} python3
-BuildRequires: python3-devel
+BuildRequires: python3-devel python3-setuptools
 
 %description -n libvslvm-python3
 Python 3 bindings for libvslvm
@@ -50,7 +50,7 @@ Several tools for Several tools for reading Linux Logical Volume Manager (LVM) v
 %setup -q
 
 %build
-%configure --prefix=/usr --libdir=%{_libdir} --mandir=%{_mandir} --enable-python3
+%configure --prefix=/usr --libdir=%{_libdir} --mandir=%{_mandir} --enable-python
 make %{?_smp_mflags}
 
 %install
