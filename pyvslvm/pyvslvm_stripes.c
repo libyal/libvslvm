@@ -1,7 +1,7 @@
 /*
  * Python object definition of the sequence and iterator object of stripes
  *
- * Copyright (C) 2014-2023, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (C) 2014-2024, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
