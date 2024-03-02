@@ -25,14 +25,21 @@
 #include <common.h>
 #include <types.h>
 
+#include "libvslvm_extern.h"
 #include "libvslvm_libcerror.h"
 
 #if defined( __cplusplus )
 extern "C" {
 #endif
 
+LIBVSLVM_EXTERN_VARIABLE \
+uint32_t libvslvm_checksum_crc32_table[ 256 ];
+
+LIBVSLVM_EXTERN_VARIABLE \
+int libvslvm_checksum_crc32_table_computed;
+
 void libvslvm_checksum_initialize_crc32_table(
-      void );
+      int );
 
 int libvslvm_checksum_calculate_crc32(
      uint32_t *checksum,

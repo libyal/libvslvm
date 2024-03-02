@@ -6,7 +6,7 @@ $ExitSuccess = 0
 $ExitFailure = 1
 $ExitIgnore = 77
 
-$LibraryTests = "chunk_data data_area_descriptor error io_handle logical_volume logical_volume_values metadata metadata_area notify physical_volume raw_location_descriptor segment stripe volume_group"
+$LibraryTests = "checksum chunk_data data_area_descriptor error io_handle logical_volume logical_volume_values metadata metadata_area notify physical_volume raw_location_descriptor segment stripe volume_group"
 $LibraryTestsWithInput = "handle support"
 $OptionSets = ""
 

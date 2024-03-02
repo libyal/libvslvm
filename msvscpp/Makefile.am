@@ -14,6 +14,7 @@ MSVSCPP_FILES = \
 	libuna/libuna.vcproj \
 	libvslvm/libvslvm.vcproj \
 	pyvslvm/pyvslvm.vcproj \
+	vslvm_test_checksum/vslvm_test_checksum.vcproj \
 	vslvm_test_chunk_data/vslvm_test_chunk_data.vcproj \
 	vslvm_test_data_area_descriptor/vslvm_test_data_area_descriptor.vcproj \
 	vslvm_test_error/vslvm_test_error.vcproj \

@@ -134,6 +134,7 @@ stamp-h[1-9]
 /tests/*.exe
 /tests/input
 /tests/tmp*
+/tests/vslvm_test_checksum
 /tests/vslvm_test_chunk_data
 /tests/vslvm_test_data_area_descriptor
 /tests/vslvm_test_error

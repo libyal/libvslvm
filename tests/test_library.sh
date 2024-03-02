@@ -7,7 +7,7 @@ EXIT_SUCCESS=0;
 EXIT_FAILURE=1;
 EXIT_IGNORE=77;
 
-LIBRARY_TESTS="chunk_data data_area_descriptor error io_handle logical_volume logical_volume_values metadata metadata_area notify physical_volume raw_location_descriptor segment stripe volume_group";
+LIBRARY_TESTS="checksum chunk_data data_area_descriptor error io_handle logical_volume logical_volume_values metadata metadata_area notify physical_volume raw_location_descriptor segment stripe volume_group";
 LIBRARY_TESTS_WITH_INPUT="handle support";
 OPTION_SETS=();
 

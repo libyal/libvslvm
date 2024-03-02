@@ -24,10 +24,6 @@
 
 #include "libvslvm_libcerror.h"
 
-/* CRC-32 functions
- * Based on RFC 1952
- */
-
 /* Table of CRC-32 values of 8-bit values
  */
 uint32_t libvslvm_checksum_crc32_table[ 256 ];
@@ -40,7 +36,7 @@ int libvslvm_checksum_crc32_table_computed = 0;
  * The table speeds up the CRC-32 calculation
  */
 void libvslvm_checksum_initialize_crc32_table(
-      void )
+      uint32_t polynomial )
 {
 	uint32_t checksum    = 0;
 	uint32_t table_index = 0;
@@ -58,7 +54,7 @@ void libvslvm_checksum_initialize_crc32_table(
 		{
 			if( checksum & 1 )
 			{
-				checksum = (uint32_t) 0xedb88320UL ^ ( checksum >> 1 );
+				checksum = polynomial ^ ( checksum >> 1 );
 			}
 			else
 			{
@@ -80,9 +76,10 @@ int libvslvm_checksum_calculate_crc32(
      uint32_t initial_value,
      libcerror_error_t **error )
 {
-	static char *function = "libvslvm_checksum_calculate_crc32";
-	size_t buffer_offset  = 0;
-	uint32_t table_index  = 0;
+	static char *function  = "libvslvm_checksum_calculate_crc32";
+	size_t buffer_offset   = 0;
+	uint32_t safe_checksum = 0;
+	uint32_t table_index   = 0;
 
 	if( checksum == NULL )
 	{
@@ -117,21 +114,22 @@ int libvslvm_checksum_calculate_crc32(
 
 		return( -1 );
 	}
-	*checksum = initial_value ^ (uint32_t) 0xffffffffUL;
-
         if( libvslvm_checksum_crc32_table_computed == 0 )
 	{
-		libvslvm_checksum_initialize_crc32_table();
+		libvslvm_checksum_initialize_crc32_table(
+		 0xedb88320UL );
 	}
+	safe_checksum = initial_value ^ (uint32_t) 0xffffffffUL;
+
         for( buffer_offset = 0;
 	     buffer_offset < size;
 	     buffer_offset++ )
 	{
-		table_index = ( *checksum ^ buffer[ buffer_offset ] ) & 0x000000ffUL;
+		table_index = ( safe_checksum ^ buffer[ buffer_offset ] ) & 0x000000ffUL;
 
-		*checksum = libvslvm_checksum_crc32_table[ table_index ] ^ ( *checksum >> 8 );
+		safe_checksum = libvslvm_checksum_crc32_table[ table_index ] ^ ( safe_checksum >> 8 );
         }
-        *checksum ^= 0xffffffffUL;
+        *checksum = safe_checksum ^ 0xffffffffUL;
 
 	return( 1 );
 }
@@ -146,9 +144,10 @@ int libvslvm_checksum_calculate_weak_crc32(
      uint32_t initial_value,
      libcerror_error_t **error )
 {
-	static char *function = "libvslvm_checksum_calculate_weak_crc32";
-	size_t buffer_offset  = 0;
-	uint32_t table_index  = 0;
+	static char *function  = "libvslvm_checksum_calculate_weak_crc32";
+	size_t buffer_offset   = 0;
+	uint32_t safe_checksum = 0;
+	uint32_t table_index   = 0;
 
 	if( checksum == NULL )
 	{
@@ -183,20 +182,23 @@ int libvslvm_checksum_calculate_weak_crc32(
 
 		return( -1 );
 	}
-	*checksum = initial_value;
-
         if( libvslvm_checksum_crc32_table_computed == 0 )
 	{
-		libvslvm_checksum_initialize_crc32_table();
+		libvslvm_checksum_initialize_crc32_table(
+		 0xedb88320UL );
 	}
+	safe_checksum = initial_value;
+
         for( buffer_offset = 0;
 	     buffer_offset < size;
 	     buffer_offset++ )
 	{
-		table_index = ( *checksum ^ buffer[ buffer_offset ] ) & 0x000000ffUL;
+		table_index = ( safe_checksum ^ buffer[ buffer_offset ] ) & 0x000000ffUL;
 
-		*checksum = libvslvm_checksum_crc32_table[ table_index ] ^ ( *checksum >> 8 );
+		safe_checksum = libvslvm_checksum_crc32_table[ table_index ] ^ ( safe_checksum >> 8 );
         }
+	*checksum = safe_checksum;
+
         return( 1 );
 }
 

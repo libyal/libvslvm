@@ -44,6 +44,7 @@ EXTRA_DIST = \
 	$(check_SCRIPTS)
 
 check_PROGRAMS = \
+	vslvm_test_checksum \
 	vslvm_test_chunk_data \
 	vslvm_test_data_area_descriptor \
 	vslvm_test_error \
@@ -63,6 +64,16 @@ check_PROGRAMS = \
 	vslvm_test_tools_output \
 	vslvm_test_tools_signal \
 	vslvm_test_volume_group
+
+vslvm_test_checksum_SOURCES = \
+	vslvm_test_checksum.c \
+	vslvm_test_libcerror.h \
+	vslvm_test_libvslvm.h \
+	vslvm_test_unused.h
+
+vslvm_test_checksum_LDADD = \
+	../libvslvm/libvslvm.la \
+	@LIBCERROR_LIBADD@
 
 vslvm_test_chunk_data_SOURCES = \
 	vslvm_test_chunk_data.c \

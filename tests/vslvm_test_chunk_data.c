@@ -315,8 +315,6 @@ on_error:
 int vslvm_test_chunk_data_read_file_io_pool(
      void )
 {
-	uint8_t test_data[ 512 ];
-
 	libbfio_pool_t *file_io_pool      = NULL;
 	libcerror_error_t *error          = NULL;
 	libvslvm_chunk_data_t *chunk_data = NULL;
