@@ -1,6 +1,6 @@
 AM_CPPFLAGS = \
-	-I$(top_srcdir)/include \
-	-I$(top_srcdir)/common \
+	-I../include -I$(top_srcdir)/include \
+	-I../common -I$(top_srcdir)/common \
 	@LIBCERROR_CPPFLAGS@ \
 	@LIBCTHREADS_CPPFLAGS@ \
 	@LIBCDATA_CPPFLAGS@ \
@@ -79,13 +79,11 @@ EXTRA_DIST = \
 	libvslvm.rc \
 	libvslvm.rc.in
 
-MAINTAINERCLEANFILES = \
+DISTCLEANFILES = \
+	libvslvm_definitions.h \
+	libvslvm.rc \
+	Makefile \
 	Makefile.in
-
-distclean: clean
-	-rm -f libvslvm_definitions.h
-	-rm -f libvslvm.rc
-	-rm -f Makefile
 
 sources-local: $(BUILT_SOURCES)
 

@@ -133,6 +133,7 @@ stamp-h[1-9]
 /vslvmtools/vslvmmount
 /tests/*.exe
 /tests/input
+/tests/notify_stream.log
 /tests/tmp*
 /tests/vslvm_test_checksum
 /tests/vslvm_test_chunk_data

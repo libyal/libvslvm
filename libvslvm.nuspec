@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>libvslvm</id>
-    <version>20240301</version>
+    <version>20240504</version>
     <authors>Joachim Metz</authors>
     <owners>joachimmetz</owners>
     <license type="expression">LGPL-3.0-or-later</license>
@@ -10,7 +10,7 @@
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <title>libvslvm</title>
     <description>Library to access the Linux Logical Volume Manager (LVM) volume system</description>
-    <releaseNotes>Release of libvslvm 20240301</releaseNotes>
+    <releaseNotes>Release of libvslvm 20240504</releaseNotes>
     <copyright>Copyright (C) 2014-2024</copyright>
     <tags>native</tags>
   </metadata>

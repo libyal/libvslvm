@@ -6,9 +6,7 @@ EXTRA_DIST = \
 	vslvminfo.1 \
 	libvslvm.3
 
-MAINTAINERCLEANFILES = \
+DISTCLEANFILES = \
+	Makefile \
 	Makefile.in
-
-distclean: clean
-	-rm -f Makefile
 

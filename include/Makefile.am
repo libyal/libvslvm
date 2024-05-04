@@ -15,13 +15,11 @@ EXTRA_DIST = \
 	libvslvm/features.h.in \
 	libvslvm/types.h.in
 
-MAINTAINERCLEANFILES = \
+DISTCLEANFILES = \
+	libvslvm.h \
+	libvslvm/definitions.h \
+	libvslvm/features.h \
+	libvslvm/types.h \
+	Makefile \
 	Makefile.in
-
-distclean: clean
-	-rm -f libvslvm.h
-	-rm -f libvslvm/definitions.h
-	-rm -f libvslvm/features.h
-	-rm -f libvslvm/types.h
-	-rm -f Makefile
 
