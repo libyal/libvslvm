@@ -1,5 +1,5 @@
 /*
- * Shows information obtained from a Linux Logical Volume Manager (LVM) volume system
+ * Shows information obtained from a Linux Logical Volume Manager (LVM) volume system.
  *
  * Copyright (C) 2014-2024, Joachim Metz <joachim.metz@gmail.com>
  *
@@ -52,7 +52,7 @@
 info_handle_t *vslvminfo_info_handle = NULL;
 int vslvminfo_abort                  = 0;
 
-/* Prints the executable usage information
+/* Prints usage information
  */
 void usage_fprint(
       FILE *stream )
