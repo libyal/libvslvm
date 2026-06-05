@@ -31,14 +31,17 @@
  */
 #if defined( LIBVSLVM_DLL_EXPORT )
 #define LIBVSLVM_EXTERN __declspec(dllexport)
+#define LIBVSLVM_EXTERN_VARIABLE extern __declspec(dllexport)
 
 #elif defined( LIBVSLVM_DLL_IMPORT )
-#define LIBVSLVM_EXTERN extern __declspec(dllimport)
+#define LIBVSLVM_EXTERN __declspec(dllimport)
+#define LIBVSLVM_EXTERN_VARIABLE extern __declspec(dllimport)
 
 #else
 #define LIBVSLVM_EXTERN extern
+#define LIBVSLVM_EXTERN_VARIABLE extern
 
-#endif
+#endif /* defined( LIBVSLVM_DLL_EXPORT ) */
 
 #endif /* !defined( _LIBVSLVM_EXTERN_H ) */
 

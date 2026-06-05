@@ -24,21 +24,28 @@
 
 #include <common.h>
 
+#if !defined( __CYGWIN__ ) && !defined( _WIN32 ) && defined( __has_attribute )
+#if __has_attribute( visibility )
+#define LIBVSLVM_INTERNAL	__attribute__((visibility("hidden"))) extern
+
+#else
+#define LIBVSLVM_INTERNAL	extern
+
+#endif /* __has_attribute( visibility ) */
+#else
+#define LIBVSLVM_INTERNAL	extern
+
+#endif /* !defined( __CYGWIN__ ) && !defined( _WIN32 ) && defined( __has_attribute ) */
+
 /* Define HAVE_LOCAL_LIBVSLVM for local use of libvslvm
  */
 #if !defined( HAVE_LOCAL_LIBVSLVM )
 
 #include <libvslvm/extern.h>
 
-#if defined( __CYGWIN__ ) || defined( __MINGW32__ )
-#define LIBVSLVM_EXTERN_VARIABLE	extern
-#else
-#define LIBVSLVM_EXTERN_VARIABLE	LIBVSLVM_EXTERN
-#endif
-
 #else
 #define LIBVSLVM_EXTERN		/* extern */
-#define LIBVSLVM_EXTERN_VARIABLE	extern
+#define LIBVSLVM_EXTERN_VARIABLE	LIBVSLVM_INTERNAL
 
 #endif /* !defined( HAVE_LOCAL_LIBVSLVM ) */
 

@@ -19,6 +19,10 @@ AM_CPPFLAGS = \
 	@PTHREAD_CPPFLAGS@ \
 	@LIBVSLVM_DLL_IMPORT@
 
+AM_TESTS_ENVIRONMENT = \
+	export PYTHON="@PYTHON@"; \
+	export TESTS_USE_WINAPI="@TESTS_USE_WINAPI@";
+
 if HAVE_PYTHON_TESTS
 TESTS_PYVSLVM = \
 	test_python_module.sh
@@ -312,7 +316,8 @@ vslvm_test_tools_output_SOURCES = \
 
 vslvm_test_tools_output_LDADD = \
 	../libvslvm/libvslvm.la \
-	@LIBCERROR_LIBADD@
+	@LIBCERROR_LIBADD@ \
+	@LIBINTL@
 
 vslvm_test_tools_signal_SOURCES = \
 	../vslvmtools/vslvmtools_signal.c ../vslvmtools/vslvmtools_signal.h \
