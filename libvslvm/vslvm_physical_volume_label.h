@@ -80,12 +80,12 @@ typedef struct vslvm_data_area_descriptor vslvm_data_area_descriptor_t;
 
 struct vslvm_data_area_descriptor
 {
-	/* The offset 
+	/* The offset
 	 * Consists of 8 bytes
 	 */
 	uint8_t offset[ 8 ];
 
-	/* The size 
+	/* The size
 	 * Consists of 8 bytes
 	 */
 	uint8_t size[ 8 ];
