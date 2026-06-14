@@ -547,7 +547,7 @@ int mount_handle_open(
 	libbfio_pool_t *physical_volume_file_io_pool     = NULL;
 	libvslvm_handle_t *handle                        = NULL;
 	libvslvm_logical_volume_t *logical_volume        = NULL;
-	system_character_t *basename_end                 = NULL;
+	const system_character_t *basename_end           = NULL;
 	static char *function                            = "mount_handle_open";
 	size_t basename_length                           = 0;
 	size_t filename_length                           = 0;
