@@ -1066,7 +1066,7 @@ int libvslvm_physical_volume_get_data_area_descriptor(
  */
 int libvslvm_physical_volume_get_data_area_descriptor_by_offset(
      libvslvm_physical_volume_t *physical_volume,
-     uint64_t offset,
+     uint64_t offset LIBVSLVM_ATTRIBUTE_UNUSED,
      libvslvm_data_area_descriptor_t **data_area_descriptor,
      libcerror_error_t **error )
 {
@@ -1074,6 +1074,8 @@ int libvslvm_physical_volume_get_data_area_descriptor_by_offset(
 	static char *function                                         = "libvslvm_physical_volume_get_data_area_descriptor_by_offset";
 	int data_area_descriptor_index                                = 0;
 	int number_of_data_area_descriptors                           = 0;
+
+	LIBVSLVM_UNREFERENCED_PARAMETER( offset )
 
 	if( physical_volume == NULL )
 	{

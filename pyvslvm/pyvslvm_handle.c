@@ -399,7 +399,7 @@ PyObject *pyvslvm_handle_open(
 	int result                   = 0;
 
 #if defined( HAVE_WIDE_SYSTEM_CHARACTER )
-	const wchar_t *filename_wide = NULL;
+	wchar_t *filename_wide       = NULL;
 #else
 	PyObject *utf8_string_object = NULL;
 #endif
@@ -769,8 +769,10 @@ PyObject *pyvslvm_handle_open_physical_volume_files(
 	int number_of_filenames          = 0;
 	int result                       = 0;
 
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 #if PY_MAJOR_VERSION >= 3 && PY_MINOR_VERSION >= 3
 	wchar_t *filename_wide           = NULL;
+#endif
 #endif
 
 	if( pyvslvm_handle == NULL )
