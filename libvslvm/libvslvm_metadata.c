@@ -439,7 +439,7 @@ on_error:
 }
 
 /* Reads the volume group
- * Returns the 1 if succesful or -1 on error
+ * Returns the 1 if successful or -1 on error
  */
 int libvslvm_metadata_read_volume_group(
      libvslvm_metadata_t *metadata,
@@ -1144,7 +1144,7 @@ on_error:
 }
 
 /* Reads the physical volumes
- * Returns the 1 if succesful or -1 on error
+ * Returns the 1 if successful or -1 on error
  */
 int libvslvm_metadata_read_physical_volumes(
      libvslvm_metadata_t *metadata,
@@ -1409,7 +1409,7 @@ int libvslvm_metadata_read_physical_volumes(
 }
 
 /* Reads the physical volume
- * Returns the 1 if succesful or -1 on error
+ * Returns the 1 if successful or -1 on error
  */
 int libvslvm_metadata_read_physical_volume(
      libvslvm_metadata_t *metadata,
@@ -2037,7 +2037,7 @@ on_error:
 }
 
 /* Reads the logical volumes
- * Returns the 1 if succesful or -1 on error
+ * Returns the 1 if successful or -1 on error
  */
 int libvslvm_metadata_read_logical_volumes(
      libvslvm_metadata_t *metadata,
@@ -2302,7 +2302,7 @@ int libvslvm_metadata_read_logical_volumes(
 }
 
 /* Reads the logical volume
- * Returns the 1 if succesful or -1 on error
+ * Returns the 1 if successful or -1 on error
  */
 int libvslvm_metadata_read_logical_volume(
      libvslvm_metadata_t *metadata,
@@ -2868,7 +2868,7 @@ on_error:
 }
 
 /* Reads the segment
- * Returns the 1 if succesful or -1 on error
+ * Returns the 1 if successful or -1 on error
  */
 int libvslvm_metadata_read_segment(
      libvslvm_metadata_t *metadata,
@@ -3521,7 +3521,7 @@ on_error:
 }
 
 /* Reads the stripes list
- * Returns the 1 if succesful or -1 on error
+ * Returns the 1 if successful or -1 on error
  */
 int libvslvm_metadata_read_stripes_list(
      libvslvm_metadata_t *metadata,
