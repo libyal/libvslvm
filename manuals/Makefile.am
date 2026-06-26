@@ -1,10 +1,10 @@
 man_MANS = \
 	vslvminfo.1 \
+	vslvmmount.1 \
 	libvslvm.3
 
 EXTRA_DIST = \
-	vslvminfo.1 \
-	libvslvm.3
+	$(man_MANS)
 
 DISTCLEANFILES = \
 	Makefile \

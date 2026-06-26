@@ -1,21 +1,21 @@
 .Dd June 26, 2026
-.Dt VSLVMINFO 1
+.Dt VSLVMMOUNT 1
 .Os
 .Sh NAME
-.Nm vslvminfo
-.Nd determines information about a Linux Logical Volume Manager (LVM) volume \
-system
+.Nm vslvmmount
+.Nd mounts a Linux Logical Volume Manager (LVM) volume system
 .Sh SYNOPSIS
-.Nm vslvminfo
+.Nm vslvmmount
 .Op Fl o Ar offset
+.Op Fl X Ar extended_options
 .Op Fl hvV
 .Ar source
+.Ar mount_point
 .Sh DESCRIPTION
-.Nm vslvminfo
-is a utility to determine information about a Linux Logical Volume Manager \
-(LVM) volume system
+.Nm vslvmmount
+is a utility to mount a Linux Logical Volume Manager (LVM) volume system
 .Pp
-.Nm vslvminfo
+.Nm vslvmmount
 is part of the
 .Nm libvslvm
 package.
@@ -24,7 +24,9 @@ is a library to access the Linux Logical Volume Manager (LVM) volume system \
 format
 .Pp
 .Ar source
-is the source volume.
+a Linux Logical Volume Manager (LVM) volume system
+.Ar mount_point
+the directory to serve as mount point
 .Pp
 The options are as follows:
 .Bl -tag -width Ds
@@ -33,9 +35,11 @@ shows this help
 .It Fl o Ar offset
 specify the volume offset in bytes
 .It Fl v
-verbose output to stderr
+verbose output to stderr, while vslvmmount will remain running in the foreground
 .It Fl V
 print version
+.It Fl X Ar extended_options
+extended options to pass to sub system
 .El
 .Sh ENVIRONMENT
 None
@@ -43,35 +47,8 @@ None
 None
 .Sh EXAMPLES
 .Bd -literal
-# vslvminfo /dev/sda1
-vslvminfo 20260626
-.sp
-Linux Logical Volume Manager (LVM) information:
-Volume Group (VG):
-	Name:					vg_test
-	Identifier:				5eR8zl-q5VX-Qtiw-FmDd-6yBE-I8qe-0sjQf9
-	Sequence number:			4
-	Extent size:				4194304 bytes
-	Number of physical volumes:		1
-	Number of logical volumes:		1
-.sp
-Physical Volume (PV): 1
-	Name:					pv0
-	Identifier:				2TdWwb-R5um-UZnU-3Yb6-K2MF-bTtr-AgVQfp
-	Device path:				/dev/loop1
-	Volume size:				268435456 bytes
-.sp
-Logical Volume (LV): 1
-	Name:					lv_test1
-	Identifier:				Lt5rVq-Ksgd-p8kx-XYP4-6uTq-Mlh4-yxOiL4
-	Number of segments:			1
-	Segment: 1
-		Offset:				0x00000000 (0)
-		Size:				76 MiB (79691776 bytes)
-		Number of stripes:		1
-		Stripe: 1
-			Physical volume:	pv0
-			Data area offset:	0x00000000 (0)
+# vslvmmount /dev/sda1
+vslvmmount 20260626
 .sp
 .Ed
 .Sh DIAGNOSTICS
@@ -79,7 +56,7 @@ Errors, verbose and debug output are printed to stderr when verbose output \
 \-v is enabled.
 Verbose and debug output are only printed when enabled at compilation.
 .Sh SEE ALSO
-.Xr vslvmmount 1
+.Xr vslvminfo 1
 .Sh AUTHORS
 .An Joachim Metz <joachim.metz@gmail.com>
 .Sh BUGS

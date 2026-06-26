@@ -2,7 +2,7 @@ AC_PREREQ([2.71])
 
 AC_INIT(
   [libvslvm],
-  [20260622],
+  [20260626],
   [https://github.com/libyal/libvslvm/issues])
 
 AC_CONFIG_SRCDIR(
