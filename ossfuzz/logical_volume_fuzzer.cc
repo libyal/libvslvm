@@ -57,13 +57,21 @@ int LLVMFuzzerTestOneInput(
      const uint8_t *data,
      size_t size )
 {
+	uint8_t buffer[ 512 ];
+	char string[ 64 ];
+
 	libbfio_handle_t *file_io_handle          = NULL;
 	libbfio_pool_t *file_io_pool              = NULL;
 	libvslvm_handle_t *handle                 = NULL;
 	libvslvm_logical_volume_t *logical_volume = NULL;
 	libvslvm_volume_group_t *volume_group     = NULL;
+	off64_t volume_offset                     = 0;
+	size64_t volume_size                      = 0;
+	size_t string_size                        = 0;
 	int entry_index                           = 0;
 	int number_of_logical_volumes             = 0;
+	int number_of_segments                    = 0;
+	int read_iterator                         = 0;
 
 	if( libbfio_memory_range_initialize(
 	     &file_io_handle,
@@ -139,12 +147,77 @@ int LLVMFuzzerTestOneInput(
 			     volume_group,
 			     0,
 			     &logical_volume,
-			     NULL ) == 1 )
+			     NULL ) != 1 )
 			{
-				libvslvm_logical_volume_free(
-				 &logical_volume,
-				 NULL );
+				goto on_error_libvslvm_volume_group;
 			}
+			if( libvslvm_logical_volume_get_name_size(
+			     logical_volume,
+			     &string_size,
+			     NULL ) != 1 )
+			{
+				goto on_error_libvslvm_logical_volume;
+			}
+			if( libvslvm_logical_volume_get_name(
+			     logical_volume,
+			     string,
+			     64,
+			     NULL ) != 1 )
+			{
+				goto on_error_libvslvm_logical_volume;
+			}
+			if( libvslvm_logical_volume_get_identifier_size(
+			     logical_volume,
+			     &string_size,
+			     NULL ) != 1 )
+			{
+				goto on_error_libvslvm_logical_volume;
+			}
+			if( libvslvm_logical_volume_get_identifier(
+			     logical_volume,
+			     string,
+			     64,
+			     NULL ) != 1 )
+			{
+				goto on_error_libvslvm_logical_volume;
+			}
+			if( libvslvm_logical_volume_get_number_of_segments(
+			     logical_volume,
+			     &number_of_segments,
+			     NULL ) != 1 )
+			{
+				goto on_error_libvslvm_logical_volume;
+			}
+			if( libvslvm_logical_volume_get_size(
+			     logical_volume,
+			     &volume_size,
+			     NULL ) != 1 )
+			{
+				goto on_error_libvslvm_logical_volume;
+			}
+			for( read_iterator = 0;
+			     read_iterator < 128;
+			     read_iterator++ )
+			{
+				if( volume_offset >= volume_size )
+				{
+					break;
+				}
+				if( libvslvm_logical_volume_read_buffer_at_offset(
+				     logical_volume,
+				     buffer,
+				     497,
+				     volume_offset,
+				     NULL ) == -1 )
+				{
+					goto on_error_libvslvm_logical_volume;
+				}
+				volume_offset += 497;
+			}
+on_error_libvslvm_logical_volume:
+			libvslvm_logical_volume_free(
+			 &logical_volume,
+			 NULL );
 		}
 on_error_libvslvm_volume_group:
 		libvslvm_volume_group_free(
