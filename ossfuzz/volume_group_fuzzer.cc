@@ -1,5 +1,5 @@
 /*
- * OSS-Fuzz target for libvslvm logical volume type
+ * OSS-Fuzz target for libvslvm volume group type
  *
  * Copyright (C) 2014-2026, Joachim Metz <joachim.metz@gmail.com>
  *
@@ -57,21 +57,17 @@ int LLVMFuzzerTestOneInput(
      const uint8_t *data,
      size_t size )
 {
-	uint8_t buffer[ 512 ];
 	char string[ 64 ];
 
-	libbfio_handle_t *file_io_handle          = NULL;
-	libbfio_pool_t *file_io_pool              = NULL;
-	libvslvm_handle_t *handle                 = NULL;
-	libvslvm_logical_volume_t *logical_volume = NULL;
-	libvslvm_volume_group_t *volume_group     = NULL;
-	off64_t volume_offset                     = 0;
-	size64_t volume_size                      = 0;
-	size_t string_size                        = 0;
-	int entry_index                           = 0;
-	int number_of_logical_volumes             = 0;
-	int number_of_segments                    = 0;
-	int read_iterator                         = 0;
+	libbfio_handle_t *file_io_handle      = NULL;
+	libbfio_pool_t *file_io_pool          = NULL;
+	libvslvm_handle_t *handle             = NULL;
+	libvslvm_volume_group_t *volume_group = NULL;
+	size64_t extent_size                  = 0;
+	size_t string_size                    = 0;
+	uint32_t value_32bit                  = 0;
+	int entry_index                       = 0;
+	int number_of_volumes                 = 0;
 
 	if( libbfio_memory_range_initialize(
 	     &file_io_handle,
@@ -134,90 +130,63 @@ int LLVMFuzzerTestOneInput(
 	     &volume_group,
 	     NULL ) == 1 )
 	{
-		if( libvslvm_volume_group_get_number_of_logical_volumes(
+		if( libvslvm_volume_group_get_name_size(
 		     volume_group,
-		     &number_of_logical_volumes,
+		     &string_size,
 		     NULL ) != 1 )
 		{
 			goto on_error_libvslvm_volume_group;
 		}
-		if( number_of_logical_volumes > 0 )
+		if( libvslvm_volume_group_get_name(
+		     volume_group,
+		     string,
+		     64,
+		     NULL ) != 1 )
 		{
-			if( libvslvm_volume_group_get_logical_volume(
-			     volume_group,
-			     0,
-			     &logical_volume,
-			     NULL ) != 1 )
-			{
-				goto on_error_libvslvm_volume_group;
-			}
-			if( libvslvm_logical_volume_get_name_size(
-			     logical_volume,
-			     &string_size,
-			     NULL ) != 1 )
-			{
-				goto on_error_libvslvm_logical_volume;
-			}
-			if( libvslvm_logical_volume_get_name(
-			     logical_volume,
-			     string,
-			     64,
-			     NULL ) != 1 )
-			{
-				goto on_error_libvslvm_logical_volume;
-			}
-			if( libvslvm_logical_volume_get_identifier_size(
-			     logical_volume,
-			     &string_size,
-			     NULL ) != 1 )
-			{
-				goto on_error_libvslvm_logical_volume;
-			}
-			if( libvslvm_logical_volume_get_identifier(
-			     logical_volume,
-			     string,
-			     64,
-			     NULL ) != 1 )
-			{
-				goto on_error_libvslvm_logical_volume;
-			}
-			if( libvslvm_logical_volume_get_number_of_segments(
-			     logical_volume,
-			     &number_of_segments,
-			     NULL ) != 1 )
-			{
-				goto on_error_libvslvm_logical_volume;
-			}
-			if( libvslvm_logical_volume_get_size(
-			     logical_volume,
-			     &volume_size,
-			     NULL ) != 1 )
-			{
-				goto on_error_libvslvm_logical_volume;
-			}
-			for( read_iterator = 0;
-			     read_iterator < 128;
-			     read_iterator++ )
-			{
-				if( volume_offset >= volume_size )
-				{
-					break;
-				}
-				if( libvslvm_logical_volume_read_buffer_at_offset(
-				     logical_volume,
-				     buffer,
-				     497,
-				     volume_offset,
-				     NULL ) == -1 )
-				{
-					goto on_error_libvslvm_logical_volume;
-				}
-				volume_offset += 497;
-			}
-on_error_libvslvm_logical_volume:
-			libvslvm_logical_volume_free(
-			 &logical_volume,
-			 NULL );
+			goto on_error_libvslvm_volume_group;
+		}
+		if( libvslvm_volume_group_get_identifier_size(
+		     volume_group,
+		     &string_size,
+		     NULL ) != 1 )
+		{
+			goto on_error_libvslvm_volume_group;
+		}
+		if( libvslvm_volume_group_get_identifier(
+		     volume_group,
+		     string,
+		     64,
+		     NULL ) != 1 )
+		{
+			goto on_error_libvslvm_volume_group;
+		}
+		if( libvslvm_volume_group_get_sequence_number(
+		     volume_group,
+		     &value_32bit,
+		     NULL ) != 1 )
+		{
+			goto on_error_libvslvm_volume_group;
+		}
+		if( libvslvm_volume_group_get_extent_size(
+		     volume_group,
+		     &extent_size,
+		     NULL ) != 1 )
+		{
+			goto on_error_libvslvm_volume_group;
+		}
+		if( libvslvm_volume_group_get_number_of_physical_volumes(
+		     volume_group,
+		     &number_of_volumes,
+		     NULL ) != 1 )
+		{
+			goto on_error_libvslvm_volume_group;
+		}
+		if( libvslvm_volume_group_get_number_of_logical_volumes(
+		     volume_group,
+		     &number_of_volumes,
+		     NULL ) != 1 )
+		{
+			goto on_error_libvslvm_volume_group;
 		}
 on_error_libvslvm_volume_group:
 		libvslvm_volume_group_free(
