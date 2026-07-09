@@ -8,7 +8,7 @@
  *                 Linux  (uses FUSE  via vslvmmount).
  *
  * Windows usage: lvm_extract <lvm_image> <output_dir> [-v]
- *                [-t temp_folder] [-m path_to_vslvmmount.exe]
+ *                [-l log_file] [-t temp_folder] [-m path_to_vslvmmount.exe]
  *
  * POSIX usage:   lvm_extract <lvm_image> <output_dir> [-v]
  *                [-l log_file] [-t temp_folder] [-m path_to_vslvmmount]
@@ -46,20 +46,28 @@
 static FILE *g_log = NULL;
 
 static void lvm_extract_log_open(
-    void )
+    const wchar_t *log_file_path )
 {
     wchar_t log_path[ MAX_PATH ];
-    DWORD len = GetModuleFileNameW( NULL, log_path, MAX_PATH );
-    if( len == 0 )
+
+    if( log_file_path != NULL && log_file_path[ 0 ] != L'\0' )
     {
-        return;
+        _snwprintf( log_path, MAX_PATH, L"%s", log_file_path );
     }
-    wchar_t *last_slash = wcsrchr( log_path, L'\\' );
-    if( last_slash != NULL )
+    else
     {
-        *( last_slash + 1 ) = L'\0';
+        DWORD len = GetModuleFileNameW( NULL, log_path, MAX_PATH );
+        if( len == 0 )
+        {
+            return;
+        }
+        wchar_t *last_slash = wcsrchr( log_path, L'\\' );
+        if( last_slash != NULL )
+        {
+            *( last_slash + 1 ) = L'\0';
+        }
+        wcsncat( log_path, L"log.txt", MAX_PATH - (DWORD) wcslen( log_path ) - 1 );
     }
-    wcsncat( log_path, L"log.txt", MAX_PATH - (DWORD) wcslen( log_path ) - 1 );
     g_log = _wfsopen( log_path, L"a", _SH_DENYNO );
 }
 
@@ -300,12 +308,14 @@ static void lvm_extract_usage_w(
     FILE *stream )
 {
     fwprintf( stream,
-        L"Usage: lvm_extract <lvm_image> <output_dir> [-v] [-t temp_folder]"
-        L" [-m path_to_vslvmmount.exe]\n"
+        L"Usage: lvm_extract <lvm_image> <output_dir> [-v] [-l log_file]"
+        L" [-t temp_folder] [-m path_to_vslvmmount.exe]\n"
         L"\n"
         L"Options:\n"
-        L"  -v                       Enable verbose logging to log.txt\n"
+        L"  -v                       Enable verbose logging\n"
         L"  -h, --help               Show this help\n"
+        L"  -l log_file              Write logs to the specified file\n"
+        L"  --log-file log_file      Same as -l\n"
         L"  -t, --temp-folder PATH   Override the temporary mount base folder\n"
         L"  -m, --mount PATH         Use the specified vslvmmount.exe\n"
         L"\n"
@@ -329,6 +339,7 @@ int wmain(
     STARTUPINFOW        si;
     PROCESS_INFORMATION pi;
     const wchar_t      *explicit_mount    = NULL;
+    const wchar_t      *log_file_path     = NULL;
     const wchar_t      *temp_base         = NULL;
     int                 mount_wait        = LVM_EXTRACT_WAIT_FOR_MOUNT_ERROR;
     DWORD               exit_code         = 0;
@@ -365,6 +376,19 @@ int wmain(
         {
             lvm_extract_usage_w( stdout );
             return( 0 );
+        }
+        else if( wcscmp( argv[ argument_index ], L"-l" ) == 0
+              || wcscmp( argv[ argument_index ], L"--log-file" ) == 0 )
+        {
+            const wchar_t *option_name = argv[ argument_index ];
+            argument_index++;
+            if( argument_index >= argc )
+            {
+                fwprintf( stderr, L"Error: missing value for %s.\n", option_name );
+                return( 1 );
+            }
+            log_file_path = argv[ argument_index ];
+            verbose       = 1;
         }
         else if( wcscmp( argv[ argument_index ], L"-t" ) == 0
               || wcscmp( argv[ argument_index ], L"--temp-folder" ) == 0
@@ -404,10 +428,14 @@ int wmain(
 
     if( verbose != 0 )
     {
-        lvm_extract_log_open();
+        lvm_extract_log_open( log_file_path );
     }
     lvm_extract_log( L"Image : %s", lvm_image );
     lvm_extract_log( L"Output: %s", output_dir );
+    if( log_file_path != NULL )
+    {
+        lvm_extract_log( L"Log file: %s", log_file_path );
+    }
 
     if( !lvm_extract_file_exists_w( lvm_image ) )
     {
