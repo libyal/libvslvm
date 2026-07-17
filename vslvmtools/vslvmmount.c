@@ -557,6 +557,15 @@ int main( int argc, char * const argv[] )
 	vslvmmount_dokan_options.Options |= DOKAN_OPTION_REMOVABLE;
 */
 
+#if defined( DOKAN_OPTION_MOUNT_MANAGER )
+#pragma message( "DOKAN_OPTION_MOUNT_MANAGER is defined" )
+/* Register the mount with the Windows Mount Manager so that a directory
+ * mount point is visible across all sessions and access tokens, instead of
+ * being bound to the (possibly elevated) session that created it.
+ */
+	vslvmmount_dokan_options.Options |= DOKAN_OPTION_MOUNT_MANAGER;
+#endif
+
 #if ( DOKAN_VERSION >= 600 ) && ( DOKAN_VERSION < 800 )
 	vslvmmount_dokan_options.Options |= DOKAN_OPTION_KEEP_ALIVE;
 
