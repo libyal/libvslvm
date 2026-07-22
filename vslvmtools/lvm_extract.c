@@ -21,6 +21,7 @@
  *
  * If vslvmmount(.exe) is not specified it is looked up next to lvm_extract,
  * then on $PATH (POSIX only).
+ 
  * Temp dir priority: -t arg → %TMPDIR% → GetTempPathW() (Windows)
  *                    -t arg → $TMPDIR  → /tmp           (POSIX)
  */
@@ -68,7 +69,7 @@ static void lvm_extract_log_open(
         }
         wcsncat( log_path, L"log.txt", MAX_PATH - (DWORD) wcslen( log_path ) - 1 );
     }
-    g_log = _wfsopen( log_path, L"a", _SH_DENYNO );
+    g_log = _wfsopen( log_path, L"a", _SH_DENYWR );
 }
 
 static void lvm_extract_log_close(
@@ -345,7 +346,6 @@ int wmain(
     DWORD               exit_code         = 0;
     int                 result            = 0;
     int                 verbose           = 0;
-    int                 created_temp_base = 0;
 
     if( argc == 2
      && ( wcscmp( argv[ 1 ], L"-h" ) == 0
@@ -515,42 +515,19 @@ int wmain(
 
     if( temp_base != NULL && temp_base[ 0 ] != L'\0' )
     {
-        if( CreateDirectoryW( tmp_clean, NULL ) )
+        /* Temp base must be created by the user beforehand; do not create it. */
+        DWORD attrs = GetFileAttributesW( tmp_clean );
+        if( attrs == INVALID_FILE_ATTRIBUTES
+         || !( attrs & FILE_ATTRIBUTE_DIRECTORY ) )
         {
-            created_temp_base = 1;
+            fwprintf( stderr,
+                      L"Error: temp directory '%s' does not exist; create it beforehand.\n",
+                      tmp_clean );
+            lvm_extract_log( L"Error: temp directory '%s' does not exist", tmp_clean );
+            lvm_extract_log_close();
+            return( 1 );
         }
-        else
-        {
-            DWORD   err = GetLastError();
-            wchar_t err_msg[ 512 ];
-            lvm_extract_format_error_w( err, err_msg, 512 );
-            if( err != ERROR_ALREADY_EXISTS )
-            {
-                wchar_t parent[ MAX_PATH ];
-                DWORD   parent_attrs;
-                _snwprintf( parent, MAX_PATH, L"%s\\..", tmp_clean );
-                parent_attrs = GetFileAttributesW( parent );
-                fwprintf( stderr,
-                          L"Error: cannot create temp directory '%s': %s (code %u)\n",
-                          tmp_clean, err_msg, err );
-                if( parent_attrs == INVALID_FILE_ATTRIBUTES )
-                {
-                    fwprintf( stderr,
-                              L"  Note: parent directory does not appear to exist.\n" );
-                }
-                else if( err == ERROR_ACCESS_DENIED )
-                {
-                    fwprintf( stderr,
-                              L"  Note: access denied — check write permissions on parent directory.\n" );
-                }
-                lvm_extract_log( L"Error: cannot create temp directory '%s': %s (code %u)",
-                                 tmp_clean, err_msg, err );
-                lvm_extract_log_close();
-                return( 1 );
-            }
-        }
-        lvm_extract_log( L"Temp base %s: %s",
-                         created_temp_base ? L"created" : L"verified", tmp_clean );
+        lvm_extract_log( L"Temp base verified: %s", tmp_clean );
     }
 
     /* Create a unique temporary mount point. */
@@ -641,10 +618,14 @@ int wmain(
         return( 1 );
     }
 
+    Sleep( 5000 ); 
+
     /* Copy. */
     lvm_extract_log( L"Copying files..." );
     result = lvm_extract_copy_directory( mount_point, output_dir );
     lvm_extract_log( L"Copy %s", result == 0 ? L"complete" : L"completed with warnings" );
+
+    Sleep( 2000 );
 
     /* Unmount. */
     lvm_extract_log( L"Unmounting (PID %u)...", pi.dwProcessId );
@@ -653,11 +634,7 @@ int wmain(
     CloseHandle( pi.hProcess );
     Sleep( 2000 );
 
-    //lvm_extract_remove_directory(mount_point);
-    //if (created_temp_base)
-    //{
-    //    RemoveDirectoryW(tmp_clean);
-    //}
+    lvm_extract_remove_directory( mount_point );
     lvm_extract_log( L"Done (exit code 0)" );
     lvm_extract_log_close();
 
@@ -1207,7 +1184,6 @@ int main(
     const char *temp_base         = NULL;
     int        mount_status       = 0;
     int        mount_wait         = LVM_EXTRACT_WAIT_FOR_MOUNT_ERROR;
-    int        created_temp_base  = 0;
     int        mounted         = 0;
     int        result          = 0;
     int        verbose         = 0;
@@ -1338,27 +1314,18 @@ int main(
     lvm_extract_log( "Temp base: %s", tmp );
     if( temp_base != NULL && temp_base[ 0 ] != '\0' )
     {
-        if( mkdir( tmp, 0755 ) == 0 )
+        /* Temp base must be created by the user beforehand; do not create it. */
+        struct stat tb_st;
+        if( stat( tmp, &tb_st ) != 0 || !S_ISDIR( tb_st.st_mode ) )
         {
-            created_temp_base = 1;
-        }
-        else if( errno != EEXIST )
-        {
-            int         saved_errno = errno;
-            const char *hint        = lvm_extract_errno_hint( saved_errno );
-            fprintf( stderr, "Error: cannot create temp directory '%s': %s\n",
-                     tmp, strerror( saved_errno ) );
-            if( hint != NULL )
-            {
-                fprintf( stderr, "  Note: %s\n", hint );
-            }
-            lvm_extract_log( "Error: cannot create temp directory '%s': %s",
-                             tmp, strerror( saved_errno ) );
+            fprintf( stderr,
+                     "Error: temp directory '%s' does not exist; create it beforehand.\n",
+                     tmp );
+            lvm_extract_log( "Error: temp directory '%s' does not exist", tmp );
             lvm_extract_log_close();
             return( 1 );
         }
-        lvm_extract_log( "Temp base %s: %s",
-                         created_temp_base ? "created" : "verified", tmp );
+        lvm_extract_log( "Temp base verified: %s", tmp );
     }
     if( lvm_extract_create_mount_point( tmp, mount_point, sizeof( mount_point ) ) != 0 )
     {
@@ -1458,10 +1425,6 @@ int main(
     }
 
     lvm_extract_remove_directory( mount_point );
-    if( created_temp_base )
-    {
-        rmdir( temp_base );
-    }
     lvm_extract_log( "Done (exit code 0)" );
     lvm_extract_log_close();
 
