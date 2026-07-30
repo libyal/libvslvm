@@ -41,41 +41,9 @@
 #include <stdarg.h>
 #include <string.h>
 #include <tchar.h>
+#include <share.h>
 
 #define LVM_EXTRACT_PATH_MAX 4096
-
-/* Per-directory NTFS case sensitivity (Win10 1803+). The Win32 API exposes no
- * wrapper for it; fsutil sets it via NtSetInformationFile with the kernel-only
- * FileCaseSensitiveInformation class, so the pieces are declared here and the
- * function is resolved from ntdll.dll at runtime.
- */
-#ifndef FILE_CS_FLAG_CASE_SENSITIVE_DIR
-#define FILE_CS_FLAG_CASE_SENSITIVE_DIR 0x00000001
-#endif
-
-#define LVM_FILE_CASE_SENSITIVE_INFORMATION_CLASS 71
-
-typedef struct _LVM_IO_STATUS_BLOCK
-{
-    union
-    {
-        LONG  Status;
-        PVOID Pointer;
-    } u;
-    ULONG_PTR Information;
-} LVM_IO_STATUS_BLOCK;
-
-typedef struct _LVM_FILE_CASE_SENSITIVE_INFORMATION
-{
-    ULONG Flags;
-} LVM_FILE_CASE_SENSITIVE_INFORMATION;
-
-typedef LONG( NTAPI *lvm_NtSetInformationFile_t )(
-    HANDLE               FileHandle,
-    LVM_IO_STATUS_BLOCK *IoStatusBlock,
-    PVOID                FileInformation,
-    ULONG                Length,
-    int                  FileInformationClass );
 
 /* ------------------------------ Logging ------------------------------ */
 
@@ -196,97 +164,6 @@ static int lvm_extract_ensure_directory(
     return( -1 );
 }
 
-/* Enables per-directory case sensitivity on an NTFS directory so that names
- * differing only by case (E vs e) can coexist, matching the case-sensitive
- * source filesystem. Must be called before the directory is populated.
- * Returns 0 on success or -1 on failure (feature unavailable, disabled by policy,
- * insufficient privilege, or non-NTFS destination).
- */
-static int lvm_extract_enable_case_sensitive(
-    const wchar_t *path )
-{
-    static lvm_NtSetInformationFile_t NtSetInformationFile = NULL;
-    static int                        resolved             = 0;
-
-    LVM_FILE_CASE_SENSITIVE_INFORMATION info;
-    LVM_IO_STATUS_BLOCK                 iosb;
-    HANDLE                              h;
-    LONG                                status;
-
-    if( resolved == 0 )
-    {
-        HMODULE ntdll = GetModuleHandleW( L"ntdll.dll" );
-        if( ntdll != NULL )
-        {
-            NtSetInformationFile = (lvm_NtSetInformationFile_t) GetProcAddress(
-                                       ntdll, "NtSetInformationFile" );
-        }
-        resolved = 1;
-    }
-    if( NtSetInformationFile == NULL )
-    {
-        return( -1 );
-    }
-    h = CreateFileW( path,
-                     FILE_READ_ATTRIBUTES | FILE_WRITE_ATTRIBUTES,
-                     FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,
-                     NULL, OPEN_EXISTING,
-                     FILE_FLAG_BACKUP_SEMANTICS, NULL );
-    if( h == INVALID_HANDLE_VALUE )
-    {
-        return( -1 );
-    }
-    info.Flags = FILE_CS_FLAG_CASE_SENSITIVE_DIR;
-    ZeroMemory( &iosb, sizeof( iosb ) );
-
-    status = NtSetInformationFile( h, &iosb, &info, sizeof( info ),
-                                   LVM_FILE_CASE_SENSITIVE_INFORMATION_CLASS );
-    CloseHandle( h );
-
-    /* NT_SUCCESS: status >= 0 */
-    return( status >= 0 ? 0 : -1 );
-}
-
-/* Determines whether a name only differs by case from a sibling in src_dir,
- * and is the lowercase variant of the pair.
- * The mounted Linux filesystem is case-sensitive so E/ and e/ are distinct, but
- * the NTFS destination is case-insensitive and would merge them. The lowercase
- * variant (ASCII 'a' > 'A', so the case-sensitively greater name) is suffixed
- * with "__" to keep both on the destination.
- * Returns 1 if the name should be suffixed or 0 if not.
- * ponytail: O(n) per entry -> O(n^2) per directory; fine for real trees, not tuned for huge dirs.
- */
-static int lvm_extract_name_is_lower_collision(
-    const wchar_t *src_dir,
-    const wchar_t *name )
-{
-    wchar_t          search_path[ LVM_EXTRACT_PATH_MAX ];
-    WIN32_FIND_DATAW fd;
-    HANDLE           hFind;
-    int              needs_suffix = 0;
-
-    _snwprintf( search_path, LVM_EXTRACT_PATH_MAX, L"%s\\*", src_dir );
-    hFind = FindFirstFileW( search_path, &fd );
-    if( hFind == INVALID_HANDLE_VALUE )
-    {
-        return( 0 );
-    }
-    do
-    {
-        if( _wcsicmp( fd.cFileName, name ) == 0
-         && wcscmp( fd.cFileName, name ) != 0
-         && wcscmp( name, fd.cFileName ) > 0 )
-        {
-            needs_suffix = 1;
-            break;
-        }
-    }
-    while( FindNextFileW( hFind, &fd ) );
-
-    FindClose( hFind );
-    return( needs_suffix );
-}
-
 static int lvm_extract_copy_directory(
     const wchar_t *src_dir,
     const wchar_t *dst_dir,
@@ -297,8 +174,9 @@ static int lvm_extract_copy_directory(
     wchar_t          dst_path[ LVM_EXTRACT_PATH_MAX ];
     WIN32_FIND_DATAW fd;
     HANDLE           hFind;
-    int              result         = 0;
-    int              case_sensitive = 0;
+    int              result = 0;
+    int              seq;
+    DWORD            err;
 
     if( lvm_extract_ensure_directory( dst_dir ) != 0 )
     {
@@ -306,12 +184,9 @@ static int lvm_extract_copy_directory(
                          dst_dir, GetLastError() );
         return( -1 );
     }
-    /* Prefer native case sensitivity so real names are preserved; the "__"
-     * suffix is only used where this could not be enabled.
-     */
-    case_sensitive = ( lvm_extract_enable_case_sensitive( dst_dir ) == 0 );
 
     _snwprintf( search_path, LVM_EXTRACT_PATH_MAX, L"%s\\*", src_dir );
+    search_path[ LVM_EXTRACT_PATH_MAX - 1 ] = L'\0';
     hFind = FindFirstFileW( search_path, &fd );
     if( hFind == INVALID_HANDLE_VALUE )
     {
@@ -324,42 +199,138 @@ static int lvm_extract_copy_directory(
         {
             continue;
         }
-        _snwprintf( src_path, LVM_EXTRACT_PATH_MAX, L"%s\\%s", src_dir, fd.cFileName );
+        _snwprintf( src_path, LVM_EXTRACT_PATH_MAX, L"%s\\%s",
+                    src_dir, fd.cFileName );
 
-        if( case_sensitive == 0
-         && lvm_extract_name_is_lower_collision( src_dir, fd.cFileName ) )
-        {
-            _snwprintf( dst_path, LVM_EXTRACT_PATH_MAX, L"%s\\%s__", dst_dir, fd.cFileName );
-            lvm_extract_log( L"Case collision: %s renamed to %s__ on destination",
-                             fd.cFileName, fd.cFileName );
-        }
-        else
-        {
-            _snwprintf( dst_path, LVM_EXTRACT_PATH_MAX, L"%s\\%s", dst_dir, fd.cFileName );
-        }
-
-        if( fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY )
-        {
-            if( lvm_extract_copy_directory( src_path, dst_path, file_count ) != 0 )
-            {
-                result = -1;
-            }
-        }
-        else if( fd.dwFileAttributes & FILE_ATTRIBUTE_REPARSE_POINT )
+        if( fd.dwFileAttributes & FILE_ATTRIBUTE_REPARSE_POINT )
         {
             lvm_extract_log( L"Error: %s is a symlink, refusing to copy",
                              src_path );
             result = -1;
+            continue;
+        }
+        _snwprintf( dst_path, LVM_EXTRACT_PATH_MAX, L"%s\\%s",
+                    dst_dir, fd.cFileName );
+
+        if( fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY )
+        {
+            int dir_ok = 1;
+
+            if( !CreateDirectoryW( dst_path, NULL ) )
+            {
+                err = GetLastError();
+                if( err == ERROR_ALREADY_EXISTS
+                 || err == ERROR_FILE_EXISTS
+                 || ( err == ERROR_ACCESS_DENIED
+                      && GetFileAttributesW( dst_path ) != INVALID_FILE_ATTRIBUTES ) )
+                {
+                    dir_ok = 0;
+                    for( seq = 1; seq <= 10; seq++ )
+                    {
+                        _snwprintf( dst_path, LVM_EXTRACT_PATH_MAX,
+                                    L"%s\\%s__%d", dst_dir, fd.cFileName, seq );
+                        if( CreateDirectoryW( dst_path, NULL ) )
+                        {
+                            lvm_extract_log(
+                                L"Case collision: %s renamed to %s__%d",
+                                fd.cFileName, fd.cFileName, seq );
+                            dir_ok = 1;
+                            break;
+                        }
+                        err = GetLastError();
+                        if( err != ERROR_ALREADY_EXISTS
+                         && err != ERROR_FILE_EXISTS
+                         && !( err == ERROR_ACCESS_DENIED
+                               && GetFileAttributesW( dst_path ) != INVALID_FILE_ATTRIBUTES ) )
+                        {
+                            lvm_extract_log(
+                                L"Error: CreateDirectory failed %s (%u)",
+                                dst_path, err );
+                            result = -1;
+                            break;
+                        }
+                    }
+                    if( dir_ok == 0 && result == 0 )
+                    {
+                        lvm_extract_log(
+                            L"Error: too many collisions for %s",
+                            fd.cFileName );
+                        result = -1;
+                    }
+                }
+                else
+                {
+                    lvm_extract_log(
+                        L"Error: CreateDirectory failed %s (%u)",
+                        dst_path, err );
+                    result = -1;
+                    dir_ok = 0;
+                }
+            }
+            if( dir_ok )
+            {
+                if( lvm_extract_copy_directory( src_path, dst_path, file_count ) != 0 )
+                {
+                    result = -1;
+                }
+            }
         }
         else
         {
-            if( !CopyFileW( src_path, dst_path, FALSE ) )
+            int copied = 0;
+
+            if( !CopyFileW( src_path, dst_path, TRUE ) )
             {
-                lvm_extract_log( L"Error: CopyFile failed %s -> %s (%u)",
-                                 src_path, dst_path, GetLastError() );
-                result = -1;
+                err = GetLastError();
+                if( err == ERROR_FILE_EXISTS
+                 || ( err == ERROR_ACCESS_DENIED
+                      && GetFileAttributesW( dst_path ) != INVALID_FILE_ATTRIBUTES ) )
+                {
+                    for( seq = 1; seq <= 10; seq++ )
+                    {
+                        _snwprintf( dst_path, LVM_EXTRACT_PATH_MAX,
+                                    L"%s\\%s__%d", dst_dir, fd.cFileName, seq );
+                        if( CopyFileW( src_path, dst_path, TRUE ) )
+                        {
+                            lvm_extract_log(
+                                L"Case collision: %s renamed to %s__%d",
+                                fd.cFileName, fd.cFileName, seq );
+                            copied = 1;
+                            break;
+                        }
+                        err = GetLastError();
+                        if( err != ERROR_FILE_EXISTS
+                         && !( err == ERROR_ACCESS_DENIED
+                               && GetFileAttributesW( dst_path ) != INVALID_FILE_ATTRIBUTES ) )
+                        {
+                            lvm_extract_log(
+                                L"Error: CopyFile failed %s -> %s (%u)",
+                                src_path, dst_path, err );
+                            result = -1;
+                            break;
+                        }
+                    }
+                    if( copied == 0 && result == 0 )
+                    {
+                        lvm_extract_log(
+                            L"Error: too many collisions for %s",
+                            fd.cFileName );
+                        result = -1;
+                    }
+                }
+                else
+                {
+                    lvm_extract_log(
+                        L"Error: CopyFile failed %s -> %s (%u)",
+                        src_path, dst_path, err );
+                    result = -1;
+                }
             }
-            else if( file_count != NULL )
+            else
+            {
+                copied = 1;
+            }
+            if( copied && file_count != NULL )
             {
                 ( *file_count )++;
             }
