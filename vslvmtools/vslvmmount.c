@@ -507,9 +507,14 @@ int main( int argc, char * const argv[] )
 
 		goto on_error;
 	}
+#if defined( HAVE_LIBFUSE3 )
 	fuse_unmount(
 	 vslvmmount_fuse_handle );
-
+#else
+	fuse_unmount(
+	 mount_point,
+	 vslvmmount_fuse_channel );
+#endif
 	fuse_destroy(
 	 vslvmmount_fuse_handle );
 
